@@ -1,13 +1,11 @@
-﻿using System.IO;
-
-namespace SMServer.Packets
+﻿namespace SMServer.Packets
 {
-    internal class ClientAccepted : IPacket
+    internal class Hello : IPacket
     {
-        public static readonly byte Id = 5;
+        public static readonly byte Id = 1;
 
         // Constructor
-        public ClientAccepted()
+        public Hello()
         {
         }
 
@@ -23,7 +21,7 @@ namespace SMServer.Packets
 
         protected override void Deserialize(BinaryReader reader)
         {
-            // ClientAccepted packet has no additional data to deserialize
+            // Hello packet has no additional data to deserialize
         }
     }
 }

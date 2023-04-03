@@ -1,27 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace SMServer.Packets
 {
     internal abstract class IPacket
     {
-        protected byte Id;
-        protected string Name
+        public static readonly byte Id = 0;
+        public string PacketName => GetType().Name;
+
+        public abstract byte[] Serialize();
+
+        public static IPacket? Deserialize(byte[] data)
         {
-            get
+            using (var stream = new MemoryStream(data))
+            using (var reader = new BinaryReader(stream))
             {
-                return this.GetType().Name;
+                var id = reader.ReadByte();
+                var packetType = GetPacketTypeById(id);
+
+                if (packetType == null)
+                    return null;
+
+                var packet = (IPacket?)Activator.CreateInstance(packetType);
+                packet?.Deserialize(reader);
+                return packet;
             }
         }
 
-        protected IPacket(byte id)
-        {
-            Id = id;
-        }
+        protected abstract void Deserialize(BinaryReader reader);
 
-        public abstract byte[] Serialize();
+        private static Type GetPacketTypeById(byte id)
+        {
+            return Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => t.IsSubclassOf(typeof(IPacket)))
+                .FirstOrDefault(t => t.GetField("Id")?.GetValue(null).Equals(id) == true);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using SMServer;
+using SMServer.Packets;
 using Steamworks;
 
 try
@@ -10,7 +11,6 @@ try
 catch (System.Exception e)
 {
     // Couldn't init for some reason (steam is closed etc)
-    // print error
     Console.WriteLine(e.Message);
 }
 
