@@ -67,16 +67,24 @@ namespace SMServer
                     723, // protocol ver
                     Packets.ServerInfo.EGamemode.FlatTerrain,
                     397817921, // seed
-                    0,
+                    0, // game tick
                     new Packets.ServerInfo.ModData[0],
                     new byte[0],
                     new Packets.ServerInfo.GenericData[0],
                     new Packets.ServerInfo.GenericData[0],
-                    0
+                    0 // flags
                 );
 
                 connection.SendMessage(serverinfo.Serialize());
                 //connection.Close(false, 1004, "Denied");
+            } // elseif packet Chesums
+            else if (msg is Checksums)
+            {
+                connection.SendMessage(new ChecksumAccepted().Serialize());
+            }
+            else if (msg is Character)
+            {
+                connection.SendMessage(new JoinConfirmation().Serialize());
             }
 
             Console.WriteLine(" Data: " + JsonSerializer.Serialize(msg));

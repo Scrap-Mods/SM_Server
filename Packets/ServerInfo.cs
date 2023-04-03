@@ -1,13 +1,6 @@
 ﻿using K4os.Compression.LZ4;
 using K4os.Compression.LZ4.Encoders;
 using K4os.Compression.LZ4.Streams;
-using System.Buffers.Binary;
-using System.IO.Compression;
-using System.Net;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Xml.Linq;
-using static SMServer.Packets.ServerInfo;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SMServer.Packets
 {
@@ -104,147 +97,103 @@ namespace SMServer.Packets
             this.Flags = flags;
         }
 
-        public class BigEndianBinaryWriter : BinaryWriter
+        public override void Serialize(ref BigEndianBinaryWriter writer)
         {
-            public BigEndianBinaryWriter(Stream output) : base(output) { }
+            base.Serialize(ref writer);
 
-            public override void Write(short value)
-            {
-                base.Write(IPAddress.HostToNetworkOrder(value));
-            }
-
-            public override void Write(int value)
-            {
-                base.Write(IPAddress.HostToNetworkOrder(value));
-            }
-
-            public override void Write(long value)
-            {
-                base.Write(IPAddress.HostToNetworkOrder(value));
-            }
-
-            public override void Write(ushort value)
-            {
-                base.Write((ushort)IPAddress.HostToNetworkOrder((short)value));
-            }
-
-            public override void Write(uint value)
-            {
-                base.Write((uint)IPAddress.HostToNetworkOrder((int)value));
-            }
-
-            public override void Write(ulong value)
-            {
-                base.Write((ulong)IPAddress.HostToNetworkOrder((long)value));
-            }
-        }
-
-        public override byte[] Serialize()
-        {
             using (var stream = new MemoryStream())
-            using (var writer = new BigEndianBinaryWriter(stream))
+            using (var writer2 = new BigEndianBinaryWriter(stream))
             {
-                // Write the packet ID and all the data except Id
-                //writer.Write(Id);
-                writer.Write(Version);
-                writer.Write((UInt32)Gamemode);
-                writer.Write(Seed);
-                writer.Write(GameTick);
+                writer2.Write(Version);
+                writer2.Write((UInt32)Gamemode);
+                writer2.Write(Seed);
+                writer2.Write(GameTick);
 
-                writer.Write((UInt32)MData.Length);
+                writer2.Write((UInt32)MData.Length);
                 foreach (var modData in MData)
                 {
-                    modData.Serialize(writer);
+                    modData.Serialize(writer2);
                 }
 
-                writer.Write((UInt32)SomeData.Length);
-                writer.Write(SomeData);
+                writer2.Write((UInt32)SomeData.Length);
+                writer2.Write(SomeData);
 
-                writer.Write((UInt32)SData.Length);
+                writer2.Write((UInt32)SData.Length);
                 foreach (var scriptData in SData)
                 {
-                    scriptData.Serialize(writer);
+                    scriptData.Serialize(writer2);
                 }
 
-                writer.Write((UInt32)GData.Length);
+                writer2.Write((UInt32)GData.Length);
                 foreach (var generictData in GData)
                 {
-                    generictData.Serialize(writer);
+                    generictData.Serialize(writer2);
                 }
 
-                writer.Write(Flags);
+                writer2.Write(Flags);
 
                 // Convert the MemoryStream to a byte array
-                byte[] uncompressedData = stream.ToArray();
-
-                // Compress the data using lz4
-                Span<byte> uncompressedDataSpan = new Span<byte>(uncompressedData);
-
-                int maximumOutputSize = LZ4Codec.MaximumOutputSize(uncompressedData.Length);
-                Span<byte> compressedDataSpan = new byte[maximumOutputSize];
-                int compressedDataSize = LZ4Codec.Encode(
-                    uncompressedDataSpan, compressedDataSpan, LZ4Level.L00_FAST);
-
-                byte[] compressedData = compressedDataSpan.Slice(0, compressedDataSize).ToArray();
-
-                // Prepend the packet ID to the compressed data
-                byte[] packetData = new byte[compressedData.Length + 1];
-                packetData[0] = Id;
-                Array.Copy(compressedData, 0, packetData, 1, compressedData.Length);
-
-                return packetData;
+                byte[] compressedData = LZ4.Compress(stream.ToArray());
+                writer.Write(compressedData);
             }
         }
 
 
         protected override void Deserialize(BinaryReader reader)
         {
-            //// Decompress the data using k40s LZ4
-            //using (var lz4Stream = LZ4Stream.Decode(reader.BaseStream))
-            //using (var decompressedStream = new MemoryStream())
-            //{
-            //    lz4Stream.CopyTo(decompressedStream);
-            //    decompressedStream.Seek(1, SeekOrigin.Begin);
+            // Read the compressed data from the stream
+            byte[] compressedData = reader.ReadBytes((int)(reader.BaseStream.Length - reader.BaseStream.Position));
 
-            //    using (var decompressedReader = new BinaryReader(decompressedStream))
-            //    {
-            //        // Read the deserialized data from the decompressed stream
-            //        Version = decompressedReader.ReadUInt32();
-            //        Gamemode = (EGamemode)decompressedReader.ReadUInt32();
-            //        Seed = decompressedReader.ReadUInt32();
-            //        GameTick = decompressedReader.ReadUInt32();
+            // Skip the packet ID at the beginning of the compressed data
+            byte[] uncompressedData = new byte[compressedData.Length - 1];
+            Array.Copy(compressedData, 1, uncompressedData, 0, uncompressedData.Length);
 
-            //        var modDataCount = decompressedReader.ReadUInt32();
-            //        MData = new ModData[modDataCount];
-            //        for (var i = 0; i < modDataCount; i++)
-            //        {
-            //            MData[i] = new ModData();
-            //            MData[i].Deserialize(decompressedReader);
-            //        }
+            // Decompress the data using K4os LZ4
+            int uncompressedSize = (int)BitConverter.ToUInt32(compressedData, 1);
+            byte[] decompressedData = new byte[uncompressedSize];
+            LZ4Codec.Decode(uncompressedData, decompressedData);
 
-            //        var someDataCount = decompressedReader.ReadUInt32();
-            //        SomeData = decompressedReader.ReadBytes((int)someDataCount);
+            // Deserialize the decompressed data
+            using (var decompressedStream = new MemoryStream(decompressedData))
+            using (var decompressedReader = new BigEndianBinaryReader(decompressedStream))
+            {
+                // Read the deserialized data from the decompressed stream
+                Version = decompressedReader.ReadUInt32();
+                Gamemode = (EGamemode)decompressedReader.ReadUInt32();
+                Seed = decompressedReader.ReadUInt32();
+                GameTick = decompressedReader.ReadUInt32();
 
-            //        var scriptDataCount = decompressedReader.ReadUInt32();
-            //        SData = new GenericData[scriptDataCount];
-            //        for (var i = 0; i < scriptDataCount; i++)
-            //        {
-            //            SData[i] = new GenericData();
-            //            SData[i].Deserialize(decompressedReader);
-            //        }
+                var modDataCount = decompressedReader.ReadUInt32();
+                MData = new ModData[modDataCount];
+                for (var i = 0; i < modDataCount; i++)
+                {
+                    MData[i] = new ModData();
+                    MData[i].Deserialize(decompressedReader);
+                }
 
-            //        var genericDataCount = decompressedReader.ReadUInt32();
-            //        GData = new GenericData[genericDataCount];
-            //        for (var i = 0; i < genericDataCount; i++)
-            //        {
-            //            GData[i] = new GenericData();
-            //            GData[i].Deserialize(decompressedReader);
-            //        }
+                var someDataCount = decompressedReader.ReadUInt32();
+                SomeData = decompressedReader.ReadBytes((int)someDataCount);
 
-            //        Flags = decompressedReader.ReadByte();
-            //    }
-            //}
+                var scriptDataCount = decompressedReader.ReadUInt32();
+                SData = new GenericData[scriptDataCount];
+                for (var i = 0; i < scriptDataCount; i++)
+                {
+                    SData[i] = new GenericData();
+                    SData[i].Deserialize(decompressedReader);
+                }
+
+                var genericDataCount = decompressedReader.ReadUInt32();
+                GData = new GenericData[genericDataCount];
+                for (var i = 0; i < genericDataCount; i++)
+                {
+                    GData[i] = new GenericData();
+                    GData[i].Deserialize(decompressedReader);
+                }
+
+                Flags = decompressedReader.ReadByte();
+            }
         }
+
 
 
     }

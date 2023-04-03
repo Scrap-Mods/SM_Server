@@ -9,12 +9,18 @@ namespace SMServer.Packets
         public static readonly byte Id = 0;
         public string PacketName => GetType().Name;
 
-        public abstract byte[] Serialize();
+        public virtual void Serialize(ref BigEndianBinaryWriter writer)
+        {
+            writer.Write(Id);
+        }
+
+        protected abstract void Deserialize(BigEndianBinaryReader reader);
+
 
         public static IPacket? Deserialize(byte[] data)
         {
             using (var stream = new MemoryStream(data))
-            using (var reader = new BinaryReader(stream))
+            using (var reader = new BigEndianBinaryReader(stream))
             {
                 var id = reader.ReadByte();
                 var packetType = GetPacketTypeById(id);
@@ -27,8 +33,6 @@ namespace SMServer.Packets
                 return packet;
             }
         }
-
-        protected abstract void Deserialize(BinaryReader reader);
 
         private static Type GetPacketTypeById(byte id)
         {

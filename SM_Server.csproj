@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,6 +8,19 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Packets\BinEndianBinaryWriter.cs" />
+    <Compile Remove="Packets\Checksum.cs" />
+    <Compile Remove="Packets\ChecksumAccepted - Copy %282%29.cs" />
+    <Compile Remove="Packets\ChecksumAccepted - Copy.cs" />
+    <Compile Remove="Packets\helper.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Packets\JoinConfirmation" />
+    <None Remove="Packets\NewFile1.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
