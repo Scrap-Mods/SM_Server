@@ -76,6 +76,7 @@ namespace SMServer
                 );
 
                 connection.SendMessage(serverinfo.Serialize());
+                //connection.Close(false, 1004, "Denied");
             }
 
             Console.WriteLine(" Data: " + JsonSerializer.Serialize(msg));
