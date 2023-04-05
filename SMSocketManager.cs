@@ -13,6 +13,13 @@ namespace SMServer
 {
     internal class SMSocketManager : SocketManager
     {
+        PacketFactory packetFactory;
+
+        public SMSocketManager()
+        {
+            this.packetFactory = new PacketFactory();
+        }
+
         public override void OnConnected(Connection connection, ConnectionInfo info)
         {
             base.OnConnected(connection, info);
@@ -53,7 +60,7 @@ namespace SMServer
             Console.WriteLine(" PacketID: " + managedArray[0]);
             Console.WriteLine(" Size: " + size);
 
-            var msg = IPacket.Deserialize(managedArray);
+            var msg = packetFactory.ReadPacket(managedArray);
             if (msg == null)
             {
                 Console.WriteLine(" Data: " + BitConverter.ToString(managedArray));
@@ -62,6 +69,20 @@ namespace SMServer
             }
 
             if (msg is Hello)
+            {
+                Hello hello = (Hello)msg;
+                var json = JsonSerializer.Serialize(hello);
+                Console.WriteLine("Data: " + json);
+            }
+
+            if (msg is FileChecksums)
+            {
+                FileChecksums checksums = (FileChecksums)msg;
+                var json = JsonSerializer.Serialize(checksums);
+                Console.WriteLine("Data: " + json);
+            }
+
+            if (msg.GetType() == typeof(Hello))
             {
                 var serverinfo = new Packets.ServerInfo(
                     723, // protocol ver
@@ -74,20 +95,24 @@ namespace SMServer
                     new Packets.ServerInfo.GenericData[0],
                     0 // flags
                 );
+                Console.WriteLine(" Data: " + JsonSerializer.Serialize((Hello)msg));
 
-                connection.SendMessage(serverinfo.Serialize());
+                connection.SendMessage(packetFactory.WritePacket(serverinfo));
                 //connection.Close(false, 1004, "Denied");
             } // elseif packet Chesums
-            else if (msg is Checksums)
+            else if (msg.GetType() == typeof(FileChecksums))
             {
-                connection.SendMessage(new ChecksumAccepted().Serialize());
+                connection.SendMessage(packetFactory.WritePacket(new ChecksumsAccepted()));
+                Console.WriteLine(" Data: " + JsonSerializer.Serialize((FileChecksums)msg));
+
             }
-            else if (msg is Character)
+            else if (msg.GetType() == typeof(Character))
             {
-                connection.SendMessage(new JoinConfirmation().Serialize());
+                connection.SendMessage(packetFactory.WritePacket(new JoinConfirmation()));
+                Console.WriteLine(" Data: " + JsonSerializer.Serialize((Character)msg));
+
             }
 
-            Console.WriteLine(" Data: " + JsonSerializer.Serialize(msg));
         }
     }
 }

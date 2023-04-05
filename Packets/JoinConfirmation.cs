@@ -1,27 +1,21 @@
 ﻿namespace SMServer.Packets
 {
+    [Serializable]
     internal class JoinConfirmation : IPacket
     {
-        public static readonly byte Id = 10;
+        public const byte PacketId = 10;
 
         // Constructor
         public JoinConfirmation()
         {
         }
 
-        public override byte[] Serialize()
+        public virtual void Serialize(BigEndianBinaryWriter writer)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new BinaryWriter(stream))
-            {
-                writer.Write(Id);
-                return stream.ToArray();
-            }
         }
 
-        protected override void Deserialize(BinaryReader reader)
+        public virtual void Deserialize(BigEndianBinaryReader reader)
         {
-            // packet has no additional data to deserialize
         }
     }
 }

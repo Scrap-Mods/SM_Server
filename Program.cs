@@ -2,6 +2,13 @@
 using SMServer;
 using SMServer.Packets;
 using Steamworks;
+using System.Reflection;
+using System.Text.Json;
+
+// Change default JsonSerializerOptions to serialize fields without needing to pass properties
+typeof(JsonSerializerOptions).GetField("s_defaultOptions", BindingFlags.Static | BindingFlags.NonPublic)
+        .SetValue(null, new JsonSerializerOptions { IncludeFields = true });
+
 
 try
 {

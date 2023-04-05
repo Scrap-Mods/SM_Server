@@ -1,10 +1,16 @@
 ﻿namespace SMServer.Packets
 {
+    [Serializable]
     internal class ChecksumDenied : IPacket
     {
-        public static readonly byte Id = 8;
+        public const byte PacketId = 8;
 
-        UInt32 Index;
+        public UInt32 Index;
+
+        public ChecksumDenied()
+        {
+
+        }
 
         // Constructor
         public ChecksumDenied(UInt32 index)
@@ -12,21 +18,13 @@
             this.Index = index;
         }
 
-        public override byte[] Serialize()
+        public virtual void Serialize(BigEndianBinaryWriter writer)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new BigEndianBinaryWriter(stream))
-            {
-                writer.Write(Id);
-                writer.Write(Index);
-
-                return stream.ToArray();
-            }
+            writer.Write(Index);
         }
 
-        protected override void Deserialize(BinaryReader reader)
+        public virtual void Deserialize(BigEndianBinaryReader reader)
         {
-
         }
     }
 }

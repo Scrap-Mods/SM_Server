@@ -18,7 +18,7 @@ namespace SMServer
             int compressedDataSize = LZ4Codec.Encode(
                 uncompressedData, compressedDataSpan, LZ4Level.L00_FAST);
 
-            return compressedDataSpan.Slice(0, compressedDataSize);
+            return compressedDataSpan.Slice(0, compressedDataSize).ToArray();
         }
 
         public static byte[] CompressPacket(byte[] uncompressedData, byte packetId)
@@ -34,8 +34,7 @@ namespace SMServer
 
         public static byte[] Decompress(byte[] compressedData)
         {
-            int maximumOutputSize = LZ4Codec.MaximumOutputSize(compressedData.Length);
-            Span<byte> uncompressedDataSpan = new byte[maximumOutputSize];
+            Span<byte> uncompressedDataSpan = new byte[0xA00000];
             int uncompressedDataSize = LZ4Codec.Decode(
                                compressedData, uncompressedDataSpan);
             return uncompressedDataSpan.Slice(0, uncompressedDataSize).ToArray();

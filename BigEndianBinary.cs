@@ -63,7 +63,7 @@ namespace SMServer
 
         public override uint ReadUInt32()
         {
-            return (uint)IPAddress.NetworkToHostOrder(base.ReadInt32());
+             return (uint)IPAddress.NetworkToHostOrder(base.ReadInt32());
         }
 
         public override ulong ReadUInt64()

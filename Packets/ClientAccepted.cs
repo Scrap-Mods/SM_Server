@@ -2,28 +2,22 @@
 
 namespace SMServer.Packets
 {
+    [Serializable]
     internal class ClientAccepted : IPacket
     {
-        public static readonly byte Id = 5;
+        public const byte PacketId = 5;
 
         // Constructor
         public ClientAccepted()
         {
         }
 
-        public override byte[] Serialize()
+        public virtual void Serialize(BigEndianBinaryWriter writer)
         {
-            using (var stream = new MemoryStream())
-            using (var writer = new BinaryWriter(stream))
-            {
-                writer.Write(Id);
-                return stream.ToArray();
-            }
         }
 
-        protected override void Deserialize(BinaryReader reader)
+        public virtual void Deserialize(BigEndianBinaryReader reader)
         {
-            // ClientAccepted packet has no additional data to deserialize
         }
     }
 }

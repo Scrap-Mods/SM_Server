@@ -1,12 +1,12 @@
 ﻿namespace SMServer.Packets
 {
     [Serializable]
-    internal class Hello : IPacket
+    internal class ChecksumsAccepted : IPacket
     {
-        public const byte PacketId = 1;
+        public const byte PacketId = 7;
 
         // Constructor
-        public Hello()
+        public ChecksumsAccepted()
         {
         }
 
