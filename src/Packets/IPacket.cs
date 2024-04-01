@@ -4,9 +4,9 @@ using System.Reflection;
 
 namespace SMServer.Packets
 {
-    internal interface IPacket
+    public interface IPacket
     {
-        public abstract static byte PacketId { get; }
+        public virtual static byte PacketId => 0;
 
         internal string PacketName => GetType().Name;
 
