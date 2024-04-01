@@ -10,8 +10,8 @@ namespace SMServer.Packets
 
         internal string PacketName => GetType().Name;
 
-        public abstract void Serialize(BigEndianBinaryWriter writer);
+        public abstract void Serialize(BinaryWriter writer);
 
-        public abstract void Deserialize(BigEndianBinaryReader reader);
+        public abstract void Deserialize(BinaryReader reader);
     }
 }
