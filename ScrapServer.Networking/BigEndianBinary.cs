@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace SMServer
+namespace ScrapServer.Networking
 {
     public class BigEndianBinaryWriter : BinaryWriter
     {
