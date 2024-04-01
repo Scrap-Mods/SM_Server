@@ -18,12 +18,12 @@
             this.Index = index;
         }
 
-        public void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BinaryWriter writer)
         {
             writer.Write(Index);
         }
 
-        public void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BinaryReader reader)
         {
         }
     }

@@ -31,13 +31,13 @@ namespace SMServer.Packets
             UInt64 FileId;
             Guid UUID;
 
-            public void Serialize(BigEndianBinaryWriter writer)
+            public void Serialize(BinaryWriter writer)
             {
                 writer.Write(FileId);
                 writer.Write(UUID.ToByteArray());
             }
 
-            public void Deserialize(BigEndianBinaryReader reader)
+            public void Deserialize(BinaryReader reader)
             {
                 FileId = reader.ReadUInt64();
                 UUID = new Guid(reader.ReadBytes(16));
@@ -50,14 +50,14 @@ namespace SMServer.Packets
             Guid UUID;
             byte[] Key;
 
-            public void Serialize(BigEndianBinaryWriter writer)
+            public void Serialize(BinaryWriter writer)
             {
                 writer.Write(UUID.ToByteArray());
                 writer.Write((UInt16)Key.Length);
                 writer.Write(Key);
             }
 
-            public void Deserialize(BigEndianBinaryReader reader)
+            public void Deserialize(BinaryReader reader)
             {
                 UUID = new Guid(reader.ReadBytes(16));
                 var keyLen = reader.ReadUInt16();
@@ -103,7 +103,7 @@ namespace SMServer.Packets
             this.Flags = flags;
         }
 
-        public void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BinaryWriter writer)
         {
             writer.Write(Version);
             writer.Write((UInt32)Gamemode);
@@ -134,7 +134,7 @@ namespace SMServer.Packets
             writer.Write(Flags);
         }
 
-        public void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BinaryReader reader)
         {
             Version = reader.ReadUInt32();
             Gamemode = (EGamemode)reader.ReadUInt32();

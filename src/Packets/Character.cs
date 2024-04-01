@@ -31,11 +31,11 @@
 
         }
 
-        public void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BinaryWriter writer)
         {
         }
 
-        public void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BinaryReader reader)
         {
             // packet has no additional data to deserialize
         }

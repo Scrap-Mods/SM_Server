@@ -21,7 +21,7 @@ namespace SMServer
         {
         }
 
-        public void SendPacket<T>(Connection connection, T packet) where T : IPacket
+        public void SendPacket<T>(Connection connection, T packet) where T : IPacket, new()
         {
             using (var cStream = new MemoryStream())
             using (var cWriter = new BigEndianBinaryWriter(cStream))
@@ -33,7 +33,7 @@ namespace SMServer
             }
         }
 
-        public void ReceivePacket<T>(Action<Connection, T> func) where T : IPacket
+        public void ReceivePacket<T>(Action<Connection, T> func) where T : IPacket, new()
         {
             if (!id2packet.ContainsKey(T.PacketId)) id2packet[T.PacketId] = typeof(T);
             if (!callbacks.ContainsKey(T.PacketId)) callbacks[T.PacketId] = new List<Delegate>();
