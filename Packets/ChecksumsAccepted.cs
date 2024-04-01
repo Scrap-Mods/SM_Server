@@ -10,11 +10,11 @@
         {
         }
 
-        public virtual void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BigEndianBinaryWriter writer)
         {
         }
 
-        public virtual void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BigEndianBinaryReader reader)
         {
         }
     }

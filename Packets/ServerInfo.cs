@@ -103,7 +103,7 @@ namespace SMServer.Packets
             this.Flags = flags;
         }
 
-        public virtual void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BigEndianBinaryWriter writer)
         {
             writer.Write(Version);
             writer.Write((UInt32)Gamemode);
@@ -134,7 +134,7 @@ namespace SMServer.Packets
             writer.Write(Flags);
         }
 
-        public virtual void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BigEndianBinaryReader reader)
         {
             Version = reader.ReadUInt32();
             Gamemode = (EGamemode)reader.ReadUInt32();

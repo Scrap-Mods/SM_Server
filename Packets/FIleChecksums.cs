@@ -20,7 +20,7 @@ namespace SMServer.Packets
             Checksums = checksums;
         }
 
-        public virtual void Serialize(BigEndianBinaryWriter writer)
+        public void Serialize(BigEndianBinaryWriter writer)
         {
             writer.Write((UInt32)Checksums.Length);
             foreach (var checksum in Checksums)
@@ -29,7 +29,7 @@ namespace SMServer.Packets
             }
         }
 
-        public virtual void Deserialize(BigEndianBinaryReader reader)
+        public void Deserialize(BigEndianBinaryReader reader)
         {
             // Read the deserialized data from the decompressed stream
             UInt32 length = reader.ReadUInt32();

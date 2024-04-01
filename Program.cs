@@ -8,8 +8,6 @@ using System.Text.Json;
 // Change default JsonSerializerOptions to serialize fields without needing to pass properties
 typeof(JsonSerializerOptions).GetField("s_defaultOptions", BindingFlags.Static | BindingFlags.NonPublic)
         .SetValue(null, new JsonSerializerOptions { IncludeFields = true });
-
-
 try
 {
     SteamClient.Init(387990);
@@ -25,10 +23,17 @@ string steamid = SteamClient.SteamId.ToString();
 const string server_passphrase = "balls";
 
 SteamFriends.SetRichPresence("status", "Hosting game");
-SteamFriends.SetRichPresence("Passphrase", server_passphrase);
+SteamFriends.SetRichPresence("passphrase", server_passphrase);
 SteamFriends.SetRichPresence("connect", string.Format("-connect_steam_id {0} -friend_steam_id {0}", steamid));
 
-var socketManager = SteamNetworkingSockets.CreateRelaySocket<SMSocketManager>();
+var socketManager = SteamNetworkingSockets.CreateRelaySocket<SmartSocket>();
+
+
+socketManager.ReceivePacket<Hello>((conn, ident, packet) => {
+    Console.WriteLine(conn);
+});
+
+
 
 while (true)
 {
