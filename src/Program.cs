@@ -29,10 +29,30 @@ SteamFriends.SetRichPresence("connect", string.Format("-connect_steam_id {0} -fr
 var socketManager = SteamNetworkingSockets.CreateRelaySocket<SmartSocket>();
 
 
+
+
+
 socketManager.ReceivePacket<Hello>((conn, ident, packet) => {
-    Console.WriteLine(conn);
+    socketManager.SendPacket(conn, new ServerInfo(
+        723, // protocol ver
+        ServerInfo.EGamemode.FlatTerrain,
+        397817921, // seed
+        0, // game tick
+        new ServerInfo.ModData[0],
+        new byte[0],
+        new ServerInfo.GenericData[0],
+        new ServerInfo.GenericData[0],
+        0 // flags
+    ));
 });
 
+socketManager.ReceivePacket<FileChecksums>((conn, ident, packet) => {
+    socketManager.SendPacket(conn, new ChecksumsAccepted());
+});
+
+socketManager.ReceivePacket<Character>((conn, ident, packet) => {
+    socketManager.SendPacket(conn, new JoinConfirmation());
+});
 
 
 while (true)

@@ -104,7 +104,7 @@ namespace SMServer
 
                 //Must be dynamic since
                 //A. We don't know what packetType is ahead of time.
-                //B. We need to cast to the correct type before passing it to the callback
+                //B. We need to cast to the correct callback type and A gets in the way of that without dynamic
                 dynamic packet = Activator.CreateInstance(packetType);
 
                 // Save reader position
