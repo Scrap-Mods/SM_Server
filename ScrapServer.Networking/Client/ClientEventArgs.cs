@@ -1,4 +1,4 @@
-﻿namespace SMServer.src.Client
+﻿namespace ScrapServer.Networking.Client
 {
     public struct ClientEventArgs
     {

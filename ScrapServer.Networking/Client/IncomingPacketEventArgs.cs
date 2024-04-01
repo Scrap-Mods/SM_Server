@@ -1,6 +1,6 @@
-﻿using SMServer.Packets;
+﻿using ScrapServer.Networking.Packets;
 
-namespace SMServer.src.Client
+namespace ScrapServer.Networking.Client
 {
     public struct IncomingPacketEventArgs<T> where T : IPacket
     {

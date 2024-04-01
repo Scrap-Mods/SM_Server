@@ -1,7 +1,7 @@
-﻿using SMServer.Packets;
+﻿using ScrapServer.Networking.Packets;
 using Steamworks.Data;
 
-namespace SMServer.src.Client;
+namespace ScrapServer.Networking.Client;
 
 internal sealed class SteamworksClient : IClient
 {

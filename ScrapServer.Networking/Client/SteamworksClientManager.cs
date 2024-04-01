@@ -1,8 +1,9 @@
-﻿using SMServer.Packets;
+﻿using ScrapServer.Networking.Packets;
+using ScrapServer.Utility;
 using Steamworks;
 using Steamworks.Data;
 
-namespace SMServer.src.Client
+namespace ScrapServer.Networking.Client
 {
     public class SteamworksClientManager : IClientManager
     {
@@ -64,7 +65,7 @@ namespace SMServer.src.Client
                 }
             }
 
-            public unsafe void OnMessage(Connection connection, NetIdentity identity, nint data, int size, long messageNum, long recvTime, int channel)
+            public void OnMessage(Connection connection, NetIdentity identity, nint data, int size, long messageNum, long recvTime, int channel)
             {
                 throw new NotImplementedException();
             }

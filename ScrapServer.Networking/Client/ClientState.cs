@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SMServer.src.Client
+namespace ScrapServer.Networking.Client
 {
     public enum ClientState
     {
