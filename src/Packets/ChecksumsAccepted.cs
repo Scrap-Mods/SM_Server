@@ -3,7 +3,7 @@
     [Serializable]
     internal class ChecksumsAccepted : IPacket
     {
-        public const byte PacketId = 7;
+        public static byte PacketId { get => 7; }
 
         // Constructor
         public ChecksumsAccepted()

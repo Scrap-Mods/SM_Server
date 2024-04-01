@@ -21,14 +21,6 @@ namespace SMServer
         {
         }
 
-        private static byte GetPacketId<T>() where T : IPacket
-        {
-            var field = typeof(T).GetField("PacketId", BindingFlags.Public | BindingFlags.Static);
-            if (field == null || field.FieldType != typeof(byte))
-                throw new InvalidOperationException($"Type '{typeof(T).FullName}' does not declare a public static byte field 'PacketId'.");
-            return (byte)field.GetValue(null);
-        }
-
         public void SendPacket<T>(Connection connection, T packet) where T : IPacket
         {
             using (var cStream = new MemoryStream())
@@ -41,12 +33,12 @@ namespace SMServer
             }
         }
 
-        public void ReceivePacket<T>(Action<Connection, NetIdentity, T> func) where T : IPacket
+        public void ReceivePacket<T>(Action<Connection, T> func) where T : IPacket
         {
-            if (!id2packet.ContainsKey(GetPacketId<T>())) id2packet[GetPacketId<T>()] = typeof(T);
-            if (!callbacks.ContainsKey(GetPacketId<T>())) callbacks[GetPacketId<T>()] = new List<Delegate>();
+            if (!id2packet.ContainsKey(T.PacketId)) id2packet[T.PacketId] = typeof(T);
+            if (!callbacks.ContainsKey(T.PacketId)) callbacks[T.PacketId] = new List<Delegate>();
 
-            callbacks[GetPacketId<T>()].Add(func);
+            callbacks[T.PacketId].Add(func);
         }
 
         public override void OnConnected(Connection connection, ConnectionInfo info)
@@ -117,14 +109,14 @@ namespace SMServer
                     packet.Deserialize(dReader);
                 }
 
-                Type[] typeArgs = { typeof(Connection), typeof(NetIdentity), packetType };
-                var callbackType = typeof(Action<,,>).MakeGenericType(typeArgs);
+                Type[] typeArgs = { typeof(Connection), packetType };
+                var callbackType = typeof(Action<,>).MakeGenericType(typeArgs);
 
                 foreach (var callback in callbacks[id])
                 {
                     //Also needs to be dynamic because we don't know what callback type we'll end up with.
                     dynamic cb = Convert.ChangeType(callback, callbackType);
-                    cb(connection, identity, packet);
+                    cb(connection, packet);
                 }
             };
 

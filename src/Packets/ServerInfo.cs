@@ -7,7 +7,7 @@ namespace SMServer.Packets
     [Serializable]
     internal class ServerInfo : IPacket
     {
-        public const byte PacketId = 2;
+        public static byte PacketId { get => 2; }
 
         public enum EGamemode
         {

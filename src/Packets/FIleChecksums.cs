@@ -5,7 +5,7 @@ namespace SMServer.Packets
     [Serializable]
     internal class FileChecksums : IPacket
     {
-        public const byte PacketId = 6;
+        public static byte PacketId { get => 6; }
 
         public UInt32[] Checksums;
 

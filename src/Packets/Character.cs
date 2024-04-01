@@ -3,7 +3,7 @@
     [Serializable]
     internal class Character : IPacket
     {
-        public const byte PacketId = 9;
+        public static byte PacketId { get => 9; }
 
         //typedef struct {
         //    byte data[16];

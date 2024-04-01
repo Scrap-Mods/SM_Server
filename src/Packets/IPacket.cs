@@ -6,7 +6,7 @@ namespace SMServer.Packets
 {
     internal interface IPacket
     {
-        public const byte PacketId = 0;
+        public abstract static byte PacketId { get; }
 
         internal string PacketName => GetType().Name;
 

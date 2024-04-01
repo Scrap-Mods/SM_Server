@@ -3,7 +3,7 @@
     [Serializable]
     internal class Hello : IPacket
     {
-        public const byte PacketId = 1;
+        public static byte PacketId { get => 1; }
 
         // Constructor
         public Hello()

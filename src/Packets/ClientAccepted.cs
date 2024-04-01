@@ -5,7 +5,7 @@ namespace SMServer.Packets
     [Serializable]
     internal class ClientAccepted : IPacket
     {
-        public const byte PacketId = 5;
+        public static byte PacketId { get => 5; }
 
         // Constructor
         public ClientAccepted()

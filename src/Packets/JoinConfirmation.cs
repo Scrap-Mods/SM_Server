@@ -3,7 +3,7 @@
     [Serializable]
     internal class JoinConfirmation : IPacket
     {
-        public const byte PacketId = 10;
+        public static byte PacketId { get => 10; }
         
         // Constructor
         public JoinConfirmation()

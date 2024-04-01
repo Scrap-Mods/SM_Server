@@ -32,7 +32,7 @@ var socketManager = SteamNetworkingSockets.CreateRelaySocket<SmartSocket>();
 
 
 
-socketManager.ReceivePacket<Hello>((conn, ident, packet) => {
+socketManager.ReceivePacket<Hello>((conn, packet) => {
     socketManager.SendPacket(conn, new ServerInfo(
         723, // protocol ver
         ServerInfo.EGamemode.FlatTerrain,
@@ -46,11 +46,11 @@ socketManager.ReceivePacket<Hello>((conn, ident, packet) => {
     ));
 });
 
-socketManager.ReceivePacket<FileChecksums>((conn, ident, packet) => {
+socketManager.ReceivePacket<FileChecksums>((conn, packet) => {
     socketManager.SendPacket(conn, new ChecksumsAccepted());
 });
 
-socketManager.ReceivePacket<Character>((conn, ident, packet) => {
+socketManager.ReceivePacket<Character>((conn, packet) => {
     socketManager.SendPacket(conn, new JoinConfirmation());
 });
 

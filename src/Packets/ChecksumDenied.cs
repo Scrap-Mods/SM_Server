@@ -3,7 +3,7 @@
     [Serializable]
     internal class ChecksumDenied : IPacket
     {
-        public const byte PacketId = 8;
+        public static byte PacketId { get => 8; }
 
         public UInt32 Index;
 
