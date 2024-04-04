@@ -89,11 +89,14 @@ internal sealed class SteamClient : IClient
 
         packet.Serialize(cWriter);
 
-        var compressedData = LZ4.Compress(cStream.AsSpan(), out int length);
+        if (cStream.Length > 0)
+        {
+            var compressedData = LZ4.Compress(cStream.AsSpan());
 
-        writer.Write(compressedData);
+            writer.Write(compressedData);
+        }
 
-        connection.SendMessage(stream.ToArray(), 0, length + 1, SendType.NoNagle);
+        connection.SendMessage(stream.ToArray(), 0, (int)stream.Length);
     }
 
     /// <summary>

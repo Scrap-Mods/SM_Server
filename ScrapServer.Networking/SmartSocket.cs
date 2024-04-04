@@ -22,8 +22,8 @@ public class SmartSocket : SocketManager
 
         packet.Serialize(cWriter);
 
-        var compressedData = LZ4.Compress(cStream.AsSpan(), out int length);
-        connection.SendMessage(compressedData, 0, length, SendType.NoNagle);
+        var compressedData = LZ4.Compress(cStream.AsSpan());
+        connection.SendMessage(compressedData.ToArray(), 0, compressedData.Length, SendType.NoNagle);
     }
 
     public void ReceivePacket<T>(Action<Connection, T> func) where T : IPacket, new()
@@ -94,9 +94,9 @@ public class SmartSocket : SocketManager
 
             // Save reader position
             var position = reader.BaseStream.Position;
-            var decompressedData = LZ4.Decompress(reader.ReadBytes((int)(reader.BaseStream.Length - position)), out int dLength);
+            var decompressedData = LZ4.Decompress(reader.ReadBytes((int)(reader.BaseStream.Length - position)));
 
-            using (var dStream = new MemoryStream(decompressedData, 0, dLength))
+            using (var dStream = new MemoryStream(decompressedData.ToArray()))
             using (var dReader = new BigEndianBinaryReader(dStream))
             {
                 packet.Deserialize(dReader);

@@ -32,12 +32,13 @@ internal class Program
 
         server.ClientConnecting += (o, args) =>
         {
+            Console.WriteLine("Client connecting... " + args.Client);
             args.IsAccepted = true;
         };
 
         server.ClientConnected += (o, args) =>
         {
-            args.Client.SendPacket<ClientAccepted>(new ClientAccepted());
+            Console.WriteLine("Client connected! " + args.Client);
 
             args.Client.HandlePacket<Hello>((o, args2) =>
             {
@@ -50,9 +51,11 @@ internal class Program
                     new byte[0],
                     new ServerInfo.GenericData[0],
                     new ServerInfo.GenericData[0],
-                    0x80 // flags)
+                    0 // flags)
                 ));
             });
+
+            args.Client.SendPacket<ClientAccepted>(new ClientAccepted());
         };
 
         while (true)
