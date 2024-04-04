@@ -88,7 +88,9 @@ public sealed class SteamServer : IServer
             }
 
             byte packetId = dataSpan[0];
-            var decompressedData = LZ4.Decompress(dataSpan, out int decompressedLength);
+
+            var decompressedData = LZ4.Decompress(dataSpan.Slice(1), out int decompressedLength);
+
             using var stream = new MemoryStream(decompressedData, 0, decompressedLength);
             using var reader = new BigEndianBinaryReader(stream);
 

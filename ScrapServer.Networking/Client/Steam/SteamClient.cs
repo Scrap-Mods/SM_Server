@@ -79,13 +79,21 @@ internal sealed class SteamClient : IClient
             throw new ObjectDisposedException(ToString());
         }
 
+        using var stream = new MemoryStream();
+        using var writer = new BigEndianBinaryWriter(stream);
+        
+        writer.Write(T.PacketId);
+
         using var cStream = new MemoryStream();
         using var cWriter = new BigEndianBinaryWriter(cStream);
 
         packet.Serialize(cWriter);
 
         var compressedData = LZ4.Compress(cStream.AsSpan(), out int length);
-        connection.SendMessage(compressedData, 0, length, SendType.NoNagle);
+
+        writer.Write(compressedData);
+
+        connection.SendMessage(stream.ToArray(), 0, length + 1, SendType.NoNagle);
     }
 
     /// <summary>

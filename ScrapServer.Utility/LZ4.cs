@@ -31,6 +31,7 @@ public static class LZ4
     {
         var decompressedData = new byte[0xA00000];
         decompressedLength = LZ4Codec.Decode(compressedData, decompressedData);
+
         return decompressedData;
     }
 }
