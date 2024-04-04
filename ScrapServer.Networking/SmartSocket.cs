@@ -1,5 +1,4 @@
-﻿using ScrapServer.Networking;
-using ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets;
 using ScrapServer.Utility;
 using Steamworks;
 using Steamworks.Data;
@@ -18,14 +17,13 @@ public class SmartSocket : SocketManager
 
     public void SendPacket<T>(Connection connection, T packet) where T : IPacket, new()
     {
-        using (var cStream = new MemoryStream())
-        using (var cWriter = new BigEndianBinaryWriter(cStream))
-        {
-            packet.Serialize(cWriter);
-            byte[] compressedData = LZ4.Compress((cWriter.BaseStream as MemoryStream)!.ToArray());
+        using var cStream = new MemoryStream();
+        using var cWriter = new BigEndianBinaryWriter(cStream);
 
-            connection.SendMessage(compressedData, SendType.NoNagle);
-        }
+        packet.Serialize(cWriter);
+
+        var compressedData = LZ4.Compress(cStream.AsSpan(), out int length);
+        connection.SendMessage(compressedData, 0, length, SendType.NoNagle);
     }
 
     public void ReceivePacket<T>(Action<Connection, T> func) where T : IPacket, new()
@@ -96,9 +94,9 @@ public class SmartSocket : SocketManager
 
             // Save reader position
             var position = reader.BaseStream.Position;
-            byte[] decompressedData = LZ4.Decompress(reader.ReadBytes((int)(reader.BaseStream.Length - position)));
+            var decompressedData = LZ4.Decompress(reader.ReadBytes((int)(reader.BaseStream.Length - position)), out int dLength);
 
-            using (var dStream = new MemoryStream(decompressedData))
+            using (var dStream = new MemoryStream(decompressedData, 0, dLength))
             using (var dReader = new BigEndianBinaryReader(dStream))
             {
                 packet.Deserialize(dReader);

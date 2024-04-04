@@ -1,15 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace ScrapServer.Networking.Client;
 
-namespace ScrapServer.Networking.Client
+/// <summary>
+/// Represents the state of an <see cref="IClient"/>.
+/// </summary>
+public enum ClientState
 {
-    public enum ClientState
-    {
-        Disconnected = 0,
-        Connecting = 1,
-        Connected = 2
-    }
+    /// <summary>
+    /// The client is disconnected after previously being connected.
+    /// </summary>
+    Disconnected = 0,
+
+    /// <summary>
+    /// The client is requesting a connection.
+    /// </summary>
+    Connecting = 1,
+
+    /// <summary>
+    /// The client is connected.
+    /// </summary>
+    Connected = 2
 }

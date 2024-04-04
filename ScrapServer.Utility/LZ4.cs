@@ -4,34 +4,33 @@ namespace ScrapServer.Utility;
 
 public static class LZ4
 {
-    public static byte[] Compress(byte[] uncompressedData)
+    public static byte[] Compress(ReadOnlySpan<byte> uncompressedData, out int compressedLength)
     {
         int maximumOutputSize = LZ4Codec.MaximumOutputSize(uncompressedData.Length);
-        Span<byte> compressedDataSpan = new byte[maximumOutputSize];
+        var compressedBuffer = new byte[maximumOutputSize];
 
-        int compressedDataSize = LZ4Codec.Encode(
-            uncompressedData, compressedDataSpan, LZ4Level.L00_FAST);
+        compressedLength = LZ4Codec.Encode(
+            uncompressedData, compressedBuffer, LZ4Level.L00_FAST);
 
-        return compressedDataSpan.Slice(0, compressedDataSize).ToArray();
+        return compressedBuffer;
     }
 
-    public static byte[] CompressPacket(byte[] uncompressedData, byte packetId)
+    public static byte[] CompressPacket(ReadOnlySpan<byte> uncompressedData, byte packetId, out int compressedLength)
     {
-        Span<byte> compressedData = Compress(uncompressedData);
-        byte[] packetData = new byte[compressedData.Length + 1];
+        int maximumOutputSize = LZ4Codec.MaximumOutputSize(uncompressedData.Length);
+        var compressedBuffer = new byte[maximumOutputSize + 1];
+        
+        compressedBuffer[0] = packetId;
+        compressedLength = 1 + LZ4Codec.Encode(
+            uncompressedData, compressedBuffer.AsSpan(1), LZ4Level.L00_FAST);
 
-        packetData[0] = packetId;
-
-        compressedData.CopyTo(packetData.AsSpan(1));
-        return packetData;
+        return compressedBuffer;
     }
 
-    public static byte[] Decompress(byte[] compressedData)
+    public static byte[] Decompress(ReadOnlySpan<byte> compressedData, out int decompressedLength)
     {
-        Span<byte> uncompressedDataSpan = new byte[0xA00000];
-        int uncompressedDataSize = LZ4Codec.Decode(
-                           compressedData, uncompressedDataSpan);
-        return uncompressedDataSpan.Slice(0, uncompressedDataSize).ToArray();
+        var decompressedData = new byte[0xA00000];
+        decompressedLength = LZ4Codec.Decode(compressedData, decompressedData);
+        return decompressedData;
     }
-
 }
