@@ -43,6 +43,7 @@ internal class Program
 
             args.Client.HandlePacket<Hello>((o, args2) =>
             {
+                Console.WriteLine("Received Hello");
                 args.Client.SendPacket<ServerInfo>(new ServerInfo(
                     729, // protocol ver
                     ServerInfo.EGamemode.FlatTerrain,
@@ -54,9 +55,11 @@ internal class Program
                     new ServerInfo.GenericData[0],
                     0 // flags)
                 ));
+                Console.WriteLine("Sent ServerInfo");
             });
 
             args.Client.SendPacket<ClientAccepted>(new ClientAccepted());
+            Console.WriteLine("Sent ClientAccepted");
         };
 
         while (true)
