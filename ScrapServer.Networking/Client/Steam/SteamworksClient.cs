@@ -142,7 +142,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public override string ToString()
     {
-        return $"Steam client '{connection.ConnectionName}'";
+        return $"Steam client '{connection.Id}'";
     }
 
     ~SteamworksClient()
