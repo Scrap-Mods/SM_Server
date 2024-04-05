@@ -5,9 +5,9 @@ using Steamworks.Data;
 namespace ScrapServer.Networking.Client.Steam;
 
 /// <summary>
-/// An implementation of <see cref="IClient"/> used by <see cref="SteamServer"/>.
+/// An implementation of <see cref="IClient"/> used by <see cref="SteamworksServer"/>.
 /// </summary>
-internal sealed class SteamClient : IClient
+internal sealed class SteamworksClient : IClient
 {
     /// <inheritdoc/>
     public ClientState State
@@ -39,10 +39,10 @@ internal sealed class SteamClient : IClient
     private readonly Connection connection;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="SteamClient"/>.
+    /// Initializes a new instance of <see cref="SteamworksClient"/>.
     /// </summary>
     /// <param name="connection">The underlying steamworks connection.</param>
-    public SteamClient(Connection connection)
+    public SteamworksClient(Connection connection)
     {
         packetHandlers = new List<(int, Action<BinaryReader>)>();
         this.connection = connection;
@@ -74,29 +74,23 @@ internal sealed class SteamClient : IClient
     /// <inheritdoc/>
     public void SendPacket<T>(T packet) where T : IPacket
     {
-        if (State == ClientState.Disconnected)
+        ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
+
+        using var packetStream = new MemoryStream();
+        packetStream.WriteByte(T.PacketId);
+
+        using var dataStream = new MemoryStream();
+        using var dataWriter = new BigEndianBinaryWriter(dataStream);
+        packet.Serialize(dataWriter);
+
+        if (dataStream.Length > 0)
         {
-            throw new ObjectDisposedException(ToString());
+            var compressedData = LZ4.Compress(dataStream.AsSpan());
+
+            packetStream.Write(compressedData);
         }
 
-        using var stream = new MemoryStream();
-        using var writer = new BigEndianBinaryWriter(stream);
-        
-        writer.Write(T.PacketId);
-
-        using var cStream = new MemoryStream();
-        using var cWriter = new BigEndianBinaryWriter(cStream);
-
-        packet.Serialize(cWriter);
-
-        if (cStream.Length > 0)
-        {
-            var compressedData = LZ4.Compress(cStream.AsSpan());
-
-            writer.Write(compressedData);
-        }
-
-        connection.SendMessage(stream.ToArray(), 0, (int)stream.Length);
+        connection.SendMessage(packetStream.AsSpan());
     }
 
     /// <summary>
@@ -116,9 +110,27 @@ internal sealed class SteamClient : IClient
     }
 
     /// <inheritdoc/>
+    public void AcceptConnection()
+    {
+        if (State == ClientState.Connecting)
+        {
+            connection.Accept();
+        }
+    }
+
+    /// <inheritdoc/>
+    public void Disconnect()
+    {
+        if (State != ClientState.Disconnected)
+        {
+            connection.Close(false, 0);
+        }
+    }
+
+    /// <inheritdoc/>
     public override bool Equals(object? obj)
     {
-        return obj is SteamClient client && client.connection.Id == connection.Id;
+        return obj is SteamworksClient client && client.connection.Id == connection.Id;
     }
 
     /// <inheritdoc/>
@@ -133,18 +145,7 @@ internal sealed class SteamClient : IClient
         return $"Steam client '{connection.ConnectionName}'";
     }
 
-    ~SteamClient()
-    {
-        if (State != ClientState.Disconnected)
-        {
-            connection.Close(false, 0);
-        }
-    }
-
-    /// <summary>
-    /// Closes the underlying connection.
-    /// </summary>
-    public void Disconnect()
+    ~SteamworksClient()
     {
         if (State != ClientState.Disconnected)
         {

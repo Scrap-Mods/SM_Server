@@ -1,5 +1,6 @@
 ﻿using Steamworks;
 using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Client.Steam;
 
 
 
@@ -28,12 +29,12 @@ internal class Program
         SteamFriends.SetRichPresence("passphrase", server_passphrase);
         SteamFriends.SetRichPresence("connect", string.Format("-connect_steam_id {0} -friend_steam_id {0}", steamid));
 
-        var server = new ScrapServer.Networking.Client.Steam.SteamServer();
+        var server = new SteamworksServer();
 
         server.ClientConnecting += (o, args) =>
         {
             Console.WriteLine("Client connecting... " + args.Client);
-            args.IsAccepted = true;
+            args.Client.AcceptConnection();
         };
 
         server.ClientConnected += (o, args) =>
@@ -60,7 +61,7 @@ internal class Program
 
         while (true)
         {
-            server.RunLoop();
+            server.Poll();
 
             // if user pressed DEL in console, close the server:
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Delete)
@@ -69,7 +70,6 @@ internal class Program
                 break;
             }
         }
-
         server.Dispose();
         SteamClient.Shutdown();
     }

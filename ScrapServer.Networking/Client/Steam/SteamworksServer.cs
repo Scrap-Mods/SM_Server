@@ -7,37 +7,26 @@ namespace ScrapServer.Networking.Client.Steam;
 /// <summary>
 /// An implementation of <see cref="IServer"/> which uses the Steamworks socket manager.
 /// </summary>
-public sealed class SteamServer : IServer
+public sealed class SteamworksServer : IServer
 {
     private class SocketInterface : ISocketManager
     {
-        private readonly SteamServer clientManager;
+        private readonly SteamworksServer clientManager;
 
-        public SocketInterface(SteamServer clientManager)
+        public SocketInterface(SteamworksServer clientManager)
         {
             this.clientManager = clientManager;
         }
 
         public void OnConnecting(Connection connection, ConnectionInfo info)
         {
-            var client = new SteamClient(connection);
+            var client = new SteamworksClient(connection);
 
             clientManager.clients.Add(connection.Id, client);
             clientManager.connectedClients.Add(client);
 
-            var args = new ClientConnectingEventArgs(client);
-
             client.State = ClientState.Connecting;
-            clientManager.ClientConnecting?.Invoke(clientManager, args);
-
-            if (args.IsAccepted)
-            {
-                connection.Accept();
-            }
-            else
-            {
-                connection.Close();
-            }
+            clientManager.ClientConnecting?.Invoke(clientManager, new ClientEventArgs(client));
         }
 
         public void OnConnected(Connection connection, ConnectionInfo info)
@@ -99,7 +88,7 @@ public sealed class SteamServer : IServer
     }
 
     /// <inheritdoc/>
-    public event EventHandler<ClientConnectingEventArgs>? ClientConnecting;
+    public event EventHandler<ClientEventArgs>? ClientConnecting;
 
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? ClientConnected;
@@ -109,27 +98,33 @@ public sealed class SteamServer : IServer
 
     /// <inheritdoc/>
     public IReadOnlyList<IClient> ConnectedClients => connectedClients;
-    private readonly List<SteamClient> connectedClients;
+    private readonly List<SteamworksClient> connectedClients;
 
     /// <inheritdoc/>
     public IReadOnlyList<IClient> ConnectingClients => connectingClients;
-    private readonly List<SteamClient> connectingClients;
+    private readonly List<SteamworksClient> connectingClients;
 
-    private readonly Dictionary<uint, SteamClient> clients;
+    private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
     private bool isDisposed = false;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="SteamServer"/> which starts listening for connections.
+    /// Initializes a new instance of <see cref="SteamworksServer"/> which starts listening for connections.
     /// </summary>
-    public SteamServer()
+    public SteamworksServer()
     {
-        connectedClients = new List<SteamClient>();
-        connectingClients = new List<SteamClient>();
-        clients = new Dictionary<uint, SteamClient>();
+        connectedClients = new List<SteamworksClient>();
+        connectingClients = new List<SteamworksClient>();
+        clients = new Dictionary<uint, SteamworksClient>();
         socketManager = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
         socketManager.Interface = new SocketInterface(this);
+    }
+
+    /// <inheritdoc/>
+    public void Poll()
+    {
+        socketManager.Receive();
     }
 
     /// <inheritdoc/>
@@ -147,7 +142,7 @@ public sealed class SteamServer : IServer
         return $"Steam client {GetHashCode()}'";
     }
 
-    ~SteamServer()
+    ~SteamworksServer()
     {
         if (!isDisposed)
         {

@@ -19,10 +19,10 @@ public interface IServer : IDisposable
 
     /// <summary>
     /// Fired when a client is trying to connect to this server.
-    /// Handlers should set <see cref="ClientConnectingEventArgs.IsAccepted"/> 
-    /// to <see langword="true"/> to accept the connection.
+    /// Handlers should set call <see cref="IClient.AcceptConnection"/> 
+    /// to accept the connection.
     /// </summary>
-    public event EventHandler<ClientConnectingEventArgs>? ClientConnecting;
+    public event EventHandler<ClientEventArgs>? ClientConnecting;
 
     /// <summary>
     /// Fired when a client is connected to this server.
@@ -33,6 +33,11 @@ public interface IServer : IDisposable
     /// Fired when a client is disconnected from this server.
     /// </summary>
     public event EventHandler<ClientEventArgs>? ClientDisconnected;
+
+    /// <summary>
+    /// Runs a single iteration of the event loop.
+    /// </summary>
+    public void Poll();
 
     /// <summary>
     /// Runs the server event loop.

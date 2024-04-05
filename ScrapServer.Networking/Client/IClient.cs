@@ -33,6 +33,14 @@ public interface IClient : IDisposable
     public void SendPacket<T>(T packet) where T : IPacket;
 
     /// <summary>
+    /// Accepts the incoming connection.
+    /// </summary>
+    /// <remarks>
+    /// Does nothing when <see cref="State"/> has any value other than <see cref="ClientState.Connecting"/>.
+    /// </remarks>
+    public void AcceptConnection();
+
+    /// <summary>
     /// Disconnects the client from the server.
     /// </summary>
     public void Disconnect();
