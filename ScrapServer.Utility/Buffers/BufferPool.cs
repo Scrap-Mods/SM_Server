@@ -2,22 +2,40 @@
 
 namespace ScrapServer.Utility.Buffers;
 
+/// <summary>
+/// An thread-safe implementation of <see cref="IBufferPool"/> which creates new buffers as needed.
+/// </summary>
 public class BufferPool : IBufferPool
 {
-    private static PooledBuffer EmptyBuffer => new PooledBuffer(0, new Span<byte>(null));
+    private BorrowedBuffer EmptyBuffer => new BorrowedBuffer(0, new Span<byte>(null), this);
 
-    private int currentArrayId = 0;
-    
-    private readonly Dictionary<int, byte[]> ownedArrays;
-    private readonly List<KeyValuePair<int, byte[]>> availableArrays;
+    /// <summary>
+    /// The list of arrays owned by this buffer pool.
+    /// </summary>
+    private readonly List<byte[]> ownedArrays;
 
+    /// <summary>
+    /// The list of indices of unused arrays in <see cref="ownedArrays"/>. 
+    /// The indices are sorted by ascending size of the corresponding array.
+    /// </summary>
+    private readonly List<int> availableArrays;
+
+    /// <summary>
+    /// The object for locking on when accessing the lists.
+    /// </summary>
+    private readonly object lockObject = new object();
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="BufferPool"/> with no preallocated buffers.
+    /// </summary>
     public BufferPool()
     {
-        ownedArrays = new Dictionary<int, byte[]>();
-        availableArrays = new List<KeyValuePair<int, byte[]>>();
+        ownedArrays = new List<byte[]>();
+        availableArrays = new List<int>();
     }
 
-    public PooledBuffer GetBuffer(int size)
+    /// <inheritdoc/>
+    public BorrowedBuffer GetBuffer(int size)
     {
         if (size == 0)
         {
@@ -30,7 +48,8 @@ public class BufferPool : IBufferPool
         return CreateBuffer(size);
     }
 
-    public void ResizeBuffer(ref PooledBuffer buffer, int size)
+    /// <inheritdoc/>
+    public void ResizeBuffer(ref BorrowedBuffer buffer, int size)
     {
         if (size == 0)
         {
@@ -38,7 +57,7 @@ public class BufferPool : IBufferPool
             buffer = EmptyBuffer;
             return;
         }
-        if (buffer.Span.Length == 0)
+        if (buffer.IsEmpty)
         {
             buffer = GetBuffer(size);
             return;
@@ -48,30 +67,32 @@ public class BufferPool : IBufferPool
         byte[] array = GetArrayForBuffer(buffer);
         if (array.Length >= size)
         {
-            buffer = new PooledBuffer(id, array.AsSpan(0, size));
+            buffer = new BorrowedBuffer(id, array.AsSpan(0, size), this);
             return;
         }
 
         var newBuffer = GetBuffer(size);
-        buffer.Span[0..int.Min(buffer.Span.Length, size)].CopyTo(newBuffer.Span);
+        buffer[0..int.Min(buffer.Length, size)].CopyTo(newBuffer);
         ReturnBuffer(buffer);
         buffer = newBuffer;
     }
 
-    void IBufferPool.ReturnBuffer(PooledBuffer buffer) => ReturnBuffer(buffer);
+    /// <inheritdoc/>
+    void IBufferPool.ReturnBuffer(BorrowedBuffer buffer) => ReturnBuffer(buffer);
 
-    private bool TryGetAvailableBuffer(int size, [MaybeNullWhen(false)] out PooledBuffer buffer)
+    private bool TryGetAvailableBuffer(int size, [MaybeNullWhen(false)] out BorrowedBuffer buffer)
     {
         buffer = default;
-        lock (availableArrays)
+        lock (lockObject)
         {
             for (int i = 0; i < availableArrays.Count; i++)
             {
-                var (id, array) = availableArrays[i];
+                var id = availableArrays[i];
+                var array = ownedArrays[id];
                 if (array.Length >= size)
                 {
                     availableArrays.RemoveAt(i);
-                    buffer = new PooledBuffer(id, array.AsSpan(0, size));
+                    buffer = new BorrowedBuffer(id, array.AsSpan(0, size), this);
                     return true;
                 }
             }
@@ -79,58 +100,62 @@ public class BufferPool : IBufferPool
         return false;
     }
 
-    private PooledBuffer CreateBuffer(int size)
+    private BorrowedBuffer CreateBuffer(int size)
     {
-        size = int.Min(16, size);
+        size = int.Max(16, size);
         var array = new byte[int.IsPow2(size) ? size : 2 << int.Log2(size)];
-        var id = Interlocked.Increment(ref currentArrayId);
-        lock (ownedArrays)
+        int id;
+        lock (lockObject)
         {
-            ownedArrays.Add(id, array);
+            id = ownedArrays.Count;
+            ownedArrays.Add(array);
         }
-        return new PooledBuffer(id, array);
+        return new BorrowedBuffer(id, array.AsSpan(0, size), this);
     }
 
-    private void ReturnBuffer(PooledBuffer buffer)
+    private void ReturnBuffer(BorrowedBuffer buffer)
     {
-        if (buffer.Span.Length == 0)
+        if (buffer.IsEmpty)
         {
             return;
         }
 
-        int id = buffer.Id;
-        byte[]? array = GetArrayForBuffer(buffer);
-
-        var kvp = new KeyValuePair<int, byte[]>(id, array);
-        lock (availableArrays)
+        lock (lockObject)
         {
+            int id = buffer.Id;
+            byte[] array = GetArrayForBuffer(buffer);
+
             int availableCount = availableArrays.Count;
             for (int i = 0; i < availableCount; i++)
             {
-                var (availableId, availableBuffer) = availableArrays[i];
+                var availableId = availableArrays[i];
                 if (availableId == id)
                 {
                     throw new ArgumentException("Buffer returned twice.");
                 }
-                if (availableBuffer.Length > array.Length)
+                var availableArray = ownedArrays[availableId];
+                if (availableArray.Length > array.Length)
                 {
-                    availableArrays.Insert(i, kvp);
+                    availableArrays.Insert(i, id);
                     return;
                 }
             }
-            availableArrays.Add(kvp);
+            availableArrays.Add(id);
         }
     }
 
-    private byte[] GetArrayForBuffer(PooledBuffer buffer)
+    private byte[] GetArrayForBuffer(BorrowedBuffer buffer)
     {
-        lock (ownedArrays)
+        lock (lockObject)
         {
-            if (buffer.Pool == this
-                && ownedArrays.TryGetValue(buffer.Id, out var array)
-                && array.AsSpan().Overlaps(buffer.Span))
+            int id = buffer.Id;
+            if (buffer.Pool == this && id < ownedArrays.Count)
             {
-                return array;
+                var array = ownedArrays[id];
+                if (array.AsSpan().Overlaps(buffer))
+                {
+                    return array;
+                }
             }
         }
         throw new ArgumentException("The buffer is not owned by this pool.");
