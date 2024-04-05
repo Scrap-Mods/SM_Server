@@ -28,23 +28,16 @@ public ref struct PacketReader
         this.bitOffset = (byte)(bitOffset % 8);
     }
 
-    public void AdvanceBits(int count)
+    public void Advance(int byteCount, int bitCount)
     {
-        int newBitIndex = bitOffset + count;
-        index += newBitIndex / 8;
-        bitOffset = (byte)(newBitIndex % 8);
-    }
-
-    public void AdvanceBytes(byte count)
-    {
-        index += count;
+        Seek(index + byteCount, bitOffset + bitCount);
     }
 
     public bool ReadBit()
     {
         byte bufferByte = buffer[index];
         bool bit = (bufferByte & (byte)(0b10000000 >> bitOffset)) != 0;
-        AdvanceBits(1);
+        Advance(0, 1);
         return bit;
     }
 
@@ -53,12 +46,12 @@ public ref struct PacketReader
         if (bitOffset == 0)
         {
             var bufferByte = buffer[index];
-            AdvanceBytes(1);
+            Advance(1, 0);
             return bufferByte;
         }
         byte byte1 = buffer[index];
         byte byte2 = buffer[index + 1];
-        AdvanceBytes(2);
+        Advance(2, 0);
         return (byte)((byte1 << bitOffset) | (byte2 << bitOffset));
     }
 
@@ -67,21 +60,24 @@ public ref struct PacketReader
         return unchecked((sbyte)ReadByte());
     }
 
-    public bool ReadBytes(scoped Span<byte> destination)
+    public void ReadBytes(scoped Span<byte> destination)
     {
         if (bitOffset == 0)
         {
-            return buffer.Slice(index, destination.Length).TryCopyTo(destination);
+            if (destination.Length > buffer.Length - index)
+            {
+                throw new ArgumentException("Not enough bytes to fill the buffer.");
+            }
+            buffer.Slice(index, destination.Length).CopyTo(destination);
         }
         if (destination.Length > buffer.Length - index - 1)
         {
-            return false;
+            throw new ArgumentException("Not enough bytes to fill the buffer.");
         }
         for (int i = 0; i < destination.Length; i++)
         {
             destination[i] = ReadByte();
         }
-        return true;
     }
 
     public bool ReadBoolean()
@@ -160,34 +156,55 @@ public ref struct PacketReader
         return new Guid(bytes);
     }
 
-    public bool TryReadChars(int encodedLength, Span<char> chars, Encoding encoding)
+    public void ReadChars(int encodedLength, scoped Span<char> chars, Encoding? encoding = null)
     {
+        encoding ??= Encoding.UTF8;
         if (bitOffset == 0)
         {
             if (encodedLength > buffer.Length - index)
             {
-                return false;
+                throw new ArgumentException("Encoded length is bigger than the remaining byte count.");
             }
             var bytes = buffer.Slice(index, encodedLength);
-            return encoding.TryGetChars(bytes, chars, out _);
+            DecodeChars(bytes, chars, encoding);
         }
-        if (encodedLength <= 32)
+        else if (encodedLength <= 32)
         {
             Span<byte> bytes = stackalloc byte[encodedLength];
-            if (!ReadBytes(bytes))
-            {
-                return false;
-            }
-            return encoding.TryGetChars(bytes, chars, out _);
+            ReadBytes(bytes);
+            DecodeChars(bytes, chars, encoding);
         }
         else
         {
-            using var buffer = bufferPool.GetBuffer(encodedLength);
-            if (!ReadBytes(buffer))
+            using var bytes = bufferPool.GetBuffer(encodedLength);
+            ReadBytes(bytes);
+            DecodeChars(bytes, chars, encoding);
+        }
+    }
+
+    public string ReadString(int encodedLength, Encoding? encoding = null)
+    {
+        encoding ??= Encoding.UTF8;
+        if (bitOffset == 0)
+        {
+            if (encodedLength > buffer.Length - index)
             {
-                return false;
+                throw new ArgumentException("Encoded length is bigger than the remaining byte count.");
             }
-            return encoding.TryGetChars(buffer, chars, out _);
+            var bytes = buffer.Slice(index, encodedLength);
+            return DecodeString(bytes, encoding);
+        }
+        else if (encodedLength <= 32)
+        {
+            Span<byte> bytes = stackalloc byte[encodedLength];
+            ReadBytes(bytes);
+            return DecodeString(bytes, encoding);
+        }
+        else
+        {
+            using var bytes = bufferPool.GetBuffer(encodedLength);
+            ReadBytes(bytes);
+            return DecodeString(bytes, encoding);
         }
     }
 
@@ -196,6 +213,29 @@ public ref struct PacketReader
         var obj = new T();
         obj.Deserialize(ref this);
         return obj;
+    }
+
+    private static void DecodeChars(ReadOnlySpan<byte> bytes, Span<char> chars, Encoding encoding)
+    {
+        if (!encoding.TryGetChars(bytes, chars, out _))
+        {
+            throw new ArgumentException("Character buffer too small.");
+        }
+    }
+
+    private static string DecodeString(ReadOnlySpan<byte> bytes, Encoding encoding)
+    {
+        var decodedLength = encoding.GetCharCount(bytes);
+        var result = new string(' ', decodedLength);
+        unsafe
+        {
+            fixed (char* ch = result)
+            {
+                var chars = new Span<char>(ch, result.Length);
+                encoding.TryGetChars(bytes, chars, out _);
+            }
+        }
+        return result;
     }
 
     private static void ApplyByteOrder(Span<byte> bytes, ByteOrder byteOrder)
