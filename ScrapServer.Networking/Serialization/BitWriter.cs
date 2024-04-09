@@ -7,7 +7,7 @@ namespace ScrapServer.Networking.Serialization;
 /// <summary>
 /// Writes non bit-aligned binary data to an array.
 /// </summary>
-public struct PacketWriter
+public struct BitWriter
 {
     /// <summary>
     /// Gets the written data.
@@ -22,10 +22,10 @@ public struct PacketWriter
     private int bitIndex;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="PacketWriter"/>.
+    /// Initializes a new instance of <see cref="BitWriter"/>.
     /// </summary>
     /// <param name="arrayPool">The array pool for renting buffers for writing.</param>
-    internal PacketWriter(ArrayPool<byte> arrayPool)
+    internal BitWriter(ArrayPool<byte> arrayPool)
     {
         this.arrayPool = arrayPool;
         buffer = Array.Empty<byte>();
@@ -296,7 +296,7 @@ public struct PacketWriter
     /// </summary>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <param name="value">The object to write.</param>
-    public void WriteObject<T>(T value) where T : INetworkObject
+    public void WriteObject<T>(T value) where T : IBitSerializable
     {
         value.Serialize(ref this);
     }

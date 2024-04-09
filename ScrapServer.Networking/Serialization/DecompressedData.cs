@@ -14,9 +14,9 @@ public ref struct DecompressedData
     /// </summary>
     /// <value>The reader.</value>
     [UnscopedRef]
-    public ref PacketReader Reader => ref reader;
+    public ref BitReader Reader => ref reader;
 
-    private PacketReader reader;
+    private BitReader reader;
     private bool disposed;
 
     private readonly ArrayPool<byte> arrayPool;
@@ -50,7 +50,7 @@ public ref struct DecompressedData
         {
             if (LZ4.TryDecompress(compressedData, buffer, out int actualLength))
             {
-                reader = new PacketReader(buffer.AsSpan(0, actualLength), arrayPool);
+                reader = new BitReader(buffer.AsSpan(0, actualLength), arrayPool);
                 return;
             }
             arrayPool.Return(buffer);

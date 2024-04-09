@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Serialization;
 /// <summary>
 /// Reads non bit-aligned binary data from a <see cref="ReadOnlySpan{T}"/>.
 /// </summary>
-public ref struct PacketReader
+public ref struct BitReader
 {
     /// <summary>
     /// Gets the count of full bytes available for reading.
@@ -21,11 +21,11 @@ public ref struct PacketReader
     private int bitIndex;
 
     /// <summary>
-    /// Initializes a new instance of <see cref="PacketReader"/>.
+    /// Initializes a new instance of <see cref="BitReader"/>.
     /// </summary>
     /// <param name="buffer">The buffer containing the raw data.</param>
     /// <param name="arrayPool">The array pool for renting temporary buffers.</param>
-    public PacketReader(ReadOnlySpan<byte> buffer, ArrayPool<byte> arrayPool)
+    public BitReader(ReadOnlySpan<byte> buffer, ArrayPool<byte> arrayPool)
     {
         this.arrayPool = arrayPool;
         this.buffer = buffer;
@@ -284,7 +284,7 @@ public ref struct PacketReader
     /// </summary>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The read object.</returns>
-    public T ReadObject<T>() where T : INetworkObject, new()
+    public T ReadObject<T>() where T : IBitSerializable, new()
     {
         var obj = new T();
         obj.Deserialize(ref this);
