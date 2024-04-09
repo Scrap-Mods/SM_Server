@@ -1,39 +1,44 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
+
+namespace ScrapServer.Networking.Packets;
 
 public class FileChecksums : IPacket
 {
-    public static byte PacketId { get => 6; }
-
-    public UInt32[] Checksums;
+    public static PacketType PacketId => PacketType.FileChecksums;
+    public uint[] Checksums { get; set; }
 
     public FileChecksums()
     {
-
+        Checksums = Array.Empty<uint>();
     }
 
-    // Constructor
     public FileChecksums(uint[] checksums)
     {
         Checksums = checksums;
     }
 
-    public void Serialize(BinaryWriter writer)
+    public void Serialize(ref BitWriter writer)
     {
-        writer.Write((UInt32)Checksums.Length);
+        writer.WritePacketType(PacketId);
+        using var comp = writer.WriteLZ4();
+        comp.Writer.WriteUInt32((uint)Checksums.Length);
         foreach (var checksum in Checksums)
         {
-            writer.Write(checksum);
+            comp.Writer.WriteUInt32(checksum);
         }
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(ref BitReader reader)
     {
-        // Read the deserialized data from the decompressed stream
-        UInt32 length = reader.ReadUInt32();
-        Checksums = new UInt32[length];
+        reader.ReadPacketType();
+        using var decomp = reader.ReadLZ4(reader.BytesLeft);
+        uint length = decomp.Reader.ReadUInt32();
+        Checksums = new uint[length];
         for (int i = 0; i < length; i++)
         {
-            Checksums[i] = reader.ReadUInt32();
+            Checksums[i] = decomp.Reader.ReadUInt32();
         }
     }
 }

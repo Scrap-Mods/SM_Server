@@ -1,12 +1,11 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Utility.Serialization;
 
-public interface IPacket
+namespace ScrapServer.Networking.Packets;
+
+public interface IPacket : IBitSerializable
 {
-    public virtual static byte PacketId => 0;
+    public virtual static PacketType PacketId => PacketType.Empty;
 
     internal string PacketName => GetType().Name;
-
-    public abstract void Serialize(BinaryWriter writer);
-
-    public abstract void Deserialize(BinaryReader reader);
 }

@@ -1,6 +1,8 @@
 ﻿using ScrapServer.Networking.Packets;
 using ScrapServer.Utility;
+using ScrapServer.Utility.Serialization;
 using Steamworks.Data;
+using System.Buffers;
 
 namespace ScrapServer.Networking.Client.Steam;
 
@@ -9,6 +11,8 @@ namespace ScrapServer.Networking.Client.Steam;
 /// </summary>
 internal sealed class SteamworksClient : IClient
 {
+    private delegate void PacketHandler(ReadOnlySpan<byte> data);
+
     /// <inheritdoc/>
     public ClientState State
     {
@@ -35,7 +39,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private readonly List<(int packetId, Action<BinaryReader> handler)> packetHandlers;
+    private readonly List<(int packetId, PacketHandler handler)> packetHandlers;
     private readonly Connection connection;
 
     /// <summary>
@@ -44,7 +48,7 @@ internal sealed class SteamworksClient : IClient
     /// <param name="connection">The underlying steamworks connection.</param>
     public SteamworksClient(Connection connection)
     {
-        packetHandlers = new List<(int, Action<BinaryReader>)>();
+        packetHandlers = new List<(int, PacketHandler)>();
         this.connection = connection;
     }
 
@@ -53,16 +57,19 @@ internal sealed class SteamworksClient : IClient
     {
         var packetId = T.PacketId;
 
-        Action<BinaryReader> outerHandler = reader =>
+        PacketHandler outerHandler = span =>
         {
-            var packet = new T();
+            var reader = new BitReader(span, ArrayPool<byte>.Shared);
+            T packet;
+
             try
             {
-                packet.Deserialize(reader);
+                packet = reader.ReadObject<T>();
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Malformed packet:\n{e}");
+                return;
             }
 
             var args = new PacketEventArgs<T>(this, packetId, packet);
@@ -76,35 +83,24 @@ internal sealed class SteamworksClient : IClient
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
 
-        using var packetStream = new MemoryStream();
-        packetStream.WriteByte(T.PacketId);
+        using var writer = new BitWriter(ArrayPool<byte>.Shared);
+        writer.WriteObject<T>(packet);
 
-        using var dataStream = new MemoryStream();
-        using var dataWriter = new BigEndianBinaryWriter(dataStream);
-        packet.Serialize(dataWriter);
-
-        if (dataStream.Length > 0)
-        {
-            var compressedData = LZ4.Compress(dataStream.AsSpan());
-
-            packetStream.Write(compressedData);
-        }
-
-        connection.SendMessage(packetStream.AsSpan());
+        connection.SendMessage(writer.Data);
     }
 
     /// <summary>
     /// Runs the registered packet handlers.
     /// </summary>
     /// <param name="packetId">The id of the packet.</param>
-    /// <param name="reader">The binary reader for reading the decompressed data of the packet.</param>
-    internal void ReceivePacket(int packetId, BinaryReader reader)
+    /// <param name="data">The raw data of the packet.</param>
+    internal void ReceivePacket(int packetId, ReadOnlySpan<byte> data)
     {
         foreach (var (id, handler) in packetHandlers)
         {
             if (id == packetId)
             {
-                handler.Invoke(reader);
+                handler.Invoke(data);
             }
         }
     }

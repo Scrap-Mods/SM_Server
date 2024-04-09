@@ -78,12 +78,7 @@ public sealed class SteamworksServer : IServer
 
             byte packetId = dataSpan[0];
 
-            var decompressedData = LZ4.Decompress(dataSpan.Slice(1));
-
-            using var stream = new MemoryStream(decompressedData.ToArray());
-            using var reader = new BigEndianBinaryReader(stream);
-
-            client.ReceivePacket(packetId, reader);
+            client.ReceivePacket(packetId, dataSpan);
         }
     }
 

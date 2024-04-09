@@ -1,9 +1,7 @@
 ﻿using Steamworks;
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Client.Steam;
-
-
-
+using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer;
 
@@ -46,14 +44,14 @@ internal class Program
                 Console.WriteLine("Received Hello");
                 args.Client.SendPacket<ServerInfo>(new ServerInfo(
                     729, // protocol ver
-                    ServerInfo.EGamemode.FlatTerrain,
+                    Gamemode.FlatTerrain,
                     397817921, // seed
                     0, // game tick
-                    new ServerInfo.ModData[0],
+                    new ModData[0],
                     new byte[0],
-                    new ServerInfo.GenericData[0],
-                    new ServerInfo.GenericData[0],
-                    0 // flags)
+                    new GenericData[0],
+                    new GenericData[0],
+                    ServerFlags.None // flags)
                 ));
                 Console.WriteLine("Sent ServerInfo");
             });
