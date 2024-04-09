@@ -1,5 +1,5 @@
 ﻿using ScrapServer.Utility;
-using ScrapServer.Utility.Buffers;
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ScrapServer.Networking.Serialization;
@@ -15,11 +15,12 @@ public ref struct DecompressedData
     /// <value>Packet reader.</value>
     [UnscopedRef]
     public ref PacketReader Reader => ref reader;
-    
-    private readonly BorrowedBuffer buffer;
 
     private PacketReader reader;
     private bool disposed;
+
+    private readonly ArrayPool<byte> arrayPool;
+    private readonly byte[] array;
 
     /// <summary>
     /// Creates a new instance of <see cref="DecompressedData"/>.
@@ -37,22 +38,23 @@ public ref struct DecompressedData
     /// the actual length of decompressed data.
     /// </exception>
     public DecompressedData(
-        IBufferPool bufferPool,
         scoped ReadOnlySpan<byte> compressedData,
+        ArrayPool<byte> arrayPool,
         int decompressedLength,
         int maxTryCount = 1)
     {
-        buffer = bufferPool.GetBuffer(decompressedLength);
-        
+        this.arrayPool = arrayPool;
+        array = arrayPool.Rent(decompressedLength);
+
         for (int i = 0; i < maxTryCount; i++)
         {
-            if (LZ4.TryDecompress(compressedData, buffer, out int actualLength))
+            if (LZ4.TryDecompress(compressedData, array, out int actualLength))
             {
-                buffer.Resize(actualLength);
-                reader = new PacketReader(buffer, bufferPool);
+                reader = new PacketReader(array.AsSpan(0, actualLength), arrayPool);
                 return;
             }
-            buffer.Resize(buffer.Length * 2);
+            arrayPool.Return(array);
+            array = arrayPool.Rent(array.Length * 2);
         }
         throw Exceptions.BufferTooSmall;
     }
@@ -65,7 +67,7 @@ public ref struct DecompressedData
         if (!disposed)
         {
             disposed = true;
-            buffer.Dispose();
+            arrayPool.Return(array);
         }
     }
 }

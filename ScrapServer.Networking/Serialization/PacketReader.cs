@@ -1,4 +1,4 @@
-﻿using ScrapServer.Utility.Buffers;
+﻿using System.Buffers;
 using System.Text;
 
 namespace ScrapServer.Networking.Serialization;
@@ -8,24 +8,19 @@ public ref struct PacketReader
     public readonly int BytesLeft => buffer.Length - index - (bitIndex == 0 ? 0 : 1);
 
     private readonly ReadOnlySpan<byte> buffer;
-    private readonly IBufferPool bufferPool;
+    private readonly ArrayPool<byte> arrayPool;
 
     private int index;
     private int bitIndex;
 
     /// <summary>
-    /// The maximum length for temporary stack-allocated buffers.
-    /// </summary>
-    private const int StackAllocMaxLength = 32;
-
-    /// <summary>
     /// Initializes a new instance of <see cref="PacketReader"/>.
     /// </summary>
     /// <param name="buffer">The buffer containing the raw data of the packet.</param>
-    /// <param name="bufferPool">The buffer pool used for borrowing additional buffers.</param>
-    public PacketReader(ReadOnlySpan<byte> buffer, IBufferPool bufferPool)
+    /// <param name="arrayPool">The array pool for renting temporary buffers.</param>
+    public PacketReader(ReadOnlySpan<byte> buffer, ArrayPool<byte> arrayPool)
     {
-        this.bufferPool = bufferPool;
+        this.arrayPool = arrayPool;
         this.buffer = buffer;
     }
 
@@ -76,9 +71,9 @@ public ref struct PacketReader
             Advance(destination.Length, 0);
         }
         else for (int i = 0; i < destination.Length; i++)
-        {
-            destination[i] = ReadByte();
-        }
+            {
+                destination[i] = ReadByte();
+            }
     }
 
     public bool ReadBoolean()
@@ -168,17 +163,12 @@ public ref struct PacketReader
             DecodeChars(bytes, chars, encoding);
             Advance(encodedLength);
         }
-        else if (encodedLength <= StackAllocMaxLength)
-        {
-            Span<byte> bytes = stackalloc byte[encodedLength];
-            ReadBytes(bytes);
-            DecodeChars(bytes, chars, encoding);
-        }
         else
         {
-            using var bytes = bufferPool.GetBuffer(encodedLength);
+            var bytes = arrayPool.Rent(encodedLength);
             ReadBytes(bytes);
             DecodeChars(bytes, chars, encoding);
+            arrayPool.Return(bytes);
         }
     }
 
@@ -193,17 +183,13 @@ public ref struct PacketReader
             Advance(encodedLength);
             return DecodeString(bytes, encoding);
         }
-        else if (encodedLength <= StackAllocMaxLength)
-        {
-            Span<byte> bytes = stackalloc byte[encodedLength];
-            ReadBytes(bytes);
-            return DecodeString(bytes, encoding);
-        }
         else
         {
-            using var bytes = bufferPool.GetBuffer(encodedLength);
+            var bytes = arrayPool.Rent(encodedLength);
             ReadBytes(bytes);
-            return DecodeString(bytes, encoding);
+            var result = DecodeString(bytes, encoding);
+            arrayPool.Return(bytes);
+            return result;
         }
     }
 
@@ -222,19 +208,15 @@ public ref struct PacketReader
         {
             ThrowIfNotEnoughData(compressedLength);
             var compressed = buffer.Slice(index, compressedLength);
-            return new DecompressedData(bufferPool, compressed, decompressedLength, tryCount);
-        }
-        else if (compressedLength <= StackAllocMaxLength)
-        {
-            Span<byte> compressed = stackalloc byte[compressedLength];
-            ReadBytes(compressed);
-            return new DecompressedData(bufferPool, compressed, decompressedLength, tryCount);
+            return new DecompressedData(compressed, arrayPool, decompressedLength, tryCount);
         }
         else
         {
-            using var compressed = bufferPool.GetBuffer(compressedLength);
+            var compressed = arrayPool.Rent(compressedLength);
             ReadBytes(compressed);
-            return new DecompressedData(bufferPool, compressed, decompressedLength, tryCount);
+            var result = new DecompressedData(compressed, arrayPool, decompressedLength, tryCount);
+            arrayPool.Return(compressed);
+            return result;
         }
     }
 
