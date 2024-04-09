@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
-namespace ScrapServer.Networking.Serialization;
+namespace ScrapServer.Utility.Serialization;
 
 /// <summary>
 /// Writes non bit-aligned binary data to an array.

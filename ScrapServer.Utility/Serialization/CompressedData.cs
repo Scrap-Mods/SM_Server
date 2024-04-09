@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ScrapServer.Networking.Serialization;
+namespace ScrapServer.Utility.Serialization;
 
 /// <summary>
 /// Represents compressed LZ4 data.

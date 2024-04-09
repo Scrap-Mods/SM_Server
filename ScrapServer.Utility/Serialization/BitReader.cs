@@ -1,7 +1,7 @@
 ﻿using System.Buffers;
 using System.Text;
 
-namespace ScrapServer.Networking.Serialization;
+namespace ScrapServer.Utility.Serialization;
 
 /// <summary>
 /// Reads non bit-aligned binary data from a <see cref="ReadOnlySpan{T}"/>.

@@ -1,4 +1,4 @@
-﻿namespace ScrapServer.Networking.Serialization;
+﻿namespace ScrapServer.Utility.Serialization;
 
 /// <summary>
 /// Represents a byte order.

@@ -1,4 +1,4 @@
-﻿namespace ScrapServer.Networking.Serialization;
+﻿namespace ScrapServer.Utility.Serialization;
 
 /// <summary>
 /// Represents an object that can be serialized to a bit stream.
