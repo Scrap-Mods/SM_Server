@@ -1,4 +1,4 @@
-﻿using ScrapServer.Utility;
+﻿using ScrapServer.Networking.Packets.Data;
 using Steamworks;
 using Steamworks.Data;
 
@@ -76,7 +76,7 @@ public sealed class SteamworksServer : IServer
                 dataSpan = new ReadOnlySpan<byte>((void*)data, size);
             }
 
-            byte packetId = dataSpan[0];
+            var packetId = (PacketType)dataSpan[0];
 
             client.ReceivePacket(packetId, dataSpan);
         }

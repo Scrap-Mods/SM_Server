@@ -1,4 +1,5 @@
 ﻿using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer.Networking.Client;
 
@@ -18,7 +19,7 @@ public struct PacketEventArgs<T> where T : IPacket
     /// Gets the id of the packet.
     /// </summary>
     /// <value>Packet id.</value>
-    public byte PacketId { get; }
+    public PacketType PacketId { get; }
 
     /// <summary>
     /// Gets the packet data.
@@ -32,7 +33,7 @@ public struct PacketEventArgs<T> where T : IPacket
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, byte packetId, T packet)
+    public PacketEventArgs(IClient client, PacketType packetId, T packet)
     {
         Client = client;
         PacketId = packetId;

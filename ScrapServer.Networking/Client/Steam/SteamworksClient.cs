@@ -1,5 +1,5 @@
 ﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Utility;
+using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
 using Steamworks.Data;
 using System.Buffers;
@@ -39,7 +39,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private readonly List<(int packetId, PacketHandler handler)> packetHandlers;
+    private readonly List<(PacketType packetId, PacketHandler handler)> packetHandlers;
     private readonly Connection connection;
 
     /// <summary>
@@ -48,7 +48,7 @@ internal sealed class SteamworksClient : IClient
     /// <param name="connection">The underlying steamworks connection.</param>
     public SteamworksClient(Connection connection)
     {
-        packetHandlers = new List<(int, PacketHandler)>();
+        packetHandlers = new List<(PacketType, PacketHandler)>();
         this.connection = connection;
     }
 
@@ -94,7 +94,7 @@ internal sealed class SteamworksClient : IClient
     /// </summary>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="data">The raw data of the packet.</param>
-    internal void ReceivePacket(int packetId, ReadOnlySpan<byte> data)
+    internal void ReceivePacket(PacketType packetId, ReadOnlySpan<byte> data)
     {
         foreach (var (id, handler) in packetHandlers)
         {
