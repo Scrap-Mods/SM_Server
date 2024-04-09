@@ -7,7 +7,7 @@ namespace ScrapServer.Utility.Serialization;
 /// <summary>
 /// Writes non bit-aligned binary data to an array.
 /// </summary>
-public struct BitWriter
+public struct BitWriter : IDisposable
 {
     /// <summary>
     /// Gets the written data.
@@ -21,11 +21,13 @@ public struct BitWriter
     private int index;
     private int bitIndex;
 
+    private bool disposed = false;
+
     /// <summary>
     /// Initializes a new instance of <see cref="BitWriter"/>.
     /// </summary>
     /// <param name="arrayPool">The array pool for renting buffers for writing.</param>
-    internal BitWriter(ArrayPool<byte> arrayPool)
+    public BitWriter(ArrayPool<byte> arrayPool)
     {
         this.arrayPool = arrayPool;
         buffer = Array.Empty<byte>();
@@ -309,5 +311,17 @@ public struct BitWriter
     public CompressedData WriteLZ4()
     {
         return new CompressedData(ref this, arrayPool);
+    }
+
+    /// <summary>
+    /// Releases the underlying buffer.
+    /// </summary>
+    public void Dispose()
+    {
+        if (!disposed)
+        {
+            disposed = true;
+            arrayPool.Return(buffer);
+        }
     }
 }

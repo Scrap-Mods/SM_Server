@@ -8,12 +8,12 @@ public interface IBitSerializable
     /// <summary>
     /// Deserializes the object.
     /// </summary>
-    /// <param name="packetReader">The reader for reading the object data.</param>
-    public void Deserialize(ref BitReader packetReader);
+    /// <param name="reader">The reader for reading the object data.</param>
+    public void Deserialize(ref BitReader reader);
 
     /// <summary>
     /// Serializes the object.
     /// </summary>
-    /// <param name="packetWriter">The writer for writing the object data.</param>
-    public void Serialize(ref BitWriter packetWriter);
+    /// <param name="writer">The writer for writing the object data.</param>
+    public void Serialize(ref BitWriter writer);
 }
