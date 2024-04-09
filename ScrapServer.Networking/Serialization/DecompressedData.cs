@@ -5,14 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace ScrapServer.Networking.Serialization;
 
 /// <summary>
-/// Represents decompressed LZ4 packet data.
+/// Represents decompressed LZ4 data.
 /// </summary>
 public ref struct DecompressedData
 {
     /// <summary>
-    /// Gets the packet reader for reading the decompressed data.
+    /// Gets the reader for reading the decompressed data.
     /// </summary>
-    /// <value>Packet reader.</value>
+    /// <value>The reader.</value>
     [UnscopedRef]
     public ref PacketReader Reader => ref reader;
 
@@ -20,7 +20,7 @@ public ref struct DecompressedData
     private bool disposed;
 
     private readonly ArrayPool<byte> arrayPool;
-    private readonly byte[] array;
+    private readonly byte[] buffer;
 
     /// <summary>
     /// Creates a new instance of <see cref="DecompressedData"/>.
@@ -29,7 +29,7 @@ public ref struct DecompressedData
     /// If the provided buffer is too small for decompression, its length will be 
     /// doubled until it fits the data or <paramref name="maxTryCount"/> is reached.
     /// </remarks>
-    /// <param name="bufferPool">The buffer pool used for borrowing temporary buffers.</param>
+    /// <param name="arrayPool">The array pool for renting temporary buffers.</param>
     /// <param name="compressedData">The buffer with compressed data.</param>
     /// <param name="decompressedLength">The expected length of data after decompression.</param>
     /// <param name="maxTryCount">Maximum number of buffer allocation attempts (see remarks).</param>
@@ -44,17 +44,17 @@ public ref struct DecompressedData
         int maxTryCount = 1)
     {
         this.arrayPool = arrayPool;
-        array = arrayPool.Rent(decompressedLength);
+        buffer = arrayPool.Rent(decompressedLength);
 
         for (int i = 0; i < maxTryCount; i++)
         {
-            if (LZ4.TryDecompress(compressedData, array, out int actualLength))
+            if (LZ4.TryDecompress(compressedData, buffer, out int actualLength))
             {
-                reader = new PacketReader(array.AsSpan(0, actualLength), arrayPool);
+                reader = new PacketReader(buffer.AsSpan(0, actualLength), arrayPool);
                 return;
             }
-            arrayPool.Return(array);
-            array = arrayPool.Rent(array.Length * 2);
+            arrayPool.Return(buffer);
+            buffer = arrayPool.Rent(buffer.Length * 2);
         }
         throw Exceptions.BufferTooSmall;
     }
@@ -67,7 +67,7 @@ public ref struct DecompressedData
         if (!disposed)
         {
             disposed = true;
-            arrayPool.Return(array);
+            arrayPool.Return(buffer);
         }
     }
 }
