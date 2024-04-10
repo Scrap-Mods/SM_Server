@@ -7,7 +7,7 @@ internal static class BitReaderExtensions
 {
     public static PacketType ReadPacketType(this ref BitReader reader)
     {
-        return (PacketType)reader.ReadUInt8();
+        return (PacketType)reader.ReadByte();
     }
 
     public static Gamemode ReadGamemode(this ref BitReader reader)
@@ -17,6 +17,6 @@ internal static class BitReaderExtensions
 
     public static ServerFlags ReadServerFlags(this ref BitReader reader)
     {
-        return (ServerFlags)reader.ReadUInt8();
+        return (ServerFlags)reader.ReadByte();
     }
 }

@@ -7,7 +7,7 @@ internal static class BitWriterExtensions
 {
     public static void WritePacketType(this ref BitWriter writer, PacketType packetType)
     {
-        writer.WriteUInt8((byte)packetType);
+        writer.WriteByte((byte)packetType);
     }
 
     public static void WriteGamemode(this ref BitWriter writer, Gamemode gamemode)
@@ -17,6 +17,6 @@ internal static class BitWriterExtensions
 
     public static void WriteServerFlags(this ref BitWriter writer, ServerFlags flags)
     {
-        writer.WriteUInt8((byte)flags);
+        writer.WriteByte((byte)flags);
     }
 }

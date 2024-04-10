@@ -88,7 +88,7 @@ public struct BitWriter : IDisposable
     /// Writes a <see cref="byte"/>.
     /// </summary>
     /// <param name="value">The value to write.</param>
-    public void WriteUInt8(byte value)
+    public void WriteByte(byte value)
     {
         EnsureAdditionalCapacity(1);
         if (bitIndex == 0)
@@ -107,9 +107,9 @@ public struct BitWriter : IDisposable
     /// Writes a <see cref="sbyte"/>.
     /// </summary>
     /// <param name="value">The value to write.</param>
-    public void WriteInt8(sbyte value)
+    public void WriteSByte(sbyte value)
     {
-        WriteUInt8(unchecked((byte)value));
+        WriteByte(unchecked((byte)value));
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public struct BitWriter : IDisposable
         {
             for (int i = 0; i < bytes.Length; i++)
             {
-                WriteUInt8(bytes[i]);
+                WriteByte(bytes[i]);
             }
         }
         Advance(bytes.Length);
@@ -139,7 +139,7 @@ public struct BitWriter : IDisposable
     /// <param name="value">The value to write.</param>
     public void WriteBoolean(bool value)
     {
-        WriteUInt8((byte)(value ? 1 : 0));
+        WriteByte((byte)(value ? 1 : 0));
     }
 
     /// <summary>

@@ -58,7 +58,7 @@ public ref struct BitReader
     /// Reads a <see cref="byte"/> and advances the reader.
     /// </summary>
     /// <returns>The read <see cref="byte"/></returns>
-    public byte ReadUInt8()
+    public byte ReadByte()
     {
         if (bitIndex == 0)
         {
@@ -76,9 +76,9 @@ public ref struct BitReader
     /// Reads a <see cref="sbyte"/> and advances the reader.
     /// </summary>
     /// <returns>The read <see cref="sbyte"/></returns>
-    public sbyte ReadInt8()
+    public sbyte ReadSByte()
     {
-        return unchecked((sbyte)ReadUInt8());
+        return unchecked((sbyte)ReadByte());
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public ref struct BitReader
         {
             for (int i = 0; i < destination.Length; i++)
             {
-                destination[i] = ReadUInt8();
+                destination[i] = ReadByte();
             }
         }
     }
@@ -108,7 +108,7 @@ public ref struct BitReader
     /// <returns>The read <see cref="bool"/></returns>
     public bool ReadBoolean()
     {
-        return ReadUInt8() != 0;
+        return ReadByte() != 0;
     }
 
     /// <summary>
