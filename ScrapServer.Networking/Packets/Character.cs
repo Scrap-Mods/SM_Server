@@ -4,7 +4,7 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public class Character : IPacket
+public struct Character : IPacket
 {
     public static PacketType PacketId => PacketType.CharacterInfo;
 
@@ -28,13 +28,12 @@ public class Character : IPacket
     //}
     //SMPacket9 < optimize = false >;
 
-    // Constructor
     public Character()
     {
 
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         writer.WritePacketType(PacketId);
     }
@@ -42,6 +41,5 @@ public class Character : IPacket
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadPacketType();
-        // packet has no additional data to deserialize
     }
 }

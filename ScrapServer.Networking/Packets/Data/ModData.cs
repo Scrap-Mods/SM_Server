@@ -2,7 +2,7 @@
 
 namespace ScrapServer.Networking.Packets.Data;
 
-public class ModData : IBitSerializable
+public struct ModData : IBitSerializable
 {
     ulong FileId { get; set; }
     Guid UUID { get; set; }
@@ -19,7 +19,7 @@ public class ModData : IBitSerializable
         UUID = uuid;
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         using var comp = writer.WriteLZ4();
         comp.Writer.WriteUInt64(FileId);

@@ -4,14 +4,17 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public class ClientAccepted : IPacket
+public struct ClientAccepted : IPacket
 {
     public static PacketType PacketId => PacketType.ClientAccepted;
 
-    public void Serialize(ref BitWriter writer) 
+    public readonly void Serialize(ref BitWriter writer) 
     {
         writer.WritePacketType(PacketId);
     }
 
-    public void Deserialize(ref BitReader reader) { }
+    public readonly void Deserialize(ref BitReader reader) 
+    {
+        reader.ReadPacketType();
+    }
 }

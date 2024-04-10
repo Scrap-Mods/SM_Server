@@ -2,7 +2,7 @@
 
 namespace ScrapServer.Networking.Packets.Data;
 
-public class GenericData : IBitSerializable
+public struct GenericData : IBitSerializable
 {
     Guid UUID { get; set; }
     byte[] Key { get; set; }
@@ -19,7 +19,7 @@ public class GenericData : IBitSerializable
         Key = key;
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         using var comp = writer.WriteLZ4();
         comp.Writer.WriteGuid(UUID);

@@ -4,7 +4,7 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public class ServerInfo : IPacket
+public struct ServerInfo : IPacket
 {
     public static PacketType PacketId => PacketType.ServerInfo;
 
@@ -48,7 +48,7 @@ public class ServerInfo : IPacket
         Flags = flags;
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         writer.WritePacketType(PacketId);
 

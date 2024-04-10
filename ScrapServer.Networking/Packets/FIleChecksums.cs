@@ -4,7 +4,7 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public class FileChecksums : IPacket
+public struct FileChecksums : IPacket
 {
     public static PacketType PacketId => PacketType.FileChecksums;
     public uint[] Checksums { get; set; }
@@ -19,7 +19,7 @@ public class FileChecksums : IPacket
         Checksums = checksums;
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         writer.WritePacketType(PacketId);
         using var comp = writer.WriteLZ4();

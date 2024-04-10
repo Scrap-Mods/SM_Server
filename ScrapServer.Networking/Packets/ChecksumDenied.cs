@@ -4,7 +4,7 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public class ChecksumDenied : IPacket
+public struct ChecksumDenied : IPacket
 {
     public static PacketType PacketId => PacketType.ChecksumsDenied;
 
@@ -20,7 +20,7 @@ public class ChecksumDenied : IPacket
         Index = index;
     }
 
-    public void Serialize(ref BitWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
         writer.WritePacketType(PacketId);
         using var comp = writer.WriteLZ4();
