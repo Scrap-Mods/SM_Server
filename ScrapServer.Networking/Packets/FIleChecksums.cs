@@ -7,6 +7,8 @@ namespace ScrapServer.Networking.Packets;
 public struct FileChecksums : IPacket
 {
     public static PacketType PacketId => PacketType.FileChecksums;
+    public static bool IsCompressable => true;
+
     public UInt32[] Checksums { get; set; }
 
     public FileChecksums()
@@ -21,24 +23,20 @@ public struct FileChecksums : IPacket
 
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WritePacketType(PacketId);
-        using var comp = writer.WriteLZ4();
-        comp.Writer.WriteUInt32((UInt32)Checksums.Length);
+        writer.WriteUInt32((UInt32)Checksums.Length);
         foreach (uint checksum in Checksums)
         {
-            comp.Writer.WriteUInt32(checksum);
+            writer.WriteUInt32(checksum);
         }
     }
 
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadPacketType();
-        using var decomp = reader.ReadLZ4();
-        uint length = decomp.Reader.ReadUInt32();
+        uint length = reader.ReadUInt32();
         Checksums = new uint[length];
         for (int i = 0; i < length; i++)
         {
-            Checksums[i] = decomp.Reader.ReadUInt32();
+            Checksums[i] = reader.ReadUInt32();
         }
     }
 }

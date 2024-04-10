@@ -7,14 +7,9 @@ namespace ScrapServer.Networking.Packets;
 public struct Hello : IPacket
 {
     public static PacketType PacketId => PacketType.Hello;
+    public static bool IsCompressable => false;
 
-    public readonly void Serialize(ref BitWriter writer) 
-    {
-        writer.WritePacketType(PacketId);
-    }
+    public readonly void Serialize(ref BitWriter writer) { }
 
-    public readonly void Deserialize(ref BitReader reader) 
-    {
-        reader.ReadPacketType();
-    }
+    public readonly void Deserialize(ref BitReader reader) { }
 }

@@ -7,6 +7,7 @@ namespace ScrapServer.Networking.Packets;
 public struct ServerInfo : IPacket
 {
     public static PacketType PacketId => PacketType.ServerInfo;
+    public static bool IsCompressable => true;
 
     public UInt32 Version { get; set; }
     public Gamemode Gamemode { get; set; }
@@ -50,75 +51,67 @@ public struct ServerInfo : IPacket
 
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WritePacketType(PacketId);
+        writer.WriteUInt32(Version);
+        writer.WriteGamemode(Gamemode);
+        writer.WriteUInt32(Seed);
+        writer.WriteUInt32(GameTick);
 
-        using var comp = writer.WriteLZ4();
-
-        comp.Writer.WriteUInt32(Version);
-        comp.Writer.WriteGamemode(Gamemode);
-        comp.Writer.WriteUInt32(Seed);
-        comp.Writer.WriteUInt32(GameTick);
-
-        comp.Writer.WriteUInt32((UInt32)ModData.Length);
+        writer.WriteUInt32((UInt32)ModData.Length);
         foreach (var modData in ModData)
         {
-            comp.Writer.WriteObject(modData);
+            writer.WriteObject(modData);
         }
 
-        comp.Writer.WriteUInt32((UInt32)SomeData.Length);
-        comp.Writer.WriteBytes(SomeData);
+        writer.WriteUInt32((UInt32)SomeData.Length);
+        writer.WriteBytes(SomeData);
 
-        comp.Writer.WriteUInt32((UInt32)ScriptData.Length);
+        writer.WriteUInt32((UInt32)ScriptData.Length);
         foreach (var scriptData in ScriptData)
         {
-            comp.Writer.WriteObject(scriptData);
+            writer.WriteObject(scriptData);
         }
 
-        comp.Writer.WriteUInt32((UInt32)GenericData.Length);
+        writer.WriteUInt32((UInt32)GenericData.Length);
         foreach (var generictData in GenericData)
         {
-            comp.Writer.WriteObject(generictData);
+            writer.WriteObject(generictData);
         }
 
-        comp.Writer.WriteServerFlags(Flags);
+        writer.WriteServerFlags(Flags);
     }
 
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadPacketType();
+        Version = reader.ReadUInt32();
+        Gamemode = reader.ReadGamemode();
+        Seed = reader.ReadUInt32();
+        GameTick = reader.ReadUInt32();
 
-        using var decomp = reader.ReadLZ4();
-
-        Version = decomp.Reader.ReadUInt32();
-        Gamemode = decomp.Reader.ReadGamemode();
-        Seed = decomp.Reader.ReadUInt32();
-        GameTick = decomp.Reader.ReadUInt32();
-
-        var modDataCount = decomp.Reader.ReadUInt32();
+        var modDataCount = reader.ReadUInt32();
         ModData = new ModData[modDataCount];
         for (var i = 0; i < modDataCount; i++)
         {
-            ModData[i] = decomp.Reader.ReadObject<ModData>();
+            ModData[i] = reader.ReadObject<ModData>();
         }
 
-        var someDataCount = decomp.Reader.ReadUInt32();
+        var someDataCount = reader.ReadUInt32();
         SomeData = new byte[someDataCount];
-        decomp.Reader.ReadBytes(SomeData);
+        reader.ReadBytes(SomeData);
 
-        var scriptDataCount = decomp.Reader.ReadUInt32();
+        var scriptDataCount = reader.ReadUInt32();
         ScriptData = new GenericData[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = decomp.Reader.ReadObject<GenericData>();
+            ScriptData[i] = reader.ReadObject<GenericData>();
         }
 
-        var genericDataCount = decomp.Reader.ReadUInt32();
+        var genericDataCount = reader.ReadUInt32();
         GenericData = new GenericData[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = decomp.Reader.ReadObject<GenericData>();
+            GenericData[i] = reader.ReadObject<GenericData>();
         }
 
-        Flags = decomp.Reader.ReadServerFlags();
+        Flags = reader.ReadServerFlags();
     }
 }

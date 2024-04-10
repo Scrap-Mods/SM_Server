@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
 using ScrapServer.Utility.Serialization;
 using Steamworks.Data;
 using System.Buffers;
@@ -64,7 +65,7 @@ internal sealed class SteamworksClient : IClient
 
             try
             {
-                packet = reader.ReadObject<T>();
+                packet = reader.ReadPacket<T>();
             }
             catch (Exception e)
             {
@@ -83,10 +84,22 @@ internal sealed class SteamworksClient : IClient
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
 
-        using var writer = new BitWriter(ArrayPool<byte>.Shared);
-        writer.WriteObject<T>(packet);
+        BitWriter writer = new BitWriter(ArrayPool<byte>.Shared);
+
+        try
+        {
+            writer.WritePacket(packet);
+        }
+        catch (Exception e)
+        {
+            writer.Dispose();
+            Console.WriteLine($"Packet serialization failed:\n{e}");
+            return;
+        }
 
         connection.SendMessage(writer.Data);
+
+        writer.Dispose();
     }
 
     /// <summary>

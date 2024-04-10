@@ -7,6 +7,7 @@ namespace ScrapServer.Networking.Packets;
 public struct Character : IPacket
 {
     public static PacketType PacketId => PacketType.CharacterInfo;
+    public static bool IsCompressable => true;
 
     //typedef struct {
     //    byte data[16];
@@ -35,11 +36,9 @@ public struct Character : IPacket
 
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WritePacketType(PacketId);
     }
 
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadPacketType();
     }
 }
