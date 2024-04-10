@@ -87,7 +87,7 @@ public struct ServerInfo : IPacket
     {
         reader.ReadPacketType();
 
-        using var decomp = reader.ReadLZ4(reader.BytesLeft);
+        using var decomp = reader.ReadLZ4();
 
         Version = decomp.Reader.ReadUInt32();
         Gamemode = decomp.Reader.ReadGamemode();

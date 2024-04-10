@@ -1,5 +1,4 @@
-﻿using ScrapServer.Utility;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ScrapServer.Utility.Serialization;
@@ -16,10 +15,11 @@ public ref struct CompressedData
     [UnscopedRef]
     public ref BitWriter Writer => ref childWriter;
 
-    private readonly ArrayPool<byte> arrayPool;
-    private ref BitWriter parentWriter;
     private BitWriter childWriter;
     private bool disposed = false;
+
+    private readonly ArrayPool<byte> arrayPool;
+    private ref BitWriter parentWriter;
 
     /// <summary>
     /// Initializes a new instance of <see cref="CompressedData"/>.

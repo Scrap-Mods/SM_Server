@@ -1,5 +1,4 @@
-﻿using ScrapServer.Utility;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ScrapServer.Utility.Serialization;
@@ -17,13 +16,13 @@ public ref struct DecompressedData
     public ref BitReader Reader => ref reader;
 
     private BitReader reader;
-    private bool disposed;
+    private bool disposed = false;
 
     private readonly ArrayPool<byte> arrayPool;
-    private readonly byte[] buffer;
+    private readonly byte[]? buffer;
 
     /// <summary>
-    /// Creates a new instance of <see cref="DecompressedData"/>.
+    /// Initializes a new instance of <see cref="DecompressedData"/>.
     /// </summary>
     /// <remarks>
     /// If the provided buffer is too small for decompression, its length will be 
@@ -44,7 +43,15 @@ public ref struct DecompressedData
         int maxTryCount = 1)
     {
         this.arrayPool = arrayPool;
-        buffer = arrayPool.Rent(decompressedLength);
+
+        if (compressedData.Length == 0)
+        {
+            buffer = null;
+            reader = new BitReader(ReadOnlySpan<byte>.Empty, arrayPool);
+            return;
+        }
+
+        buffer = arrayPool.Rent(decompressedLength + 1);
 
         for (int i = 0; i < maxTryCount; i++)
         {
@@ -67,7 +74,10 @@ public ref struct DecompressedData
         if (!disposed)
         {
             disposed = true;
-            arrayPool.Return(buffer);
+            if (buffer is not null)
+            {
+                arrayPool.Return(buffer);
+            }
         }
     }
 }

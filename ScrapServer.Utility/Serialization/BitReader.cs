@@ -229,10 +229,10 @@ public ref struct BitReader
     /// <summary>
     /// Reads encoded text of the specified length into a <see cref="char"/> buffer and advances the reader.
     /// </summary>
-    /// <param name="encodedLength">The length of the encoded text in bytes.</param>
     /// <param name="chars">The buffer to write the decoded text into.</param>
+    /// <param name="encodedLength">The length of the encoded text in bytes.</param>
     /// <param name="encoding">The text encoding (<see cref="Encoding.UTF8"/> by default).</param>
-    public void ReadChars(int encodedLength, scoped Span<char> chars, Encoding? encoding = null)
+    public void ReadChars(scoped Span<char> chars, int encodedLength, Encoding? encoding = null)
     {
         encoding ??= Encoding.UTF8;
 
@@ -255,11 +255,15 @@ public ref struct BitReader
     /// <summary>
     /// Reads a text string of the specified length and advances the reader.
     /// </summary>
-    /// <param name="encodedLength">The length of the encoded text in bytes.</param>
+    /// <param name="encodedLength">The length of the encoded text in bytes (the number of bytes left to read by default).</param>
     /// <param name="encoding">The text encoding (<see cref="Encoding.UTF8"/> by default).</param>
     /// <returns>The read <see cref="string"/>.</returns>
-    public string ReadString(int encodedLength, Encoding? encoding = null)
+    public string ReadString(int encodedLength = -1, Encoding? encoding = null)
     {
+        if (encodedLength < 0)
+        {
+            encodedLength = BytesLeft;
+        }
         encoding ??= Encoding.UTF8;
 
         if (bitIndex == 0)
@@ -294,17 +298,26 @@ public ref struct BitReader
     /// <summary>
     /// Reads and decompresses a blob of LZ4 compressed data and advances the reader.
     /// </summary>
-    /// <param name="compressedLength">The length of the blob.</param>
+    /// <param name="compressedLength">
+    /// The length of the blob (the number of bytes left to read by default).
+    /// </param>
     /// <param name="decompressedLength">
-    /// The length of the decompressed data (estimated to be 2 * <paramref name="compressedLength"/> by default).
+    /// The length of the decompressed data (2 * <paramref name="compressedLength"/> by default).
     /// </param>
     /// <param name="tryCount">
-    /// The max number of tries decompression will be attempted with an increased buffer size.
+    /// The max number of tries decompression will be attempted with an increased buffer size (3 by default).
     /// </param>
     /// <returns>The decompressed data that can be read with <see cref="DecompressedData.Reader"/>.</returns>
-    public DecompressedData ReadLZ4(int compressedLength, int decompressedLength = -1, int tryCount = 3)
+    public DecompressedData ReadLZ4(int compressedLength = -1, int decompressedLength = -1, int tryCount = 3)
     {
-        decompressedLength = decompressedLength < 1 ? compressedLength * 2 : decompressedLength;
+        if (compressedLength < 0)
+        {
+            compressedLength = BytesLeft;
+        }
+        if (decompressedLength < 0)
+        {
+            decompressedLength = compressedLength * 2;
+        }
 
         if (bitIndex == 0)
         {

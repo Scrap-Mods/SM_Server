@@ -30,7 +30,7 @@ public struct ChecksumDenied : IPacket
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadPacketType();
-        using var comp = reader.ReadLZ4(reader.BytesLeft);
+        using var comp = reader.ReadLZ4();
         Index = comp.Reader.ReadUInt32();
     }
 }
