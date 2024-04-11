@@ -9,15 +9,27 @@ namespace ScrapServer.Utility.Serialization;
 public ref struct BitReader
 {
     /// <summary>
-    /// Gets the count of full bytes available for reading.
+    /// Gets the current byte position of the reader.
+    /// </summary>
+    /// <value>Current byte index.</value>
+    public readonly int ByteIndex => byteIndex;
+
+    /// <summary>
+    /// Gets the current bit position of the reader.
+    /// </summary>
+    /// <value>Current bit index from 0 to 8.</value>
+    public readonly int BitIndex => bitIndex;
+
+    /// <summary>
+    /// Gets the number of full bytes available for reading.
     /// </summary>
     /// <value>How many bytes are left to be read.</value>
-    public readonly int BytesLeft => buffer.Length - index - (bitIndex == 0 ? 0 : 1);
+    public readonly int BytesLeft => buffer.Length - byteIndex - (bitIndex + 7) / 8;
 
     private readonly ReadOnlySpan<byte> buffer;
     private readonly ArrayPool<byte> arrayPool;
 
-    private int index;
+    private int byteIndex;
     private int bitIndex;
 
     /// <summary>
@@ -32,14 +44,35 @@ public ref struct BitReader
     }
 
     /// <summary>
+    /// Moves the reader to the specified position.
+    /// </summary>
+    /// <param name="byteIndex">The byte index.</param>
+    /// <param name="bitIndex">The bit index.</param>
+    public void Seek(int byteIndex, int bitIndex = 0)
+    {
+        this.byteIndex = byteIndex + bitIndex / 8;
+        this.bitIndex = bitIndex % 8;
+    }
+
+    /// <summary>
     /// Moves the reader forward by a specified number of bits and bytes.
     /// </summary>
-    /// <param name="byteCount">The count of bytes to advance the reader by</param>
-    /// <param name="bitCount">The count of bits to advance the reader by.</param>
+    /// <param name="byteCount">The number of bytes.</param>
+    /// <param name="bitCount">The number of bits.</param>
     public void Advance(int byteCount, int bitCount = 0)
     {
-        index = index + byteCount + (bitIndex + bitCount) / 8;
-        bitIndex = (bitIndex + bitCount) % 8;
+        Seek(byteIndex + byteCount, bitIndex + bitCount);
+    }
+
+    /// <summary>
+    /// Advances the reader to the nearest beginning of byte.
+    /// </summary>
+    public void GoToNearestByte()
+    {
+        if (bitIndex != 0)
+        {
+            Advance(0, 8 - bitIndex);
+        }
     }
 
     /// <summary>
@@ -48,7 +81,7 @@ public ref struct BitReader
     /// <returns>The read bit.</returns>
     public bool ReadBit()
     {
-        byte bufferByte = buffer[index];
+        byte bufferByte = buffer[byteIndex];
         bool bit = (bufferByte & BitHelper.Bit(bitIndex)) != 0;
         Advance(0, 1);
         return bit;
@@ -62,12 +95,12 @@ public ref struct BitReader
     {
         if (bitIndex == 0)
         {
-            var bufferByte = buffer[index];
+            var bufferByte = buffer[byteIndex];
             Advance(1);
             return bufferByte;
         }
-        int left = buffer[index] << bitIndex;
-        int right = buffer[index + 1] >>> (8 - bitIndex);
+        int left = buffer[byteIndex] << bitIndex;
+        int right = buffer[byteIndex + 1] >>> (8 - bitIndex);
         Advance(1);
         return unchecked((byte)(left | right));
     }
@@ -90,7 +123,7 @@ public ref struct BitReader
         ThrowIfNotEnoughData(destination.Length);
         if (bitIndex == 0)
         {
-            buffer.Slice(index, destination.Length).CopyTo(destination);
+            buffer.Slice(byteIndex, destination.Length).CopyTo(destination);
             Advance(destination.Length, 0);
         }
         else
@@ -239,7 +272,7 @@ public ref struct BitReader
         if (bitIndex == 0)
         {
             ThrowIfNotEnoughData(encodedLength);
-            var bytes = buffer.Slice(index, encodedLength);
+            var bytes = buffer.Slice(byteIndex, encodedLength);
             DecodeChars(bytes, chars, encoding);
             Advance(encodedLength);
         }
@@ -269,7 +302,7 @@ public ref struct BitReader
         if (bitIndex == 0)
         {
             ThrowIfNotEnoughData(encodedLength);
-            var bytes = buffer.Slice(index, encodedLength);
+            var bytes = buffer.Slice(byteIndex, encodedLength);
             Advance(encodedLength);
             return DecodeString(bytes, encoding);
         }
@@ -322,7 +355,7 @@ public ref struct BitReader
         if (bitIndex == 0)
         {
             ThrowIfNotEnoughData(compressedLength);
-            var compressed = buffer.Slice(index, compressedLength);
+            var compressed = buffer.Slice(byteIndex, compressedLength);
             return new DecompressedData(compressed, arrayPool, decompressedLength, tryCount);
         }
         else

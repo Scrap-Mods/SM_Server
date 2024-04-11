@@ -10,15 +10,27 @@ namespace ScrapServer.Utility.Serialization;
 public struct BitWriter : IDisposable
 {
     /// <summary>
+    /// Gets the current byte position of the writer.
+    /// </summary>
+    /// <value>Current byte index.</value>
+    public readonly int ByteIndex => byteIndex;
+
+    /// <summary>
+    /// Gets the current bit position of the writer.
+    /// </summary>
+    /// <value>Current bit index from 0 to 8.</value>
+    public readonly int BitIndex => bitIndex;
+
+    /// <summary>
     /// Gets the written data.
     /// </summary>
     /// <value>The span containing the written data.</value>
-    public readonly ReadOnlySpan<byte> Data => new ReadOnlySpan<byte>(buffer, 0, index + (bitIndex != 0 ? 1 : 0));
+    public readonly ReadOnlySpan<byte> Data => new ReadOnlySpan<byte>(buffer, 0, byteIndex + (bitIndex + 7) / 8);
 
     private readonly ArrayPool<byte> arrayPool;
     private byte[] buffer;
 
-    private int index;
+    private int byteIndex;
     private int bitIndex;
 
     private bool disposed = false;
@@ -34,14 +46,46 @@ public struct BitWriter : IDisposable
     }
 
     /// <summary>
+    /// Moves the writer to the specified position.
+    /// </summary>
+    /// <param name="byteIndex">The byte index.</param>
+    /// <param name="bitIndex">The bit index.</param>
+    public void Seek(int byteIndex, int bitIndex = 0)
+    {
+        this.byteIndex = byteIndex + bitIndex / 8;
+        this.bitIndex = bitIndex % 8;
+    }
+
+    /// <summary>
+    /// Moves the writer forward by the specified number of bits and bytes.
+    /// </summary>
+    /// <param name="byteCount">The numbers of bytes.</param>
+    /// <param name="bitCount">The number of bits.</param>
+    public void Advance(int byteCount, int bitCount = 0)
+    {
+        Seek(byteIndex + byteCount, bitIndex + bitCount);
+    }
+
+    /// <summary>
+    /// Advances the writer to the nearest beginning of byte.
+    /// </summary>
+    public void GoToNearestByte()
+    {
+        if (bitIndex != 0)
+        {
+            Advance(0, 8 - bitIndex);
+        }
+    }
+
+    /// <summary>
     /// Preallocates the specified number of bits and bytes.
     /// </summary>
-    /// <param name="byteCount">The desired number of bytes.</param>
-    /// <param name="bitCount">The desired number of bits.</param>
-    public void EnsureAdditionalCapacity(int byteCount, int bitCount = 0)
+    /// <param name="byteCount">The number of bytes.</param>
+    /// <param name="bitCount">The number of bits.</param>
+    public void EnsureCapacity(int byteCount, int bitCount = 0)
     {
-        int oldLength = index + bitIndex / 8 + (bitIndex % 8 != 0 ? 1 : 0);
-        int newLength = index + byteCount + (bitIndex + bitCount) / 8 + ((bitIndex + bitCount) % 8 != 0 ? 1 : 0);
+        int oldLength = byteIndex + (bitIndex + 7) / 8;
+        int newLength = byteCount + (bitCount + 7) / 8;
         if (buffer.Length >= newLength)
         {
             return;
@@ -53,21 +97,14 @@ public struct BitWriter : IDisposable
         buffer = newBuffer;
     }
 
-    private void Advance(int byteCount, int bitCount = 0)
-    {
-        index = index + byteCount + (bitIndex + bitCount) / 8;
-        bitIndex = (bitIndex + bitCount) % 8;
-    }
-
     /// <summary>
-    /// Fills the specified number of bits and bytes with zeroes.
+    /// Preallocates the specified number of bits and bytes on top of existing capacity.
     /// </summary>
-    /// <param name="byteCount">The number of bytes.</param>
-    /// <param name="bitCount">The number of bits.</param>
-    public void WritePadding(int byteCount, int bitCount = 0)
+    /// <param name="byteCount">The number of extra bytes.</param>
+    /// <param name="bitCount">The number of extra bits.</param>
+    public void EnsureAdditionalCapacity(int byteCount, int bitCount = 0)
     {
-        EnsureAdditionalCapacity(byteCount, bitCount);
-        Advance(byteCount, bitCount);
+        EnsureCapacity(byteIndex + byteCount, bitIndex + bitCount);
     }
 
     /// <summary>
@@ -79,7 +116,11 @@ public struct BitWriter : IDisposable
         EnsureAdditionalCapacity(0, 1);
         if (value)
         {
-            buffer[index] = unchecked((byte)(buffer[index] | BitHelper.Bit(bitIndex)));
+            buffer[byteIndex] = unchecked((byte)(buffer[byteIndex] | BitHelper.Bit(bitIndex)));
+        }
+        else
+        {
+            buffer[byteIndex] = unchecked((byte)(buffer[byteIndex] & ~BitHelper.Bit(bitIndex)));
         }
         Advance(0, 1);
     }
@@ -93,12 +134,19 @@ public struct BitWriter : IDisposable
         EnsureAdditionalCapacity(1);
         if (bitIndex == 0)
         {
-            buffer[index] = value;
+            buffer[byteIndex] = value;
         }
         else
         {
-            buffer[index] = unchecked((byte)(buffer[index] | (value >>> bitIndex)));
-            buffer[index + 1] = unchecked((byte)(value << (8 - bitIndex)));
+            int oldMask = BitHelper.LeftBitMask(bitIndex);
+            int oldLeft = buffer[byteIndex] & oldMask;
+            int oldRight = buffer[byteIndex + 1] & ~oldMask;
+
+            int newLeft = value >>> bitIndex;
+            int newRight = value << (8 - bitIndex);
+
+            buffer[byteIndex] = unchecked((byte)(oldLeft | newLeft));
+            buffer[byteIndex + 1] = unchecked((byte)(oldRight | newRight));
         }
         Advance(1);
     }
@@ -121,7 +169,8 @@ public struct BitWriter : IDisposable
         EnsureAdditionalCapacity(bytes.Length);
         if (bitIndex == 0)
         {
-            bytes.CopyTo(buffer.AsSpan(index, bytes.Length));
+            bytes.CopyTo(buffer.AsSpan(byteIndex, bytes.Length));
+            Advance(bytes.Length);
         }
         else
         {
@@ -130,11 +179,10 @@ public struct BitWriter : IDisposable
                 WriteByte(bytes[i]);
             }
         }
-        Advance(bytes.Length);
     }
 
     /// <summary>
-    /// Writes a boolean value as a byte (<c>0x01</c> if true, <c>0x00</c> if false).
+    /// Writes a boolean value as a byte (<see langword="true"/> as <c>0x01</c>, <see langword="false"/> as <c>0x00</c>).
     /// </summary>
     /// <param name="value">The value to write.</param>
     public void WriteBoolean(bool value)
@@ -267,11 +315,11 @@ public struct BitWriter : IDisposable
         encoding ??= Encoding.UTF8;
 
         var byteCount = encoding.GetByteCount(chars);
-        EnsureAdditionalCapacity(byteCount);
-
+        
         if (bitIndex == 0)
         {
-            encoding.TryGetBytes(chars, buffer.AsSpan(index, byteCount), out int bytesWritten);
+            EnsureAdditionalCapacity(byteCount);
+            encoding.TryGetBytes(chars, buffer.AsSpan(byteIndex, byteCount), out int bytesWritten);
             Advance(bytesWritten);
         }
         else
