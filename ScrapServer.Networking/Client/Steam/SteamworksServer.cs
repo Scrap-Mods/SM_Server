@@ -79,6 +79,7 @@ public sealed class SteamworksServer : IServer
             var packetId = (PacketId)dataSpan[0];
 
             client.ReceivePacket(packetId, dataSpan);
+            clientManager.ReceivePacket(client, packetId, dataSpan);
         }
     }
 
@@ -102,6 +103,9 @@ public sealed class SteamworksServer : IServer
     private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
+    private RawPacketEventHandler? packetHandler = null;
+    private RawPacketEventHandler?[]? typedPacketHandlers = null;
+
     private bool isDisposed = false;
 
     /// <summary>
@@ -114,6 +118,26 @@ public sealed class SteamworksServer : IServer
         clients = new Dictionary<uint, SteamworksClient>();
         socketManager = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
         socketManager.Interface = new SocketInterface(this);
+    }
+
+    /// <inheritdoc/>
+    public void HandleRaw(RawPacketEventHandler handler)
+    {
+        packetHandler += handler;
+    }
+
+    /// <inheritdoc/>
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
+    {
+        typedPacketHandlers ??= new RawPacketEventHandler[256];
+        typedPacketHandlers[(byte)packetId] += handler;
+    }
+
+    private void ReceivePacket(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
+    {
+        var args = new RawPacketEventArgs(client, packetId, data);
+        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
+        packetHandler?.Invoke(this, args);
     }
 
     /// <inheritdoc/>
@@ -157,4 +181,5 @@ public sealed class SteamworksServer : IServer
             GC.SuppressFinalize(this);
         }
     }
+
 }

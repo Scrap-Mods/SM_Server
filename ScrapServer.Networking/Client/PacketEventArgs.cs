@@ -4,7 +4,7 @@ using ScrapServer.Networking.Packets.Data;
 namespace ScrapServer.Networking.Client;
 
 /// <summary>
-/// The arguments for an incoming client packet event (automatically parsed).
+/// The arguments for an incoming client packet event.
 /// </summary>
 public readonly struct PacketEventArgs<T> where T : IPacket
 {

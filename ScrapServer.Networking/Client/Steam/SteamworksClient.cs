@@ -35,16 +35,17 @@ internal sealed class SteamworksClient : IClient
 
     /// <inheritdoc/>
     public string? Username => username;
-    private readonly string? username;
+    private readonly string? username = null;
 
     private ClientState state = ClientState.Connecting;
 
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private RawPacketEventHandler? packetHandler;
-    private readonly RawPacketEventHandler?[] typedPacketHandlers;
     private readonly Connection connection;
+
+    private RawPacketEventHandler? packetHandler = null;
+    private RawPacketEventHandler?[]? typedPacketHandlers = null;
 
     /// <summary>
     /// Initializes a new instance of <see cref="SteamworksClient"/>.
@@ -54,9 +55,6 @@ internal sealed class SteamworksClient : IClient
     public SteamworksClient(Connection connection, NetIdentity identity)
     {
         this.connection = connection;
-
-        typedPacketHandlers = new RawPacketEventHandler?[256];
-        username = null;
         if (identity.IsSteamId && identity.SteamId.IsValid)
         {
             username = new Friend(identity.SteamId).Name;
@@ -66,6 +64,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
     {
+        typedPacketHandlers ??= new RawPacketEventHandler[256];
         typedPacketHandlers[(byte)packetId] += handler;
     }
 
@@ -90,7 +89,7 @@ internal sealed class SteamworksClient : IClient
     internal void ReceivePacket(PacketId packetId, ReadOnlySpan<byte> data)
     {
         var args = new RawPacketEventArgs(this, packetId, data);
-        typedPacketHandlers[(byte)packetId]?.Invoke(this, args);
+        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
         packetHandler?.Invoke(this, args);
     }
 
