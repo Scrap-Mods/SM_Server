@@ -3,7 +3,7 @@
 namespace ScrapServer.Networking.Client;
 
 /// <summary>
-/// The arguments for an incoming client packet event.
+/// The arguments for an incoming raw packet event.
 /// </summary>
 public readonly ref struct RawPacketEventArgs
 {
@@ -20,9 +20,8 @@ public readonly ref struct RawPacketEventArgs
     public PacketId PacketId { get; }
 
     /// <summary>
-    /// Gets the data of the packet excluding the packet id.
+    /// Gets the raw data of the packet.
     /// </summary>
-    /// <remarks>The data is as received from the client; it is NOT decompressed.</remarks>
     /// <value>Packet data.</value>
     public ReadOnlySpan<byte> Data { get; }
 

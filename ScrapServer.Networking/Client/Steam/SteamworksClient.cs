@@ -11,8 +11,6 @@ namespace ScrapServer.Networking.Client.Steam;
 /// </summary>
 internal sealed class SteamworksClient : IClient
 {
-    private delegate void PacketHandler(ReadOnlySpan<byte> data);
-
     /// <inheritdoc/>
     public ClientState State
     {
@@ -44,7 +42,8 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private readonly PacketEventHandler?[] packetHandlers;
+    private RawPacketEventHandler? packetHandler;
+    private readonly RawPacketEventHandler?[] typedPacketHandlers;
     private readonly Connection connection;
 
     /// <summary>
@@ -56,7 +55,7 @@ internal sealed class SteamworksClient : IClient
     {
         this.connection = connection;
 
-        packetHandlers = new PacketEventHandler?[256];
+        typedPacketHandlers = new RawPacketEventHandler?[256];
         username = null;
         if (identity.IsSteamId && identity.SteamId.IsValid)
         {
@@ -65,19 +64,22 @@ internal sealed class SteamworksClient : IClient
     }
 
     /// <inheritdoc/>
-    public void HandleRawPacket(PacketId packetId, PacketEventHandler handler)
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
     {
-        packetHandlers[(byte)packetId] += handler;
+        typedPacketHandlers[(byte)packetId] += handler;
     }
 
     /// <inheritdoc/>
-    public void SendRawPacket(PacketId packetId, ReadOnlySpan<byte> data)
+    public void HandleRaw(RawPacketEventHandler handler)
+    {
+        packetHandler += handler;
+    }
+
+    /// <inheritdoc/>
+    public void SendRaw(ReadOnlySpan<byte> data)
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-        using BitWriter writer = BitWriter.WithSharedPool();
-        writer.WriteByte((byte)packetId);
-        writer.WriteBytes(data);
-        connection.SendMessage(writer.Data);
+        connection.SendMessage(data);
     }
 
     /// <summary>
@@ -87,7 +89,9 @@ internal sealed class SteamworksClient : IClient
     /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
     internal void ReceivePacket(PacketId packetId, ReadOnlySpan<byte> data)
     {
-        packetHandlers[(byte)packetId]?.Invoke(this, new RawPacketEventArgs(this, packetId, data));
+        var args = new RawPacketEventArgs(this, packetId, data);
+        typedPacketHandlers[(byte)packetId]?.Invoke(this, args);
+        packetHandler?.Invoke(this, args);
     }
 
     /// <inheritdoc/>
@@ -123,7 +127,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public override string ToString()
     {
-        return $"Steam client '{connection.Id}'";
+        return $"Steam client '{username ?? connection.Id.ToString()}'";
     }
 
     ~SteamworksClient()

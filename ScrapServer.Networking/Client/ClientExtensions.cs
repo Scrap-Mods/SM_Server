@@ -1,5 +1,7 @@
 ﻿using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using System.Diagnostics;
 
 namespace ScrapServer.Networking.Client;
 
@@ -17,6 +19,7 @@ public static class ClientExtensions
     public static void SendPacket<T>(this IClient client, T packet) where T : IPacket
     {
         var writer = BitWriter.WithSharedPool();
+        writer.WriteByte((byte)T.PacketId);
         try
         {
             if (T.IsCompressable)
@@ -28,7 +31,7 @@ public static class ClientExtensions
             {
                 writer.WriteObject(packet);
             }
-            client.SendRawPacket(T.PacketId, writer.Data);
+            client.SendRaw(writer.Data);
         }
         finally
         {
@@ -44,10 +47,14 @@ public static class ClientExtensions
     /// <param name="handler">The delegate to be called when a matching packet is received.</param>
     public static void HandlePacket<T>(this IClient client, EventHandler<PacketEventArgs<T>> handler) where T : IPacket, new()
     {
-        client.HandleRawPacket(T.PacketId, (o, args) =>
+        client.HandleRaw(T.PacketId, (o, args) =>
         {
             var packet = new T();
             var reader = BitReader.WithSharedPool(args.Data);
+            if ((PacketId)reader.ReadByte() != T.PacketId)
+            {
+                throw new UnreachableException("Packet id mismatch");
+            }
             if (T.IsCompressable)
             {
                 using var decomp = reader.ReadLZ4();

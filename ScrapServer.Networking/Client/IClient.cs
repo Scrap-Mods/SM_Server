@@ -1,5 +1,4 @@
-﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer.Networking.Client;
 
@@ -8,7 +7,7 @@ namespace ScrapServer.Networking.Client;
 /// </summary>
 /// <param name="sender">The sender of the event.</param>
 /// <param name="args">The event args.</param>
-public delegate void PacketEventHandler(object? sender, RawPacketEventArgs args);
+public delegate void RawPacketEventHandler(object? sender, RawPacketEventArgs args);
 
 /// <summary>
 /// Represents a client connected to a <see cref="IServer"/> for sending and receiving packets.
@@ -33,22 +32,23 @@ public interface IClient : IDisposable
     public event EventHandler<ClientEventArgs>? StateChanged;
 
     /// <summary>
-    /// Registers a handler for packets with the specified id coming from the client.
+    /// Registers a handler for incoming packets.
+    /// </summary>
+    /// <param name="handler">The delegate to be called when a packet is receive.</param>
+    public void HandleRaw(RawPacketEventHandler handler);
+
+    /// <summary>
+    /// Registers a handler for incoming packets with the specified id.
     /// </summary>
     /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
     /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandleRawPacket(PacketId packetId, PacketEventHandler handler);
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
 
     /// <summary>
-    /// Sends a packet to the client.
+    /// Sends a raw packet to the client.
     /// </summary>
-    /// <remarks>
-    /// <paramref name="data"/> should be already compressed if needed
-    /// and should not contain <paramref name="packetId"/>.
-    /// </remarks>
-    /// <param name="packetId">The packet id.</param>
-    /// <param name="data">The data of the packet.</param>
-    public void SendRawPacket(PacketId packetId, ReadOnlySpan<byte> data);
+    /// <param name="data">The raw packet data.</param>
+    public void SendRaw(ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Accepts the incoming connection.
