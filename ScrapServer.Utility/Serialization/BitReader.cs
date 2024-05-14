@@ -44,6 +44,16 @@ public ref struct BitReader
     }
 
     /// <summary>
+    /// Creates a new <see cref="BitReader"/> instance using <see cref="ArrayPool{T}.Shared"/>.
+    /// </summary>
+    /// <param name="data">The buffer containing the raw data.</param>
+    /// <returns>The created <see cref="BitReader"/>.</returns>
+    public static BitReader WithSharedPool(ReadOnlySpan<byte> data)
+    {
+        return new BitReader(data, ArrayPool<byte>.Shared);
+    }
+
+    /// <summary>
     /// Moves the reader to the specified position.
     /// </summary>
     /// <param name="byteIndex">The byte index.</param>

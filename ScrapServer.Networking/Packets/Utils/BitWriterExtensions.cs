@@ -14,18 +14,4 @@ internal static class BitWriterExtensions
     {
         writer.WriteByte((byte)flags);
     }
-
-    public static void WritePacket<T>(this ref BitWriter writer, T packet) where T : IPacket
-    {
-        writer.WriteByte((byte)T.PacketId);
-        if (T.IsCompressable)
-        {
-            using var comp = writer.WriteLZ4();
-            comp.Writer.WriteObject(packet);
-        }
-        else
-        {
-            writer.WriteObject(packet);
-        }
-    }
 }

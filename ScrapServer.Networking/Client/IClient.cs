@@ -8,7 +8,7 @@ namespace ScrapServer.Networking.Client;
 /// </summary>
 /// <param name="sender">The sender of the event.</param>
 /// <param name="args">The event args.</param>
-public delegate void PacketEventHandler(object? sender, PacketEventArgs args);
+public delegate void PacketEventHandler(object? sender, RawPacketEventArgs args);
 
 /// <summary>
 /// Represents a client connected to a <see cref="IServer"/> for sending and receiving packets.

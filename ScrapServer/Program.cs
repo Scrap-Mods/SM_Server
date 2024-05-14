@@ -3,6 +3,7 @@ using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Client.Steam;
 using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using ScrapServer.Networking.Client;
 
 namespace ScrapServer;
 
@@ -40,12 +41,10 @@ internal class Program
         {
             Console.WriteLine($"Client connected! {args.Client.Username}");
 
-            args.Client.HandleRawPacket(PacketType.Hello, (o, args2) =>
+            args.Client.HandlePacket<Hello>((o, args2) =>
             {
                 Console.WriteLine("Received Hello");
-                using var writer = BitWriter.FromSharedPool();
-                var comp = writer.WriteLZ4();
-                comp.Writer.WriteObject(new ServerInfo(
+                args.Client.SendPacket(new ServerInfo(
                     729, // protocol ver
                     Gamemode.FlatTerrain,
                     397817921, // seed
@@ -56,12 +55,10 @@ internal class Program
                     new GenericData[0],
                     ServerFlags.None // flags)
                 ));
-                comp.Dispose();
-                args.Client.SendRawPacket(PacketType.ServerInfo, writer.Data);
                 Console.WriteLine("Sent ServerInfo");
             });
 
-            args.Client.SendRawPacket(PacketType.ClientAccepted, Array.Empty<byte>());
+            args.Client.SendPacket(new ClientAccepted());
             Console.WriteLine("Sent ClientAccepted");
         };
 

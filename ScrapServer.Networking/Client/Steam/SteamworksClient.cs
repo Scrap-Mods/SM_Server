@@ -35,6 +35,7 @@ internal sealed class SteamworksClient : IClient
         }
     }
 
+    /// <inheritdoc/>
     public string? Username => username;
     private readonly string? username;
 
@@ -73,7 +74,7 @@ internal sealed class SteamworksClient : IClient
     public void SendRawPacket(PacketType packetId, ReadOnlySpan<byte> data)
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-        using BitWriter writer = new BitWriter(ArrayPool<byte>.Shared);
+        using BitWriter writer = BitWriter.WithSharedPool();
         writer.WriteByte((byte)packetId);
         writer.WriteBytes(data);
         connection.SendMessage(writer.Data);
@@ -83,10 +84,10 @@ internal sealed class SteamworksClient : IClient
     /// Runs the registered packet handlers.
     /// </summary>
     /// <param name="packetId">The id of the packet.</param>
-    /// <param name="data">The raw data of the packet.</param>
+    /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
     internal void ReceivePacket(PacketType packetId, ReadOnlySpan<byte> data)
     {
-        packetHandlers[(byte)packetId]?.Invoke(this, new PacketEventArgs(this, packetId, data));
+        packetHandlers[(byte)packetId]?.Invoke(this, new RawPacketEventArgs(this, packetId, data));
     }
 
     /// <inheritdoc/>

@@ -1,12 +1,11 @@
-﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer.Networking.Client;
 
 /// <summary>
-/// The arguments for an incoming client packet event (automatically parsed).
+/// The arguments for an incoming client packet event.
 /// </summary>
-public readonly struct PacketEventArgs<T> where T : IPacket
+public readonly ref struct RawPacketEventArgs
 {
     /// <summary>
     /// Gets the client that sent the packet.
@@ -21,21 +20,22 @@ public readonly struct PacketEventArgs<T> where T : IPacket
     public PacketType PacketId { get; }
 
     /// <summary>
-    /// Gets the packet data.
+    /// Gets the data of the packet excluding the packet id.
     /// </summary>
-    /// <value>Packet object.</value>
-    public T Packet { get; }
+    /// <remarks>The data is as received from the client; it is NOT decompressed.</remarks>
+    /// <value>Packet data.</value>
+    public ReadOnlySpan<byte> Data { get; }
 
     /// <summary>
     /// Initializes a new instance of <see cref="RawPacketEventArgs"/>.
     /// </summary>
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
-    /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, PacketType packetId, T packet)
+    /// <param name="data">The packet data.</param>
+    public RawPacketEventArgs(IClient client, PacketType packetId, ReadOnlySpan<byte> data)
     {
         Client = client;
         PacketId = packetId;
-        Packet = packet;
+        Data = data;
     }
 }
