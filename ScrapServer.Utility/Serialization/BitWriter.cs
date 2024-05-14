@@ -46,6 +46,15 @@ public struct BitWriter : IDisposable
     }
 
     /// <summary>
+    /// Creates a new <see cref="BitWriter"/> using <see cref="ArrayPool{T}.Shared"/>.
+    /// </summary>
+    /// <returns>The created <see cref="BitWriter"/>.</returns>
+    public static BitWriter FromSharedPool()
+    {
+        return new BitWriter(ArrayPool<byte>.Shared);
+    }
+
+    /// <summary>
     /// Moves the writer to the specified position.
     /// </summary>
     /// <param name="byteIndex">The byte index.</param>

@@ -20,7 +20,7 @@ public sealed class SteamworksServer : IServer
 
         public void OnConnecting(Connection connection, ConnectionInfo info)
         {
-            var client = new SteamworksClient(connection);
+            var client = new SteamworksClient(connection, info.Identity);
 
             clientManager.clients.Add(connection.Id, client);
             clientManager.connectedClients.Add(client);

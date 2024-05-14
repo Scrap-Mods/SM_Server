@@ -6,8 +6,7 @@ namespace ScrapServer.Networking.Client;
 /// <summary>
 /// The arguments for an incoming client packet event.
 /// </summary>
-/// <typeparam name="T">The type of the packet.</typeparam>
-public struct PacketEventArgs<T> where T : IPacket
+public readonly ref struct PacketEventArgs
 {
     /// <summary>
     /// Gets the client that sent the packet.
@@ -22,21 +21,22 @@ public struct PacketEventArgs<T> where T : IPacket
     public PacketType PacketId { get; }
 
     /// <summary>
-    /// Gets the packet data.
+    /// Gets the data of the packet excluding the packet id.
     /// </summary>
-    /// <value>The packet.</value>
-    public T Packet { get; }
+    /// <remarks>The data is as received from the client; it is NOT decompressed.</remarks>
+    /// <value>Packet data.</value>
+    public ReadOnlySpan<byte> Data { get; }
 
     /// <summary>
-    /// Initializes a new instance of <see cref="PacketEventArgs{T}"/>.
+    /// Initializes a new instance of <see cref="PacketEventArgs"/>.
     /// </summary>
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
-    /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, PacketType packetId, T packet)
+    /// <param name="data">The packet data.</param>
+    public PacketEventArgs(IClient client, PacketType packetId, ReadOnlySpan<byte> data)
     {
         Client = client;
         PacketId = packetId;
-        Packet = packet;
+        Data = data;
     }
 }

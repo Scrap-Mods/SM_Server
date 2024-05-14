@@ -1,7 +1,6 @@
-﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Networking.Packets.Utils;
+﻿using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using Steamworks;
 using Steamworks.Data;
 using System.Buffers;
 
@@ -35,71 +34,49 @@ internal sealed class SteamworksClient : IClient
             }
         }
     }
+
+    public string? Username => username;
+    private readonly string? username;
+
     private ClientState state = ClientState.Connecting;
 
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private readonly List<(PacketType packetId, PacketHandler handler)> packetHandlers;
+    private readonly PacketEventHandler?[] packetHandlers;
     private readonly Connection connection;
 
     /// <summary>
     /// Initializes a new instance of <see cref="SteamworksClient"/>.
     /// </summary>
     /// <param name="connection">The underlying steamworks connection.</param>
-    public SteamworksClient(Connection connection)
+    /// <param name="identity">The network identity of the client.</param>
+    public SteamworksClient(Connection connection, NetIdentity identity)
     {
-        packetHandlers = new List<(PacketType, PacketHandler)>();
         this.connection = connection;
-    }
 
-    /// <inheritdoc/>
-    public void HandlePacket<T>(EventHandler<PacketEventArgs<T>> handler) where T : IPacket, new()
-    {
-        var packetId = T.PacketId;
-
-        PacketHandler outerHandler = span =>
+        packetHandlers = new PacketEventHandler?[256];
+        username = null;
+        if (identity.IsSteamId && identity.SteamId.IsValid)
         {
-            var reader = new BitReader(span, ArrayPool<byte>.Shared);
-            T packet;
-
-            try
-            {
-                packet = reader.ReadPacket<T>();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Malformed packet:\n{e}");
-                return;
-            }
-
-            var args = new PacketEventArgs<T>(this, packetId, packet);
-            handler?.Invoke(this, args);
-        };
-        packetHandlers.Add((packetId, outerHandler));
+            username = new Friend(identity.SteamId).Name;
+        }
     }
 
     /// <inheritdoc/>
-    public void SendPacket<T>(T packet) where T : IPacket
+    public void HandleRawPacket(PacketType packetId, PacketEventHandler handler)
+    {
+        packetHandlers[(byte)packetId] += handler;
+    }
+
+    /// <inheritdoc/>
+    public void SendRawPacket(PacketType packetId, ReadOnlySpan<byte> data)
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-
-        BitWriter writer = new BitWriter(ArrayPool<byte>.Shared);
-
-        try
-        {
-            writer.WritePacket(packet);
-        }
-        catch (Exception e)
-        {
-            writer.Dispose();
-            Console.WriteLine($"Packet serialization failed:\n{e}");
-            return;
-        }
-
+        using BitWriter writer = new BitWriter(ArrayPool<byte>.Shared);
+        writer.WriteByte((byte)packetId);
+        writer.WriteBytes(data);
         connection.SendMessage(writer.Data);
-
-        writer.Dispose();
     }
 
     /// <summary>
@@ -109,13 +86,7 @@ internal sealed class SteamworksClient : IClient
     /// <param name="data">The raw data of the packet.</param>
     internal void ReceivePacket(PacketType packetId, ReadOnlySpan<byte> data)
     {
-        foreach (var (id, handler) in packetHandlers)
-        {
-            if (id == packetId)
-            {
-                handler.Invoke(data);
-            }
-        }
+        packetHandlers[(byte)packetId]?.Invoke(this, new PacketEventArgs(this, packetId, data));
     }
 
     /// <inheritdoc/>
