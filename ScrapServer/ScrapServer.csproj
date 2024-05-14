@@ -8,17 +8,12 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+		<PackageReference Include="aelsi2.Facepunch.Steamworks" Version="2.3.4" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ScrapServer.Networking\ScrapServer.Networking.csproj" />
 	  <ProjectReference Include="..\ScrapServer.Utility\ScrapServer.Utility.csproj" />
 	</ItemGroup>
-
-	<Target AfterTargets="Build" Name="CopySteamDeps">
-		<Copy SourceFiles="steam_api64.dll" DestinationFolder="$(OutDir)"/>
-		<Copy SourceFiles="steam_appid.txt" DestinationFolder="$(OutDir)"/>
-	</Target>
 
 </Project>

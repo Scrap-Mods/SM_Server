@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Facepunch.Steamworks" Version="2.3.3" />
+		<PackageReference Include="aelsi2.Facepunch.Steamworks" Version="2.3.4" />
 	</ItemGroup>
 
 </Project>

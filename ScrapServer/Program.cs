@@ -14,10 +14,10 @@ internal class Program
             SteamClient.Init(387990);
             Console.WriteLine("Logged in as \"" + SteamClient.Name + "\" (" + SteamClient.SteamId + ")");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            // Couldn't init for some reason (steam is closed etc)
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e);
+            return;
         }
 
         string steamid = SteamClient.SteamId.ToString();
