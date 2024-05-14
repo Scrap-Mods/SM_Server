@@ -17,7 +17,7 @@ public readonly ref struct RawPacketEventArgs
     /// Gets the id of the packet.
     /// </summary>
     /// <value>Packet id.</value>
-    public PacketType PacketId { get; }
+    public PacketId PacketId { get; }
 
     /// <summary>
     /// Gets the data of the packet excluding the packet id.
@@ -32,7 +32,7 @@ public readonly ref struct RawPacketEventArgs
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="data">The packet data.</param>
-    public RawPacketEventArgs(IClient client, PacketType packetId, ReadOnlySpan<byte> data)
+    public RawPacketEventArgs(IClient client, PacketId packetId, ReadOnlySpan<byte> data)
     {
         Client = client;
         PacketId = packetId;

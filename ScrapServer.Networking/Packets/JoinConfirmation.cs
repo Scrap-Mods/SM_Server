@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets;
 
 public struct JoinConfirmation : IPacket
 {
-    public static PacketType PacketId => PacketType.JoinConfirmation;
+    public static PacketId PacketId => PacketId.JoinConfirmation;
     public static bool IsCompressable => false;
 
     public readonly void Serialize(ref BitWriter writer) { }

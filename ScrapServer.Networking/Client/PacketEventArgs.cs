@@ -18,7 +18,7 @@ public readonly struct PacketEventArgs<T> where T : IPacket
     /// Gets the id of the packet.
     /// </summary>
     /// <value>Packet id.</value>
-    public PacketType PacketId { get; }
+    public PacketId PacketId { get; }
 
     /// <summary>
     /// Gets the packet data.
@@ -32,7 +32,7 @@ public readonly struct PacketEventArgs<T> where T : IPacket
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, PacketType packetId, T packet)
+    public PacketEventArgs(IClient client, PacketId packetId, T packet)
     {
         Client = client;
         PacketId = packetId;

@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets;
 
 public struct Character : IPacket
 {
-    public static PacketType PacketId => PacketType.CharacterInfo;
+    public static PacketId PacketId => PacketId.CharacterInfo;
     public static bool IsCompressable => true;
 
     //typedef struct {

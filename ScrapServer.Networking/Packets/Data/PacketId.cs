@@ -1,6 +1,6 @@
 ﻿namespace ScrapServer.Networking.Packets.Data;
 
-public enum PacketType : byte
+public enum PacketId : byte
 {
     Empty = 0,
     Hello = 1,

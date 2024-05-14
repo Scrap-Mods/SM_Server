@@ -37,7 +37,7 @@ public interface IClient : IDisposable
     /// </summary>
     /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
     /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandleRawPacket(PacketType packetId, PacketEventHandler handler);
+    public void HandleRawPacket(PacketId packetId, PacketEventHandler handler);
 
     /// <summary>
     /// Sends a packet to the client.
@@ -48,7 +48,7 @@ public interface IClient : IDisposable
     /// </remarks>
     /// <param name="packetId">The packet id.</param>
     /// <param name="data">The data of the packet.</param>
-    public void SendRawPacket(PacketType packetId, ReadOnlySpan<byte> data);
+    public void SendRawPacket(PacketId packetId, ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Accepts the incoming connection.

@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets;
 
 public struct ClientAccepted : IPacket
 {
-    public static PacketType PacketId => PacketType.ClientAccepted;
+    public static PacketId PacketId => PacketId.ClientAccepted;
     public static bool IsCompressable => false;
 
     public readonly void Serialize(ref BitWriter writer) { }

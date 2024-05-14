@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets;
 
 public struct ChecksumDenied : IPacket
 {
-    public static PacketType PacketId => PacketType.ChecksumsDenied;
+    public static PacketId PacketId => PacketId.ChecksumsDenied;
     public static bool IsCompressable => true;
 
     public UInt32 Index { get; set; }

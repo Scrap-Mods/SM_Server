@@ -76,7 +76,7 @@ public sealed class SteamworksServer : IServer
                 dataSpan = new ReadOnlySpan<byte>((void*)data, size);
             }
 
-            var packetId = (PacketType)dataSpan[0];
+            var packetId = (PacketId)dataSpan[0];
 
             client.ReceivePacket(packetId, dataSpan[1..]);
         }

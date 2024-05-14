@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets;
 
 public struct ServerInfo : IPacket
 {
-    public static PacketType PacketId => PacketType.ServerInfo;
+    public static PacketId PacketId => PacketId.ServerInfo;
     public static bool IsCompressable => true;
 
     public UInt32 Version { get; set; }
