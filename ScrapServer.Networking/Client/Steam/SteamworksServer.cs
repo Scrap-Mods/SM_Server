@@ -1,4 +1,4 @@
-﻿using ScrapServer.Utility;
+﻿using ScrapServer.Networking.Packets.Data;
 using Steamworks;
 using Steamworks.Data;
 
@@ -20,7 +20,7 @@ public sealed class SteamworksServer : IServer
 
         public void OnConnecting(Connection connection, ConnectionInfo info)
         {
-            var client = new SteamworksClient(connection);
+            var client = new SteamworksClient(connection, info.Identity);
 
             clientManager.clients.Add(connection.Id, client);
             clientManager.connectedClients.Add(client);
@@ -76,14 +76,10 @@ public sealed class SteamworksServer : IServer
                 dataSpan = new ReadOnlySpan<byte>((void*)data, size);
             }
 
-            byte packetId = dataSpan[0];
+            var packetId = (PacketId)dataSpan[0];
 
-            var decompressedData = LZ4.Decompress(dataSpan.Slice(1));
-
-            using var stream = new MemoryStream(decompressedData.ToArray());
-            using var reader = new BigEndianBinaryReader(stream);
-
-            client.ReceivePacket(packetId, reader);
+            client.ReceivePacket(packetId, dataSpan);
+            clientManager.ReceivePacket(client, packetId, dataSpan);
         }
     }
 
@@ -107,6 +103,9 @@ public sealed class SteamworksServer : IServer
     private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
+    private RawPacketEventHandler? packetHandler = null;
+    private RawPacketEventHandler?[]? typedPacketHandlers = null;
+
     private bool isDisposed = false;
 
     /// <summary>
@@ -119,6 +118,26 @@ public sealed class SteamworksServer : IServer
         clients = new Dictionary<uint, SteamworksClient>();
         socketManager = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
         socketManager.Interface = new SocketInterface(this);
+    }
+
+    /// <inheritdoc/>
+    public void HandleRaw(RawPacketEventHandler handler)
+    {
+        packetHandler += handler;
+    }
+
+    /// <inheritdoc/>
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
+    {
+        typedPacketHandlers ??= new RawPacketEventHandler[256];
+        typedPacketHandlers[(byte)packetId] += handler;
+    }
+
+    private void ReceivePacket(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
+    {
+        var args = new RawPacketEventArgs(client, packetId, data);
+        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
+        packetHandler?.Invoke(this, args);
     }
 
     /// <inheritdoc/>
@@ -162,4 +181,5 @@ public sealed class SteamworksServer : IServer
             GC.SuppressFinalize(this);
         }
     }
+
 }

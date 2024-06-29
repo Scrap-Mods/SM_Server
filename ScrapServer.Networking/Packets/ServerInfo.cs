@@ -1,168 +1,117 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-public class ServerInfo : IPacket
+namespace ScrapServer.Networking.Packets;
+
+public struct ServerInfo : IPacket
 {
-    public static byte PacketId => 2;
+    public static PacketId PacketId => PacketId.ServerInfo;
+    public static bool IsCompressable => true;
 
-    public enum EGamemode
-    {
-        AlphaTerrain,
-        FlatTerrain,
-        ClassicTerrain,
-        CreatedTerrain_Test,
-        CreatedTerrain,
-        Challenge,
-        ChallengeBuilder,
-        Terrain,
-        MenuCreation,
-        Survival = 14,
-        Custom,
-        Development
-    }
-
-    
-    public class ModData
-    {
-        UInt64 FileId;
-        Guid UUID;
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(FileId);
-            writer.Write(UUID.ToByteArray());
-        }
-
-        public void Deserialize(BinaryReader reader)
-        {
-            FileId = reader.ReadUInt64();
-            UUID = new Guid(reader.ReadBytes(16));
-        }
-    }
-
-    
-    public class GenericData
-    {
-        Guid UUID;
-        byte[] Key;
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(UUID.ToByteArray());
-            writer.Write((UInt16)Key.Length);
-            writer.Write(Key);
-        }
-
-        public void Deserialize(BinaryReader reader)
-        {
-            UUID = new Guid(reader.ReadBytes(16));
-            var keyLen = reader.ReadUInt16();
-            Key = reader.ReadBytes(keyLen);
-        }
-    }
-
-    public UInt32 Version;
-    public EGamemode Gamemode;
-    public UInt32 Seed;
-    public UInt32 GameTick;
-    public ModData[] MData;
-    public byte[] SomeData;
-    public GenericData[] SData;
-    public GenericData[] GData;
-    public byte Flags;
+    public UInt32 Version { get; set; }
+    public Gamemode Gamemode { get; set; }
+    public UInt32 Seed { get; set; }
+    public UInt32 GameTick { get; set; }
+    public ModData[] ModData { get; set; }
+    public byte[] SomeData { get; set; }
+    public GenericData[] ScriptData { get; set; }
+    public GenericData[] GenericData { get; set; }
+    public ServerFlags Flags { get; set; }
 
     public ServerInfo()
     {
-
+        ModData = Array.Empty<ModData>();
+        SomeData = Array.Empty<byte>();
+        ScriptData = Array.Empty<GenericData>();
+        GenericData = Array.Empty<GenericData>();
     }
 
-    // Constructor
     public ServerInfo(
         UInt32 version,
-        EGamemode gamemode,
+        Gamemode gamemode,
         UInt32 seed,
         UInt32 gameTick,
-        ModData[] mData,
+        ModData[] modData,
         byte[] someData,
-        GenericData[] sData,
-        GenericData[] gData,
-        byte flags)
+        GenericData[] scriptData,
+        GenericData[] genericData,
+        ServerFlags flags)
     {
-        this.Version = version;
-        this.Gamemode = gamemode;
-        this.Seed = seed;
-        this.GameTick = gameTick;
-        this.MData = mData;
-        this.SomeData = someData;
-        this.SData = sData;
-        this.GData = gData;
-        this.Flags = flags;
+        Version = version;
+        Gamemode = gamemode;
+        Seed = seed;
+        GameTick = gameTick;
+        ModData = modData;
+        SomeData = someData;
+        ScriptData = scriptData;
+        GenericData = genericData;
+        Flags = flags;
     }
 
-    public void Serialize(BinaryWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
-        writer.Write(Version);
-        writer.Write((UInt32)Gamemode);
-        writer.Write(Seed);
-        writer.Write(GameTick);
+        writer.WriteUInt32(Version);
+        writer.WriteGamemode(Gamemode);
+        writer.WriteUInt32(Seed);
+        writer.WriteUInt32(GameTick);
 
-        writer.Write((UInt32)MData.Length);
-        foreach (var modData in MData)
+        writer.WriteUInt32((UInt32)ModData.Length);
+        foreach (var modData in ModData)
         {
-            modData.Serialize(writer);
+            writer.WriteObject(modData);
         }
 
-        writer.Write((UInt32)SomeData.Length);
-        writer.Write(SomeData);
+        writer.WriteUInt32((UInt32)SomeData.Length);
+        writer.WriteBytes(SomeData);
 
-        writer.Write((UInt32)SData.Length);
-        foreach (var scriptData in SData)
+        writer.WriteUInt32((UInt32)ScriptData.Length);
+        foreach (var scriptData in ScriptData)
         {
-            scriptData.Serialize(writer);
+            writer.WriteObject(scriptData);
         }
 
-        writer.Write((UInt32)GData.Length);
-        foreach (var generictData in GData)
+        writer.WriteUInt32((UInt32)GenericData.Length);
+        foreach (var generictData in GenericData)
         {
-            generictData.Serialize(writer);
+            writer.WriteObject(generictData);
         }
 
-        writer.Write(Flags);
+        writer.WriteServerFlags(Flags);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(ref BitReader reader)
     {
         Version = reader.ReadUInt32();
-        Gamemode = (EGamemode)reader.ReadUInt32();
+        Gamemode = reader.ReadGamemode();
         Seed = reader.ReadUInt32();
         GameTick = reader.ReadUInt32();
 
         var modDataCount = reader.ReadUInt32();
-        MData = new ModData[modDataCount];
+        ModData = new ModData[modDataCount];
         for (var i = 0; i < modDataCount; i++)
         {
-            MData[i] = new ModData();
-            MData[i].Deserialize(reader);
+            ModData[i] = reader.ReadObject<ModData>();
         }
 
         var someDataCount = reader.ReadUInt32();
-        SomeData = reader.ReadBytes((int)someDataCount);
+        SomeData = new byte[someDataCount];
+        reader.ReadBytes(SomeData);
 
         var scriptDataCount = reader.ReadUInt32();
-        SData = new GenericData[scriptDataCount];
+        ScriptData = new GenericData[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            SData[i] = new GenericData();
-            SData[i].Deserialize(reader);
+            ScriptData[i] = reader.ReadObject<GenericData>();
         }
 
         var genericDataCount = reader.ReadUInt32();
-        GData = new GenericData[genericDataCount];
+        GenericData = new GenericData[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GData[i] = new GenericData();
-            GData[i].Deserialize(reader);
+            GenericData[i] = reader.ReadObject<GenericData>();
         }
 
-        Flags = reader.ReadByte();
+        Flags = reader.ReadServerFlags();
     }
 }

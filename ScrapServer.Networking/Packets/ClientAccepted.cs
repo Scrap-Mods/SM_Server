@@ -1,20 +1,15 @@
-﻿using System.IO;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
-public class ClientAccepted : IPacket
+
+public struct ClientAccepted : IPacket
 {
-    public static byte PacketId { get => 5; }
+    public static PacketId PacketId => PacketId.ClientAccepted;
+    public static bool IsCompressable => false;
 
-    // Constructor
-    public ClientAccepted()
-    {
-    }
+    public readonly void Serialize(ref BitWriter writer) { }
 
-    public void Serialize(BinaryWriter writer)
-    {
-    }
-
-    public void Deserialize(BinaryReader reader)
-    {
-    }
+    public readonly void Deserialize(ref BitReader reader) { }
 }

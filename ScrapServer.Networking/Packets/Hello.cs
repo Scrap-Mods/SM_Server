@@ -1,19 +1,15 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-public class Hello : IPacket
+namespace ScrapServer.Networking.Packets;
+
+public struct Hello : IPacket
 {
-    public static byte PacketId { get => 1; }
+    public static PacketId PacketId => PacketId.Hello;
+    public static bool IsCompressable => false;
 
-    // Constructor
-    public Hello()
-    {
-    }
+    public readonly void Serialize(ref BitWriter writer) { }
 
-    public void Serialize(BinaryWriter writer)
-    {
-    }
-
-    public void Deserialize(BinaryReader reader)
-    {
-    }
+    public readonly void Deserialize(ref BitReader reader) { }
 }

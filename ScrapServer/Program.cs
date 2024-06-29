@@ -1,9 +1,9 @@
 ﻿using Steamworks;
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Client.Steam;
-
-
-
+using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Utility.Serialization;
+using ScrapServer.Networking.Client;
 
 namespace ScrapServer;
 
@@ -16,10 +16,10 @@ internal class Program
             SteamClient.Init(387990);
             Console.WriteLine("Logged in as \"" + SteamClient.Name + "\" (" + SteamClient.SteamId + ")");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            // Couldn't init for some reason (steam is closed etc)
-            Console.WriteLine(e.Message);
+            Console.WriteLine(e);
+            return;
         }
 
         string steamid = SteamClient.SteamId.ToString();
@@ -33,32 +33,32 @@ internal class Program
 
         server.ClientConnecting += (o, args) =>
         {
-            Console.WriteLine("Client connecting... " + args.Client);
+            Console.WriteLine($"Client connecting... {args.Client.Username}");
             args.Client.AcceptConnection();
         };
 
         server.ClientConnected += (o, args) =>
         {
-            Console.WriteLine("Client connected! " + args.Client);
+            Console.WriteLine($"Client connected! {args.Client.Username}");
 
             args.Client.HandlePacket<Hello>((o, args2) =>
             {
                 Console.WriteLine("Received Hello");
-                args.Client.SendPacket<ServerInfo>(new ServerInfo(
+                args.Client.SendPacket(new ServerInfo(
                     729, // protocol ver
-                    ServerInfo.EGamemode.FlatTerrain,
+                    Gamemode.FlatTerrain,
                     397817921, // seed
                     0, // game tick
-                    new ServerInfo.ModData[0],
+                    new ModData[0],
                     new byte[0],
-                    new ServerInfo.GenericData[0],
-                    new ServerInfo.GenericData[0],
-                    0 // flags)
+                    new GenericData[0],
+                    new GenericData[0],
+                    ServerFlags.None // flags)
                 ));
                 Console.WriteLine("Sent ServerInfo");
             });
 
-            args.Client.SendPacket<ClientAccepted>(new ClientAccepted());
+            args.Client.SendPacket(new ClientAccepted());
             Console.WriteLine("Sent ClientAccepted");
         };
 

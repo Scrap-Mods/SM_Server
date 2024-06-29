@@ -1,12 +1,25 @@
-﻿using ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer.Networking.Client;
+
+/// <summary>
+/// A delegate for handling incoming messages from the client.
+/// </summary>
+/// <param name="sender">The sender of the event.</param>
+/// <param name="args">The event args.</param>
+public delegate void RawPacketEventHandler(object? sender, RawPacketEventArgs args);
 
 /// <summary>
 /// Represents a client connected to a <see cref="IServer"/> for sending and receiving packets.
 /// </summary>
 public interface IClient : IDisposable
 {
+    /// <summary>
+    /// Gets the username of the client.
+    /// </summary>
+    /// <value>The username or <see langword="null"/> if unknown.</value>
+    public string? Username { get; }
+
     /// <summary>
     /// Gets the current state of the client.
     /// </summary>
@@ -19,18 +32,23 @@ public interface IClient : IDisposable
     public event EventHandler<ClientEventArgs>? StateChanged;
 
     /// <summary>
-    /// Registers a handler for packets of specified type coming from the client.
+    /// Registers a handler for incoming packets.
     /// </summary>
-    /// <typeparam name="T">The type of handled packets.</typeparam>
-    /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandlePacket<T>(EventHandler<PacketEventArgs<T>> handler) where T : IPacket, new();
+    /// <param name="handler">The delegate to be called when a packet is receive.</param>
+    public void HandleRaw(RawPacketEventHandler handler);
 
     /// <summary>
-    /// Sends a packet to the client.
+    /// Registers a handler for incoming packets with the specified id.
     /// </summary>
-    /// <typeparam name="T">The type of the packet.</typeparam>
-    /// <param name="packet">The packet to be sent.</param>
-    public void SendPacket<T>(T packet) where T : IPacket;
+    /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
+    /// <param name="handler">The delegate to be called when a matching packet is received.</param>
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
+
+    /// <summary>
+    /// Sends a raw packet to the client.
+    /// </summary>
+    /// <param name="data">The raw packet data.</param>
+    public void SendRaw(ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Accepts the incoming connection.

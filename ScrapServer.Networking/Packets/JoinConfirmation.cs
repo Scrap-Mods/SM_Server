@@ -1,20 +1,14 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-public class JoinConfirmation : IPacket
+namespace ScrapServer.Networking.Packets;
+
+public struct JoinConfirmation : IPacket
 {
-    public static byte PacketId { get => 10; }
-    
-    // Constructor
-    public JoinConfirmation()
-    {
-    }
+    public static PacketId PacketId => PacketId.JoinConfirmation;
+    public static bool IsCompressable => false;
 
-    public void Serialize(BinaryWriter writer)
-    {
-        
-    }
-
-    public void Deserialize(BinaryReader reader)
-    {
-    }
+    public readonly void Serialize(ref BitWriter writer) { }
+    public readonly void Deserialize(ref BitReader reader) { }
 }

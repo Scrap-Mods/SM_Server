@@ -4,22 +4,30 @@ namespace ScrapServer.Utility;
 
 public static class LZ4
 {
-    public static ReadOnlySpan<byte> Compress(ReadOnlySpan<byte> uncompressedData)
+    public static int MaxCompressedSize(int uncompressedSize)
     {
-        int maximumOutputSize = LZ4Codec.MaximumOutputSize(uncompressedData.Length);
-        var compressedBuffer = new byte[maximumOutputSize];
-
-        int compressedLength = LZ4Codec.Encode(
-            uncompressedData, compressedBuffer, LZ4Level.L00_FAST);
-
-        return compressedBuffer.AsSpan(0, compressedLength);
+        return LZ4Codec.MaximumOutputSize(uncompressedSize);
     }
 
-    public static ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> compressedData)
+    public static bool TryDecompress(ReadOnlySpan<byte> compressedData, Span<byte> decompressedData, out int decompressedLength)
     {
-        var decompressedData = new byte[0xA00000];
-        int decompressedLength = LZ4Codec.Decode(compressedData, decompressedData);
+        decompressedLength = LZ4Codec.Decode(compressedData, decompressedData);
+        if (decompressedLength < 0)
+        {
+            decompressedLength = 0;
+            return false;
+        }
+        return true;
+    }
 
-        return decompressedData.AsSpan(0, decompressedLength);
+    public static bool TryCompress(ReadOnlySpan<byte> uncompressedData, Span<byte> compressedData, out int compressedLength)
+    {
+        compressedLength = LZ4Codec.Encode(uncompressedData, compressedData, LZ4Level.L00_FAST);
+        if (compressedLength < 0)
+        {
+            compressedLength = 0;
+            return false;
+        }
+        return true;
     }
 }

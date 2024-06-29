@@ -1,8 +1,13 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-public class Character : IPacket
+namespace ScrapServer.Networking.Packets;
+
+public struct Character : IPacket
 {
-    public static byte PacketId { get => 9; }
+    public static PacketId PacketId => PacketId.CharacterInfo;
+    public static bool IsCompressable => true;
 
     //typedef struct {
     //    byte data[16];
@@ -24,18 +29,16 @@ public class Character : IPacket
     //}
     //SMPacket9 < optimize = false >;
 
-    // Constructor
     public Character()
     {
 
     }
 
-    public void Serialize(BinaryWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(ref BitReader reader)
     {
-        // packet has no additional data to deserialize
     }
 }

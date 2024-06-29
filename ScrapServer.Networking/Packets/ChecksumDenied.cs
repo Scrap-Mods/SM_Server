@@ -1,27 +1,33 @@
-﻿namespace ScrapServer.Networking.Packets;
-public class ChecksumDenied : IPacket
-{
-    public static byte PacketId { get => 8; }
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-    public UInt32 Index;
+namespace ScrapServer.Networking.Packets;
+
+public struct ChecksumDenied : IPacket
+{
+    public static PacketId PacketId => PacketId.ChecksumsDenied;
+    public static bool IsCompressable => true;
+
+    public UInt32 Index { get; set; }
 
     public ChecksumDenied()
     {
-
+        Index = 0;
     }
 
-    // Constructor
     public ChecksumDenied(UInt32 index)
     {
-        this.Index = index;
+        Index = index;
     }
 
-    public void Serialize(BinaryWriter writer)
+    public readonly void Serialize(ref BitWriter writer)
     {
-        writer.Write(Index);
+        writer.WriteUInt32(Index);
     }
 
-    public void Deserialize(BinaryReader reader)
+    public void Deserialize(ref BitReader reader)
     {
+        Index = reader.ReadUInt32();
     }
 }

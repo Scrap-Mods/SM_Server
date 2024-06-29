@@ -1,19 +1,15 @@
-﻿namespace ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Packets.Utils;
+using ScrapServer.Utility.Serialization;
 
-public class ChecksumsAccepted : IPacket
+namespace ScrapServer.Networking.Packets;
+
+public struct ChecksumsAccepted : IPacket
 {
-    public static byte PacketId { get => 7; }
+    public static PacketId PacketId => PacketId.ChecksumsAccepted;
+    public static bool IsCompressable => false;
 
-    // Constructor
-    public ChecksumsAccepted()
-    {
-    }
+    public readonly void Serialize(ref BitWriter writer) { }
 
-    public void Serialize(BinaryWriter writer)
-    {
-    }
-
-    public void Deserialize(BinaryReader reader)
-    {
-    }
+    public readonly void Deserialize(ref BitReader reader) { }
 }

@@ -1,6 +1,8 @@
-﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Utility;
+﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Utility.Serialization;
+using Steamworks;
 using Steamworks.Data;
+using System.Buffers;
 
 namespace ScrapServer.Networking.Client.Steam;
 
@@ -30,83 +32,65 @@ internal sealed class SteamworksClient : IClient
             }
         }
     }
+
+    /// <inheritdoc/>
+    public string? Username => username;
+    private readonly string? username = null;
+
     private ClientState state = ClientState.Connecting;
 
     /// <inheritdoc/>
     public event EventHandler<ClientEventArgs>? StateChanged;
 
-    private readonly List<(int packetId, Action<BinaryReader> handler)> packetHandlers;
     private readonly Connection connection;
+
+    private RawPacketEventHandler? packetHandler = null;
+    private RawPacketEventHandler?[]? typedPacketHandlers = null;
 
     /// <summary>
     /// Initializes a new instance of <see cref="SteamworksClient"/>.
     /// </summary>
     /// <param name="connection">The underlying steamworks connection.</param>
-    public SteamworksClient(Connection connection)
+    /// <param name="identity">The network identity of the client.</param>
+    public SteamworksClient(Connection connection, NetIdentity identity)
     {
-        packetHandlers = new List<(int, Action<BinaryReader>)>();
         this.connection = connection;
-    }
-
-    /// <inheritdoc/>
-    public void HandlePacket<T>(EventHandler<PacketEventArgs<T>> handler) where T : IPacket, new()
-    {
-        var packetId = T.PacketId;
-
-        Action<BinaryReader> outerHandler = reader =>
+        if (identity.IsSteamId && identity.SteamId.IsValid)
         {
-            var packet = new T();
-            try
-            {
-                packet.Deserialize(reader);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Malformed packet:\n{e}");
-            }
-
-            var args = new PacketEventArgs<T>(this, packetId, packet);
-            handler?.Invoke(this, args);
-        };
-        packetHandlers.Add((packetId, outerHandler));
+            username = new Friend(identity.SteamId).Name;
+        }
     }
 
     /// <inheritdoc/>
-    public void SendPacket<T>(T packet) where T : IPacket
+    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
+    {
+        typedPacketHandlers ??= new RawPacketEventHandler[256];
+        typedPacketHandlers[(byte)packetId] += handler;
+    }
+
+    /// <inheritdoc/>
+    public void HandleRaw(RawPacketEventHandler handler)
+    {
+        packetHandler += handler;
+    }
+
+    /// <inheritdoc/>
+    public void SendRaw(ReadOnlySpan<byte> data)
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-
-        using var packetStream = new MemoryStream();
-        packetStream.WriteByte(T.PacketId);
-
-        using var dataStream = new MemoryStream();
-        using var dataWriter = new BigEndianBinaryWriter(dataStream);
-        packet.Serialize(dataWriter);
-
-        if (dataStream.Length > 0)
-        {
-            var compressedData = LZ4.Compress(dataStream.AsSpan());
-
-            packetStream.Write(compressedData);
-        }
-
-        connection.SendMessage(packetStream.AsSpan());
+        connection.SendMessage(data);
     }
 
     /// <summary>
     /// Runs the registered packet handlers.
     /// </summary>
     /// <param name="packetId">The id of the packet.</param>
-    /// <param name="reader">The binary reader for reading the decompressed data of the packet.</param>
-    internal void ReceivePacket(int packetId, BinaryReader reader)
+    /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
+    internal void ReceivePacket(PacketId packetId, ReadOnlySpan<byte> data)
     {
-        foreach (var (id, handler) in packetHandlers)
-        {
-            if (id == packetId)
-            {
-                handler.Invoke(reader);
-            }
-        }
+        var args = new RawPacketEventArgs(this, packetId, data);
+        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
+        packetHandler?.Invoke(this, args);
     }
 
     /// <inheritdoc/>
@@ -142,7 +126,7 @@ internal sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public override string ToString()
     {
-        return $"Steam client '{connection.Id}'";
+        return $"Steam client '{username ?? connection.Id.ToString()}'";
     }
 
     ~SteamworksClient()
