@@ -7,18 +7,6 @@ public struct ModData : IBitSerializable
     ulong FileId { get; set; }
     Guid UUID { get; set; }
 
-    public ModData()
-    {
-        FileId = 0;
-        UUID = Guid.Empty;
-    }
-
-    public ModData(ulong fileId, Guid uuid)
-    {
-        FileId = fileId;
-        UUID = uuid;
-    }
-
     public readonly void Serialize(ref BitWriter writer)
     {
         using var comp = writer.WriteLZ4();

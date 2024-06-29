@@ -4,7 +4,7 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public struct Character : IPacket
+public struct CharacterInfo : IPacket
 {
     public static PacketId PacketId => PacketId.CharacterInfo;
     public static bool IsCompressable => true;
@@ -29,7 +29,7 @@ public struct Character : IPacket
     //}
     //SMPacket9 < optimize = false >;
 
-    public Character()
+    public CharacterInfo()
     {
 
     }

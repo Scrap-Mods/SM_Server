@@ -9,45 +9,15 @@ public struct ServerInfo : IPacket
     public static PacketId PacketId => PacketId.ServerInfo;
     public static bool IsCompressable => true;
 
-    public UInt32 Version { get; set; }
-    public Gamemode Gamemode { get; set; }
-    public UInt32 Seed { get; set; }
-    public UInt32 GameTick { get; set; }
-    public ModData[] ModData { get; set; }
-    public byte[] SomeData { get; set; }
-    public GenericData[] ScriptData { get; set; }
-    public GenericData[] GenericData { get; set; }
-    public ServerFlags Flags { get; set; }
-
-    public ServerInfo()
-    {
-        ModData = Array.Empty<ModData>();
-        SomeData = Array.Empty<byte>();
-        ScriptData = Array.Empty<GenericData>();
-        GenericData = Array.Empty<GenericData>();
-    }
-
-    public ServerInfo(
-        UInt32 version,
-        Gamemode gamemode,
-        UInt32 seed,
-        UInt32 gameTick,
-        ModData[] modData,
-        byte[] someData,
-        GenericData[] scriptData,
-        GenericData[] genericData,
-        ServerFlags flags)
-    {
-        Version = version;
-        Gamemode = gamemode;
-        Seed = seed;
-        GameTick = gameTick;
-        ModData = modData;
-        SomeData = someData;
-        ScriptData = scriptData;
-        GenericData = genericData;
-        Flags = flags;
-    }
+    public UInt32 Version;
+    public Gamemode Gamemode;
+    public UInt32 Seed;
+    public UInt32 GameTick;
+    public ModData[] ModData;
+    public byte[] SomeData;
+    public BlobDataRef[] ScriptData;
+    public BlobDataRef[] GenericData;
+    public ServerFlags Flags;
 
     public readonly void Serialize(ref BitWriter writer)
     {
@@ -99,17 +69,17 @@ public struct ServerInfo : IPacket
         reader.ReadBytes(SomeData);
 
         var scriptDataCount = reader.ReadUInt32();
-        ScriptData = new GenericData[scriptDataCount];
+        ScriptData = new BlobDataRef[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = reader.ReadObject<GenericData>();
+            ScriptData[i] = reader.ReadObject<BlobDataRef>();
         }
 
         var genericDataCount = reader.ReadUInt32();
-        GenericData = new GenericData[genericDataCount];
+        GenericData = new BlobDataRef[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = reader.ReadObject<GenericData>();
+            GenericData[i] = reader.ReadObject<BlobDataRef>();
         }
 
         Flags = reader.ReadServerFlags();

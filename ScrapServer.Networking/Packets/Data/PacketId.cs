@@ -16,5 +16,9 @@ public enum PacketId : byte
     ScriptInitData = 11,
     GenericInitData = 13,
     DisplayMessage = 18,
-    DisplayAlertText = 19
+    DisplayAlertText = 19,
+    ScriptDataS2C = 25,
+    ScriptDataC2S = 26,
+    GenericDataS2C = 27,
+    GenericDataC2S = 28,
 }
