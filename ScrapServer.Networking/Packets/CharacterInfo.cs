@@ -1,44 +1,57 @@
 ﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Networking.Packets.Utils;
 using ScrapServer.Utility.Serialization;
+using System.Text;
 
 namespace ScrapServer.Networking.Packets;
 
+/// <summary>
+/// The packet sent by the client that contains the player's name 
+/// and their character customization options.
+/// </summary>
+/// <seealso href="https://docs.scrapmods.io/docs/networking/packets/character-info"/>
 public struct CharacterInfo : IPacket
 {
+    /// <inheritdoc/>
     public static PacketId PacketId => PacketId.CharacterInfo;
+
+    /// <inheritdoc/>
     public static bool IsCompressable => true;
 
-    //typedef struct {
-    //    byte data[16];
-    //}uuid;
+    /// <summary>
+    /// The players's name displayed in chat and above the character model.
+    /// </summary>
+    public string? Name;
 
-    //typedef struct {
-    //    char magic[2];
-    //    byte Hair; // A3 = leftmost hair, A7 = rightmost hair
-    //    byte name_len;
-    //    char name[name_len]; // TODO: Check how name affects packet
-    //    char magic_char[4]; // Check if magic is 00 00 00 02
-    //    byte is_male;
-    //    byte num_uuids;
-    //    uuid uuids[num_uuids];
-    //    BigEndian();
-    //    uint32 skin_id; // 0-4
-    //    LittleEndian();
-    //    char magic2[11];
-    //}
-    //SMPacket9 < optimize = false >;
+    /// <summary>
+    /// The players's character customization options.
+    /// </summary>
+    public CharacterCustomization Customization;
 
-    public CharacterInfo()
-    {
-
-    }
-
+    /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        if (Name != null)
+        {
+            var byteLen = Encoding.UTF8.GetByteCount(Name);
+            if (byteLen > UInt16.MaxValue)
+            {
+                throw new ArgumentException($"Character name too long: {byteLen} bytes (max is {UInt16.MaxValue}).");
+            }
+            writer.WriteUInt16((UInt16)byteLen);
+            writer.WriteString(Name);
+        }
+        else
+        {
+            writer.WriteUInt16(0);
+        }
+        writer.WriteObject(Customization);
     }
 
+    /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
+        var byteLen = reader.ReadUInt16();
+        Name = reader.ReadString(byteLen);
+        Customization = reader.ReadObject<CharacterCustomization>();
     }
 }
