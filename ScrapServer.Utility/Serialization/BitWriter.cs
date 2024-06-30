@@ -307,10 +307,11 @@ public struct BitWriter : IDisposable
     /// Writes a <see cref="Guid"/>.
     /// </summary>
     /// <param name="value">The <see cref="Guid"/> to write.</param>
-    public void WriteGuid(Guid value)
+    /// <param name="byteOrder">The endianness of the encoded fields of the <see cref="Guid"/>.</param>
+    public void WriteGuid(Guid value, ByteOrder byteOrder = ByteOrder.BigEndian)
     {
         Span<byte> bytes = stackalloc byte[16];
-        value.TryWriteBytes(bytes);
+        value.TryWriteBytes(bytes, byteOrder == ByteOrder.BigEndian, out _);
         WriteBytes(bytes);
     }
 
