@@ -8,5 +8,5 @@ public interface IPacket : IBitSerializable
     public virtual static PacketId PacketId => PacketId.Empty;
     public virtual static bool IsCompressable => false;
 
-    internal string PacketName => GetType().Name;
+    public string PacketName => GetType().Name;
 }

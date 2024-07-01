@@ -86,7 +86,7 @@ internal sealed class SteamworksClient : IClient
     /// </summary>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
-    internal void ReceivePacket(PacketId packetId, ReadOnlySpan<byte> data)
+    public void ReceiveRaw(PacketId packetId, ReadOnlySpan<byte> data)
     {
         var args = new RawPacketEventArgs(this, packetId, data);
         typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);

@@ -51,6 +51,12 @@ public interface IClient : IDisposable
     public void SendRaw(ReadOnlySpan<byte> data);
 
     /// <summary>
+    /// "Receives" a raw packet and runs the handlers for it.
+    /// </summary
+    /// <param name="args">The arguments for the packet event.</param>
+    public void ReceiveRaw(PacketId packetId, ReadOnlySpan<byte> data);
+
+    /// <summary>
     /// Accepts the incoming connection.
     /// </summary>
     /// <remarks>
