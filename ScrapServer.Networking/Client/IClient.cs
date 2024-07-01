@@ -53,7 +53,8 @@ public interface IClient : IDisposable
     /// <summary>
     /// "Receives" a raw packet and runs the handlers for it.
     /// </summary
-    /// <param name="args">The arguments for the packet event.</param>
+    /// <param name="packedId">The packet id of the raw packet</param>
+    /// <param name="data">The packet data of the raw packet including the id</param>
     public void ReceiveRaw(PacketId packetId, ReadOnlySpan<byte> data);
 
     /// <summary>
