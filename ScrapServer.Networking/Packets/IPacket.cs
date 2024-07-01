@@ -19,4 +19,6 @@ public interface IPacket : IBitSerializable
     /// </summary>
     /// <value><see langword="true"/> if the packets are compressable, <see langword="false"/> if not.</value>
     public virtual static bool IsCompressable => false;
+
+    public string PacketName => GetType().Name;
 }

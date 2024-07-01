@@ -78,8 +78,8 @@ public sealed class SteamworksServer : IServer
 
             var packetId = (PacketId)dataSpan[0];
 
-            client.ReceivePacket(packetId, dataSpan);
-            clientManager.ReceivePacket(client, packetId, dataSpan);
+            client.ReceiveRaw(packetId, dataSpan);
+            clientManager.ReceiveRaw(client, packetId, dataSpan);
         }
     }
 
@@ -133,7 +133,7 @@ public sealed class SteamworksServer : IServer
         typedPacketHandlers[(byte)packetId] += handler;
     }
 
-    private void ReceivePacket(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
+    public void ReceiveRaw(IClient client, PacketId packetId, ReadOnlySpan<byte> data)
     {
         var args = new RawPacketEventArgs(client, packetId, data);
         typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);

@@ -1,4 +1,5 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking.Client.Steam;
+using ScrapServer.Networking.Packets.Data;
 
 namespace ScrapServer.Networking.Client;
 
@@ -50,6 +51,12 @@ public interface IServer : IDisposable
     /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
     /// <param name="handler">The delegate to be called when a matching packet is received.</param>
     public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
+
+    /// <summary>
+    /// "Receives" a raw packet and runs the handlers for it.
+    /// </summary
+    /// <param name="args">The arguments for the packet event.</param>
+    public void ReceiveRaw(IClient client, PacketId packetId, ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Runs a single iteration of the event loop.
