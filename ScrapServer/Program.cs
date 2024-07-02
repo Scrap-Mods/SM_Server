@@ -44,22 +44,42 @@ internal class Program
             args.Client.HandlePacket<Hello>((o, args2) =>
             {
                 Console.WriteLine("Received Hello");
-                args.Client.SendPacket(new ServerInfo(
-                    729, // protocol ver
-                    Gamemode.FlatTerrain,
-                    397817921, // seed
-                    0, // game tick
-                    new ModData[0],
-                    new byte[0],
-                    new GenericData[0],
-                    new GenericData[0],
-                    ServerFlags.None // flags)
-                ));
+                args.Client.SendPacket(new ServerInfo
+                {
+                    Version = 729,
+                    Gamemode = Gamemode.FlatTerrain,
+                    Seed = 397817921,
+                    GameTick = 0,
+                    ModData = new ModData[0],
+                    SomeData = new byte[0],
+                    GenericData = new BlobDataRef[0],
+                    ScriptData = new BlobDataRef[0],
+                    Flags = ServerFlags.None
+                });
                 Console.WriteLine("Sent ServerInfo");
+
+                args.Client.SendPacket(new GenericDataS2C());
+                Console.WriteLine("Sent Initialization Data");
+            });
+
+            args.Client.HandlePacket<FileChecksums>((o, args2) =>
+            {
+                Console.WriteLine("Received FileChecksum");
+                args.Client.SendPacket(new ChecksumsAccepted());
+                Console.WriteLine("Sent ChecksumAccepted");
+            });
+
+            args.Client.HandlePacket<CharacterInfo>((o, args2) =>
+            {
+                Console.WriteLine("Received CharacterInfo");
+                args.Client.SendPacket(new JoinConfirmation());
+                Console.WriteLine("Sent JoinConfirmation");
             });
 
             args.Client.SendPacket(new ClientAccepted());
             Console.WriteLine("Sent ClientAccepted");
+
+
         };
 
         while (true)

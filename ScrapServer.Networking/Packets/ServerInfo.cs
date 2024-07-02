@@ -4,51 +4,65 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
+/// <summary>
+/// The packet sent by the server during the join sequence containing general 
+/// server info such as the game version, game mode, world seed, etc.
+/// </summary>
+/// <seealso href="https://docs.scrapmods.io/docs/networking/packets/server-info"/>
 public struct ServerInfo : IPacket
 {
+    /// <inheritdoc/>
     public static PacketId PacketId => PacketId.ServerInfo;
+
+    /// <inheritdoc/>
     public static bool IsCompressable => true;
 
-    public UInt32 Version { get; set; }
-    public Gamemode Gamemode { get; set; }
-    public UInt32 Seed { get; set; }
-    public UInt32 GameTick { get; set; }
-    public ModData[] ModData { get; set; }
-    public byte[] SomeData { get; set; }
-    public GenericData[] ScriptData { get; set; }
-    public GenericData[] GenericData { get; set; }
-    public ServerFlags Flags { get; set; }
+    /// <summary>
+    /// The game version.
+    /// </summary>
+    public UInt32 Version;
 
-    public ServerInfo()
-    {
-        ModData = Array.Empty<ModData>();
-        SomeData = Array.Empty<byte>();
-        ScriptData = Array.Empty<GenericData>();
-        GenericData = Array.Empty<GenericData>();
-    }
+    /// <summary>
+    /// The game mode.
+    /// </summary>
+    public Gamemode Gamemode;
 
-    public ServerInfo(
-        UInt32 version,
-        Gamemode gamemode,
-        UInt32 seed,
-        UInt32 gameTick,
-        ModData[] modData,
-        byte[] someData,
-        GenericData[] scriptData,
-        GenericData[] genericData,
-        ServerFlags flags)
-    {
-        Version = version;
-        Gamemode = gamemode;
-        Seed = seed;
-        GameTick = gameTick;
-        ModData = modData;
-        SomeData = someData;
-        ScriptData = scriptData;
-        GenericData = genericData;
-        Flags = flags;
-    }
+    /// <summary>
+    /// The world seed.
+    /// </summary>
+    public UInt32 Seed;
 
+    /// <summary>
+    /// The current game tick.
+    /// </summary>
+    public UInt32 GameTick;
+
+    /// <summary>
+    /// The mods used on the server.
+    /// </summary>
+    public ModData[]? ModData;
+    
+    /// <summary>
+    /// Purpose unknown.
+    /// </summary>
+    public byte[]? SomeData;
+
+    /// <summary>
+    /// Lua script data.
+    /// </summary>
+    public BlobDataRef[]? ScriptData;
+
+    /// <summary>
+    /// Generic game data (purpose not fully known).
+    /// </summary>
+    public BlobDataRef[]? GenericData;
+
+    /// <summary>
+    /// Server flags (dev mode).
+    /// </summary>
+    public ServerFlags Flags;
+
+    /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
         writer.WriteUInt32(Version);
@@ -56,30 +70,59 @@ public struct ServerInfo : IPacket
         writer.WriteUInt32(Seed);
         writer.WriteUInt32(GameTick);
 
-        writer.WriteUInt32((UInt32)ModData.Length);
-        foreach (var modData in ModData)
+        if (ModData == null)
         {
-            writer.WriteObject(modData);
+            writer.WriteUInt32(0);
+        }
+        else
+        {
+            writer.WriteUInt32((UInt32)ModData.Length);
+            foreach (var modData in ModData)
+            {
+                writer.WriteObject(modData);
+            }
         }
 
-        writer.WriteUInt32((UInt32)SomeData.Length);
-        writer.WriteBytes(SomeData);
-
-        writer.WriteUInt32((UInt32)ScriptData.Length);
-        foreach (var scriptData in ScriptData)
+        if (SomeData == null)
         {
-            writer.WriteObject(scriptData);
+            writer.WriteUInt32(0);
+        }
+        else
+        {
+            writer.WriteUInt32((UInt32)SomeData.Length);
+            writer.WriteBytes(SomeData);
         }
 
-        writer.WriteUInt32((UInt32)GenericData.Length);
-        foreach (var generictData in GenericData)
+        if (ScriptData == null)
         {
-            writer.WriteObject(generictData);
+            writer.WriteUInt32(0);
+        }
+        else
+        {
+            writer.WriteUInt32((UInt32)ScriptData.Length);
+            foreach (var scriptData in ScriptData)
+            {
+                writer.WriteObject(scriptData);
+            }
+        }
+
+        if (GenericData == null)
+        {
+            writer.WriteUInt32(0);
+        }
+        else
+        {
+            writer.WriteUInt32((UInt32)GenericData.Length);
+            foreach (var generictData in GenericData)
+            {
+                writer.WriteObject(generictData);
+            }
         }
 
         writer.WriteServerFlags(Flags);
     }
 
+    /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
         Version = reader.ReadUInt32();
@@ -99,17 +142,17 @@ public struct ServerInfo : IPacket
         reader.ReadBytes(SomeData);
 
         var scriptDataCount = reader.ReadUInt32();
-        ScriptData = new GenericData[scriptDataCount];
+        ScriptData = new BlobDataRef[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = reader.ReadObject<GenericData>();
+            ScriptData[i] = reader.ReadObject<BlobDataRef>();
         }
 
         var genericDataCount = reader.ReadUInt32();
-        GenericData = new GenericData[genericDataCount];
+        GenericData = new BlobDataRef[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = reader.ReadObject<GenericData>();
+            GenericData[i] = reader.ReadObject<BlobDataRef>();
         }
 
         Flags = reader.ReadServerFlags();

@@ -15,6 +15,13 @@ public ref struct DecompressedData
     [UnscopedRef]
     public ref BitReader Reader => ref reader;
 
+
+    /// <summary>
+    /// Gets the length of the decompessed data.
+    /// </summary>
+    /// <value>The length of the data after decompression.</value>
+    public int DecompressedLength { get; }
+
     private BitReader reader;
     private bool disposed = false;
 
@@ -58,6 +65,7 @@ public ref struct DecompressedData
             if (LZ4.TryDecompress(compressedData, buffer, out int actualLength))
             {
                 reader = new BitReader(buffer.AsSpan(0, actualLength), arrayPool);
+                DecompressedLength = actualLength;
                 return;
             }
             arrayPool.Return(buffer);

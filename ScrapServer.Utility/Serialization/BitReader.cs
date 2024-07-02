@@ -261,12 +261,13 @@ public ref struct BitReader
     /// <summary>
     /// Reads a <see cref="Guid"/> and advances the reader.
     /// </summary>
+    /// <param name="byteOrder">The endianness of the encoded fields of the <see cref="Guid"/>.</param>
     /// <returns>The read <see cref="Guid"/>.</returns>
-    public Guid ReadGuid()
+    public Guid ReadGuid(ByteOrder byteOrder = ByteOrder.BigEndian)
     {
         Span<byte> bytes = stackalloc byte[16];
         ReadBytes(bytes);
-        return new Guid(bytes);
+        return new Guid(bytes, byteOrder == ByteOrder.BigEndian);
     }
 
     /// <summary>

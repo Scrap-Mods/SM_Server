@@ -307,10 +307,11 @@ public struct BitWriter : IDisposable
     /// Writes a <see cref="Guid"/>.
     /// </summary>
     /// <param name="value">The <see cref="Guid"/> to write.</param>
-    public void WriteGuid(Guid value)
+    /// <param name="byteOrder">The endianness of the encoded fields of the <see cref="Guid"/>.</param>
+    public void WriteGuid(Guid value, ByteOrder byteOrder = ByteOrder.BigEndian)
     {
         Span<byte> bytes = stackalloc byte[16];
-        value.TryWriteBytes(bytes);
+        value.TryWriteBytes(bytes, byteOrder == ByteOrder.BigEndian, out _);
         WriteBytes(bytes);
     }
 
@@ -363,11 +364,12 @@ public struct BitWriter : IDisposable
     /// <summary>
     /// Writes a blob of LZ4 compressed data.
     /// </summary>
+    /// <param name="writeLength">Should the length of the compressed block written as a <see cref="uint"/> before the data.</param>
     /// <returns>The compressed data that can be written with <see cref="CompressedData.Writer"/>.</returns>
     [UnscopedRef]
-    public CompressedData WriteLZ4()
+    public CompressedData WriteLZ4(bool writeLength = false)
     {
-        return new CompressedData(ref this, arrayPool);
+        return new CompressedData(ref this, arrayPool, writeLength);
     }
 
     /// <summary>
