@@ -5,8 +5,8 @@ using System.Text;
 namespace ScrapServer.Networking.Packets;
 
 /// <summary>
-/// The packet sent by the client that contains the player's name 
-/// and their character customization options.
+/// The packet sent by the client during the join sequence that contains 
+/// the player's name and their character customization options.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/character-info"/>
 public struct CharacterInfo : IPacket
