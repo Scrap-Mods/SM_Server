@@ -13,7 +13,7 @@ public static class BitSerializable
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <param name="obj">The object to convert to an array.</param>
     /// <returns>The resulting byte array.</returns>
-    public static byte[] ToByteArray<T>(this T obj) where T : IBitSerializable
+    public static byte[] ToBytes<T>(this T obj) where T : IBitSerializable
     {
         using var writer = BitWriter.WithSharedPool();
         writer.WriteObject(obj);
@@ -21,12 +21,12 @@ public static class BitSerializable
     }
 
     /// <summary>
-    /// Converts a byte array to a serializable object.
+    /// Converts a byte span to a serializable object.
     /// </summary>
     /// <typeparam name="T">The type of the object.</typeparam>
-    /// <param name="data">The byte array.</param>
+    /// <param name="data">The byte span.</param>
     /// <returns>The resulting object.</returns>
-    public static T FromByteArray<T>(byte[] data) where T : IBitSerializable, new()
+    public static T FromBytes<T>(ReadOnlySpan<byte> data) where T : IBitSerializable, new()
     {
         var reader = new BitReader(data, ArrayPool<byte>.Shared);
         return reader.ReadObject<T>();
