@@ -1,15 +1,15 @@
-﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Networking.Packets.Utils;
+﻿using ScrapServer.Networking.Packets.Utils;
 using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public struct NetworkInitialization : IPacket
+public struct NetworkInitialization : IBitSerializable
 {
-    public static PacketId PacketId => PacketId.NetworkInitialization;
-    public static bool IsCompressable => false;
+    public readonly void Serialize(ref BitWriter writer) {
+        writer.WriteByte((byte)PacketId.NetworkInitialization);
+    }
 
-    public readonly void Serialize(ref BitWriter writer) { }
-
-    public readonly void Deserialize(ref BitReader reader) { }
+    public readonly void Deserialize(ref BitReader reader) {
+        reader.ReadByte();
+    }
 }

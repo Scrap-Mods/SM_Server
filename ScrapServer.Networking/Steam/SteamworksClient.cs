@@ -3,13 +3,15 @@ using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
 using System.Buffers;
+using System.Linq.Expressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ScrapServer.Networking.Client.Steam;
+namespace ScrapServer.Networking.Steam;
 
 /// <summary>
 /// An implementation of <see cref="IClient"/> used by <see cref="SteamworksServer"/>.
 /// </summary>
-internal sealed class SteamworksClient : IClient
+public sealed class SteamworksClient : IClient
 {
     /// <inheritdoc/>
     public ClientState State
@@ -33,6 +35,8 @@ internal sealed class SteamworksClient : IClient
         }
     }
 
+    private readonly SteamworksServer server;
+
     /// <inheritdoc/>
     public string? Username => username;
     private readonly string? username = null;
@@ -44,53 +48,20 @@ internal sealed class SteamworksClient : IClient
 
     private readonly Connection connection;
 
-    private RawPacketEventHandler? packetHandler = null;
-    private RawPacketEventHandler?[]? typedPacketHandlers = null;
-
     /// <summary>
     /// Initializes a new instance of <see cref="SteamworksClient"/>.
     /// </summary>
     /// <param name="connection">The underlying steamworks connection.</param>
     /// <param name="identity">The network identity of the client.</param>
-    public SteamworksClient(Connection connection, NetIdentity identity)
+    public SteamworksClient(Connection connection, NetIdentity identity, SteamworksServer server)
     {
         this.connection = connection;
         if (identity.IsSteamId && identity.SteamId.IsValid)
         {
             username = new Friend(identity.SteamId).Name;
         }
-    }
 
-    /// <inheritdoc/>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
-    {
-        typedPacketHandlers ??= new RawPacketEventHandler[256];
-        typedPacketHandlers[(byte)packetId] += handler;
-    }
-
-    /// <inheritdoc/>
-    public void HandleRaw(RawPacketEventHandler handler)
-    {
-        packetHandler += handler;
-    }
-
-    /// <inheritdoc/>
-    public void SendRaw(ReadOnlySpan<byte> data)
-    {
-        ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-        connection.SendMessage(data);
-    }
-
-    /// <summary>
-    /// Runs the registered packet handlers.
-    /// </summary>
-    /// <param name="packetId">The id of the packet.</param>
-    /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
-    public void ReceiveRaw(PacketId packetId, ReadOnlySpan<byte> data)
-    {
-        var args = new RawPacketEventArgs(this, packetId, data);
-        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
-        packetHandler?.Invoke(this, args);
+        this.server = server;
     }
 
     /// <inheritdoc/>
@@ -127,6 +98,31 @@ internal sealed class SteamworksClient : IClient
     public override string ToString()
     {
         return $"Steam client '{username ?? connection.Id.ToString()}'";
+    }
+
+    /// <inheritdoc/>
+    public void Send<T>(T packet) where T : IBitSerializable, new()
+    {
+        ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
+
+        var writer = BitWriter.WithSharedPool();
+        packet.Serialize(ref writer);
+
+        foreach (var b in writer.Data)
+        {
+            Console.WriteLine(b);
+        }
+
+        connection.SendMessage(writer.Data);
+    }
+
+    /// <inheritdoc/>
+    public void Receive<T>(T packet) where T : IBitSerializable, new()
+    {
+        var writer = BitWriter.WithSharedPool();
+        packet.Serialize(ref writer);
+
+        server.Receive(this, writer.Data);
     }
 
     ~SteamworksClient()

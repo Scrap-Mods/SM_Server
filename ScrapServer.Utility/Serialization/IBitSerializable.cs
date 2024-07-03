@@ -16,4 +16,5 @@ public interface IBitSerializable
     /// </summary>
     /// <param name="writer">The writer for writing the object data.</param>
     public void Serialize(ref BitWriter writer);
+
 }

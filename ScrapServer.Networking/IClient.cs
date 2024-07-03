@@ -1,13 +1,6 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Utility.Serialization;
 
-namespace ScrapServer.Networking.Client;
-
-/// <summary>
-/// A delegate for handling incoming messages from the client.
-/// </summary>
-/// <param name="sender">The sender of the event.</param>
-/// <param name="args">The event args.</param>
-public delegate void RawPacketEventHandler(object? sender, RawPacketEventArgs args);
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// Represents a client connected to a <see cref="IServer"/> for sending and receiving packets.
@@ -32,30 +25,16 @@ public interface IClient : IDisposable
     public event EventHandler<ClientEventArgs>? StateChanged;
 
     /// <summary>
-    /// Registers a handler for incoming packets.
-    /// </summary>
-    /// <param name="handler">The delegate to be called when a packet is receive.</param>
-    public void HandleRaw(RawPacketEventHandler handler);
-
-    /// <summary>
-    /// Registers a handler for incoming packets with the specified id.
-    /// </summary>
-    /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
-    /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
-
-    /// <summary>
     /// Sends a raw packet to the client.
     /// </summary>
-    /// <param name="data">The raw packet data.</param>
-    public void SendRaw(ReadOnlySpan<byte> data);
+    /// <param name="packet">The raw packet data.</param>
+    public void Send<T>(T packet) where T : IBitSerializable, new();
 
     /// <summary>
     /// "Receives" a raw packet and runs the handlers for it.
     /// </summary
-    /// <param name="packedId">The packet id of the raw packet</param>
-    /// <param name="data">The packet data of the raw packet including the id</param>
-    public void ReceiveRaw(PacketId packetId, ReadOnlySpan<byte> data);
+    /// <param name="packet">The packet data of the raw packet</param>
+    public void Receive<T>(T packet) where T : IBitSerializable, new();
 
     /// <summary>
     /// Accepts the incoming connection.

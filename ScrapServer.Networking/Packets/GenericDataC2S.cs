@@ -7,14 +7,8 @@ namespace ScrapServer.Networking.Packets;
 /// The packet sent by the client to the server containing generic game data.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/generic-data-c2s"/>
-public struct GenericDataC2S : IPacket
+public struct GenericDataC2S : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.GenericDataC2S;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => false;
-
     /// <summary>
     /// The generic game data.
     /// </summary>
@@ -23,8 +17,11 @@ public struct GenericDataC2S : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        writer.WriteByte((byte)PacketId.GenericDataC2S);
+        using var compWriter = writer.WriteLZ4();
         if (Data == null)
         {
+            compWriter.Writer.WriteUInt32(0);
             return;
         }
         foreach (var data in Data)
@@ -36,6 +33,7 @@ public struct GenericDataC2S : IPacket
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
+        reader.ReadByte();
         var dataList = new List<BlobData>();
         while (reader.BytesLeft > 0)
         {

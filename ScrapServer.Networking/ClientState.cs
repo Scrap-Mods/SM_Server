@@ -1,4 +1,4 @@
-﻿namespace ScrapServer.Networking.Client;
+﻿namespace ScrapServer.Networking;
 
 /// <summary>
 /// Represents the state of an <see cref="IClient"/>.

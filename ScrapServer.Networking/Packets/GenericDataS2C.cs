@@ -7,14 +7,8 @@ namespace ScrapServer.Networking.Packets;
 /// The packet sent by the server to the client containing generic game data.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/generic-data-s2c"/>
-public struct GenericDataS2C : IPacket
+public struct GenericDataS2C : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.GenericDataS2C;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => false;
-
     /// <summary>
     /// The current game tick.
     /// </summary>
@@ -28,25 +22,32 @@ public struct GenericDataS2C : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(Tick);
+        writer.WriteByte((byte)PacketId.GenericDataS2C);
+        using var compWriter = writer.WriteLZ4();
+
+        compWriter.Writer.WriteUInt32(Tick);
         if (Data == null)
         {
+            compWriter.Writer.WriteUInt32(0);
             return;
         }
         foreach (var data in Data)
         {
-            data.Serialize(ref writer);
+            data.Serialize(ref compWriter.Writer);
         }
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        Tick = reader.ReadUInt32();
+        reader.ReadByte();
+        var compReader = reader.ReadLZ4().Reader;
+
+        Tick = compReader.ReadUInt32();
         var dataList = new List<BlobData>();
-        while (reader.BytesLeft > 0)
+        while (compReader.BytesLeft > 0)
         {
-            dataList.Add(reader.ReadObject<BlobData>());
+            dataList.Add(compReader.ReadObject<BlobData>());
         }
         Data = dataList.ToArray();
     }

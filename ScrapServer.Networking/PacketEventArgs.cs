@@ -1,12 +1,11 @@
-﻿using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Utility.Serialization;
 
-namespace ScrapServer.Networking.Client;
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// The arguments for an incoming client packet event.
 /// </summary>
-public readonly struct PacketEventArgs<T> where T : IPacket
+public readonly ref struct PacketEventArgs
 {
     /// <summary>
     /// Gets the client that sent the packet.
@@ -15,16 +14,10 @@ public readonly struct PacketEventArgs<T> where T : IPacket
     public IClient Client { get; }
 
     /// <summary>
-    /// Gets the id of the packet.
-    /// </summary>
-    /// <value>Packet id.</value>
-    public PacketId PacketId { get; }
-
-    /// <summary>
     /// Gets the packet data.
     /// </summary>
     /// <value>Packet object.</value>
-    public T Packet { get; }
+    public ReadOnlySpan<byte> Packet { get; }
 
     /// <summary>
     /// Initializes a new instance of <see cref="RawPacketEventArgs"/>.
@@ -32,10 +25,19 @@ public readonly struct PacketEventArgs<T> where T : IPacket
     /// <param name="client">The client that sent the packet.</param>
     /// <param name="packetId">The id of the packet.</param>
     /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, PacketId packetId, T packet)
+    public PacketEventArgs(IClient client, ReadOnlySpan<byte> packet)
     {
         Client = client;
-        PacketId = packetId;
         Packet = packet;
+    }
+
+    public T Deserialize<T>() where T : IBitSerializable, new()
+    {
+        var t = new T();
+        var reader = BitReader.WithSharedPool(Packet);
+
+        t.Deserialize(ref reader);
+
+        return t;
     }
 }

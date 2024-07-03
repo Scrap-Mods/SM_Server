@@ -1,6 +1,7 @@
 ﻿using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Networking.Packets.Utils;
 using ScrapServer.Utility.Serialization;
+using System.IO.Pipelines;
 
 namespace ScrapServer.Networking.Packets;
 
@@ -9,14 +10,8 @@ namespace ScrapServer.Networking.Packets;
 /// server info such as the game version, game mode, world seed, etc.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/server-info"/>
-public struct ServerInfo : IPacket
+public struct ServerInfo : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.ServerInfo;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => true;
-
     /// <summary>
     /// The game version.
     /// </summary>
@@ -65,18 +60,21 @@ public struct ServerInfo : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(Version);
-        writer.WriteGamemode(Gamemode);
-        writer.WriteUInt32(Seed);
-        writer.WriteUInt32(GameTick);
+        writer.WriteByte((byte)PacketId.ServerInfo);
+        using var compWriter = writer.WriteLZ4();
+
+        compWriter.Writer.WriteUInt32(Version);
+        compWriter.Writer.WriteGamemode(Gamemode);
+        compWriter.Writer.WriteUInt32(Seed);
+        compWriter.Writer.WriteUInt32(GameTick);
 
         if (ModData == null)
         {
-            writer.WriteUInt32(0);
+            compWriter.Writer.WriteUInt32(0);
         }
         else
         {
-            writer.WriteUInt32((UInt32)ModData.Length);
+            compWriter.Writer.WriteUInt32((UInt32)ModData.Length);
             foreach (var modData in ModData)
             {
                 writer.WriteObject(modData);
@@ -85,76 +83,78 @@ public struct ServerInfo : IPacket
 
         if (SomeData == null)
         {
-            writer.WriteUInt32(0);
+            compWriter.Writer.WriteUInt16(0);
         }
         else
         {
-            writer.WriteUInt32((UInt32)SomeData.Length);
-            writer.WriteBytes(SomeData);
+            compWriter.Writer.WriteUInt16((UInt16)SomeData.Length);
+            compWriter.Writer.WriteBytes(SomeData);
         }
 
         if (ScriptData == null)
         {
-            writer.WriteUInt32(0);
+            compWriter.Writer.WriteUInt32(0);
         }
         else
         {
-            writer.WriteUInt32((UInt32)ScriptData.Length);
+            compWriter.Writer.WriteUInt32((UInt32)ScriptData.Length);
             foreach (var scriptData in ScriptData)
             {
-                writer.WriteObject(scriptData);
+                compWriter.Writer.WriteObject(scriptData);
             }
         }
 
         if (GenericData == null)
         {
-            writer.WriteUInt32(0);
+            compWriter.Writer.WriteUInt32(0);
         }
         else
         {
-            writer.WriteUInt32((UInt32)GenericData.Length);
+            compWriter.Writer.WriteUInt32((UInt32)GenericData.Length);
             foreach (var generictData in GenericData)
             {
-                writer.WriteObject(generictData);
+                compWriter.Writer.WriteObject(generictData);
             }
         }
 
-        writer.WriteServerFlags(Flags);
+        compWriter.Writer.WriteServerFlags(Flags);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        Version = reader.ReadUInt32();
-        Gamemode = reader.ReadGamemode();
-        Seed = reader.ReadUInt32();
-        GameTick = reader.ReadUInt32();
+        reader.ReadByte();
+        var compReader = reader.ReadLZ4().Reader;
+        Version = compReader.ReadUInt32();
+        Gamemode = compReader.ReadGamemode();
+        Seed = compReader.ReadUInt32();
+        GameTick = compReader.ReadUInt32();
 
-        var modDataCount = reader.ReadUInt32();
+        var modDataCount = compReader.ReadUInt32();
         ModData = new ModData[modDataCount];
         for (var i = 0; i < modDataCount; i++)
         {
-            ModData[i] = reader.ReadObject<ModData>();
+            ModData[i] = compReader.ReadObject<ModData>();
         }
 
-        var someDataCount = reader.ReadUInt32();
+        var someDataCount = compReader.ReadUInt16();
         SomeData = new byte[someDataCount];
-        reader.ReadBytes(SomeData);
+        compReader.ReadBytes(SomeData);
 
-        var scriptDataCount = reader.ReadUInt32();
+        var scriptDataCount = compReader.ReadUInt32();
         ScriptData = new BlobDataRef[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = reader.ReadObject<BlobDataRef>();
+            ScriptData[i] = compReader.ReadObject<BlobDataRef>();
         }
 
-        var genericDataCount = reader.ReadUInt32();
+        var genericDataCount = compReader.ReadUInt32();
         GenericData = new BlobDataRef[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = reader.ReadObject<BlobDataRef>();
+            GenericData[i] = compReader.ReadObject<BlobDataRef>();
         }
 
-        Flags = reader.ReadServerFlags();
+        Flags = compReader.ReadServerFlags();
     }
 }

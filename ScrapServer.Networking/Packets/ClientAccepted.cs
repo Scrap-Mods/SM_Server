@@ -1,5 +1,4 @@
-﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Utility.Serialization;
+﻿using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
@@ -8,17 +7,16 @@ namespace ScrapServer.Networking.Packets;
 /// sequence to indicate that the client is authorized to join.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/client-accepted"/>
-public struct ClientAccepted : IPacket
+public struct ClientAccepted : IBitSerializable
 {
     /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.ClientAccepted;
+    public readonly void Serialize(ref BitWriter writer) {
+        writer.WriteByte((byte)PacketId.ClientAccepted);
+    }
 
     /// <inheritdoc/>
-    public static bool IsCompressable => false;
+    public readonly void Deserialize(ref BitReader reader) {
+        reader.ReadByte();
 
-    /// <inheritdoc/>
-    public readonly void Serialize(ref BitWriter writer) { }
-
-    /// <inheritdoc/>
-    public readonly void Deserialize(ref BitReader reader) { }
+    }
 }

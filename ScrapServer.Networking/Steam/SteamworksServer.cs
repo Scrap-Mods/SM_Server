@@ -1,8 +1,12 @@
 ﻿using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
+using System.Diagnostics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Drawing;
 
-namespace ScrapServer.Networking.Client.Steam;
+namespace ScrapServer.Networking.Steam;
 
 /// <summary>
 /// An implementation of <see cref="IServer"/> which uses the Steamworks socket manager.
@@ -20,7 +24,7 @@ public sealed class SteamworksServer : IServer
 
         public void OnConnecting(Connection connection, ConnectionInfo info)
         {
-            var client = new SteamworksClient(connection, info.Identity);
+            var client = new SteamworksClient(connection, info.Identity, clientManager);
 
             clientManager.clients.Add(connection.Id, client);
             clientManager.connectedClients.Add(client);
@@ -76,10 +80,7 @@ public sealed class SteamworksServer : IServer
                 dataSpan = new ReadOnlySpan<byte>((void*)data, size);
             }
 
-            var packetId = (PacketId)dataSpan[0];
-
-            client.ReceiveRaw(packetId, dataSpan);
-            clientManager.ReceiveRaw(client, packetId, dataSpan);
+            clientManager.Receive(client, dataSpan);
         }
     }
 
@@ -103,8 +104,7 @@ public sealed class SteamworksServer : IServer
     private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
-    private RawPacketEventHandler? packetHandler = null;
-    private RawPacketEventHandler?[]? typedPacketHandlers = null;
+    private PacketEventHandler?[]? packetHandlers = null;
 
     private bool isDisposed = false;
 
@@ -113,6 +113,7 @@ public sealed class SteamworksServer : IServer
     /// </summary>
     public SteamworksServer()
     {
+        packetHandlers = new PacketEventHandler?[256];
         connectedClients = new List<SteamworksClient>();
         connectingClients = new List<SteamworksClient>();
         clients = new Dictionary<uint, SteamworksClient>();
@@ -120,24 +121,17 @@ public sealed class SteamworksServer : IServer
         socketManager.Interface = new SocketInterface(this);
     }
 
-    /// <inheritdoc/>
-    public void HandleRaw(RawPacketEventHandler handler)
-    {
-        packetHandler += handler;
-    }
+    public void Receive(SteamworksClient client, ReadOnlySpan<byte> data) => packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, data));
 
     /// <inheritdoc/>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
+    public void Handle(PacketId id, PacketEventHandler handler)
     {
-        typedPacketHandlers ??= new RawPacketEventHandler[256];
-        typedPacketHandlers[(byte)packetId] += handler;
-    }
+        if (packetHandlers == null)
+        {
+            throw new UnreachableException("Packet handlers have not been initialized");
+        }
 
-    public void ReceiveRaw(IClient client, PacketId packetId, ReadOnlySpan<byte> data)
-    {
-        var args = new RawPacketEventArgs(client, packetId, data);
-        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
-        packetHandler?.Invoke(this, args);
+        packetHandlers[(byte)id] += handler;
     }
 
     /// <inheritdoc/>

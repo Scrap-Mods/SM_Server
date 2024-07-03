@@ -1,5 +1,4 @@
-﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Utility.Serialization;
+﻿using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
@@ -8,14 +7,8 @@ namespace ScrapServer.Networking.Packets;
 /// to indicate that a checksum is invalid.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/checksums-denied"/>
-public struct ChecksumDenied : IPacket
+public struct ChecksumDenied : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.ChecksumsDenied;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => true;
-
     /// <summary>
     /// The index of the invalid checksum.
     /// </summary>
@@ -33,12 +26,18 @@ public struct ChecksumDenied : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(Index);
+        writer.WriteByte((byte)PacketId.ChecksumsDenied);
+        using var compWriter = writer.WriteLZ4().Writer;
+
+        compWriter.WriteUInt32(Index);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        Index = reader.ReadUInt32();
+        reader.ReadByte();
+        var compReader = reader.ReadLZ4().Reader;
+
+        Index = compReader.ReadUInt32();
     }
 }

@@ -1,5 +1,4 @@
-﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Utility.Serialization;
+﻿using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
@@ -9,14 +8,8 @@ namespace ScrapServer.Networking.Packets;
 /// containing the checksums of the files it has. 
 /// </summary>
 /// <seealso cref="https://docs.scrapmods.io/docs/networking/packets/file-checksums"/>
-public struct FileChecksums : IPacket
+public struct FileChecksums : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.FileChecksums;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => true;
-
     /// <summary>
     /// The checksum array.
     /// </summary>
@@ -34,26 +27,35 @@ public struct FileChecksums : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        writer.WriteByte((byte)PacketId.FileChecksums);
+        using var compWriter = writer.WriteLZ4().Writer;
+        
         if (Checksums == null)
         {
-            writer.WriteUInt32(0);
+            compWriter.WriteUInt32(0);
             return;
         }
-        writer.WriteUInt32((UInt32)Checksums.Length);
+
+        compWriter.WriteUInt32((UInt32)Checksums.Length);
+        
         foreach (uint checksum in Checksums)
         {
-            writer.WriteUInt32(checksum);
+            compWriter.WriteUInt32(checksum);
         }
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        uint length = reader.ReadUInt32();
+        reader.ReadByte();
+        var compReader = reader.ReadLZ4().Reader;
+        
+        uint length = compReader.ReadUInt32();
         Checksums = new uint[length];
+
         for (int i = 0; i < length; i++)
         {
-            Checksums[i] = reader.ReadUInt32();
+            Checksums[i] = compReader.ReadUInt32();
         }
     }
 }

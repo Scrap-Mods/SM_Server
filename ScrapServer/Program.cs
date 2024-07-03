@@ -1,9 +1,10 @@
 ﻿using Steamworks;
 using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Client.Steam;
+using ScrapServer.Networking.Steam;
 using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking;
 using ScrapServer.Utility.Serialization;
-using ScrapServer.Networking.Client;
+using System.Text;
 
 namespace ScrapServer;
 
@@ -40,13 +41,16 @@ internal class Program
         server.ClientConnected += (o, args) =>
         {
             Console.WriteLine($"Client connected! {args.Client.Username}");
-            args.Client.SendPacket(new ClientAccepted());
+
+            args.Client.Send(new ClientAccepted());
+            Console.WriteLine("Sent ClientAccepted");
         };
 
-        server.HandlePacket<Hello>((o, args) =>
+        server.Handle(PacketId.Hello, (o, args) =>
         {
             Console.WriteLine("Received Hello");
-            args.Client.SendPacket(new ServerInfo
+
+            args.Client.Send(new ServerInfo
             {
                 Version = 729,
                 Gamemode = Gamemode.FlatTerrain,
@@ -60,31 +64,42 @@ internal class Program
             });
             Console.WriteLine("Sent ServerInfo");
 
-            args.Client.SendPacket(new GenericDataS2C());
+            args.Client.Send(new GenericDataS2C());
             Console.WriteLine("Sent Initialization Data");
+
+            var data = Encoding.ASCII.GetBytes("\x00\x00\x00\xCE\x19\x00\x0b\x13xJ):\x1d\xb2#R\n\xa3\xac\x0f\x9a}\xed8i\x00\x04\x02\x00\x00\x00\xff\xfe\x04\x00\x00\x00+\xf1\x0e\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x05\x00inChemical\x11\x00\x90\x02\x80inOil\x02\x00J):\x1d\xb2#R\n\xa3\xac\x0f\x9a}\xed8i\x00\x04\x01\x00\x00\x00\xff\xfe\x04\x00\x00\x00+\xf1\x0e\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x05\x00inChemical\x11\x00\x90\x02\x80inOil\x02\x00 \x89`3#\xa4W\x89\xa0<\xa7S>;\xff\x84\x00\x04\x01\x00\x00\x00\xff\xfe\x04\x00\x00\x00\x1e\xf0\r\x04LUA\x00\x00\x00\x01\x05\x00\x00\x00\x01\x02\x00\x00\x00\x02\x00time\x03?\x00\x00\x00");            
+            args.Client.Send(new RawPacket(data, 29));
+
+            Console.WriteLine("Sent Raw Packet");
         });
 
-        server.HandlePacket<FileChecksums>((o, args) =>
+        server.Handle(PacketId.FileChecksums, (o, args) =>
         {
             Console.WriteLine("Received FileChecksum");
-            args.Client.SendPacket(new ChecksumsAccepted());
+            var checksum = args.Deserialize<FileChecksums>();
+
+            // Validate checksum?
+
+            args.Client.Send(new ChecksumsAccepted());
             Console.WriteLine("Sent ChecksumAccepted");
         });
 
-        server.HandlePacket<CharacterInfo>((o, args) =>
+        server.Handle(PacketId.CharacterInfo, (o, args) =>
         {
             Console.WriteLine("Received CharacterInfo");
-            args.Client.SendPacket(new JoinConfirmation());
+            var character = args.Deserialize<CharacterInfo>();
+
+            args.Client.Send(new JoinConfirmation());
             Console.WriteLine("Sent JoinConfirmation");
         });
-        Console.WriteLine("Sent ClientAccepted");
 
-        server.HandleRaw(PacketId.CompoundPacket, (o, args) =>
+        server.Handle(PacketId.CompoundPacket, (o, args) =>
         {
-            Console.WriteLine("Received a compound packet, ignoring...");
+            Console.WriteLine("Received a compound packet");
+            var reader = BitReader.WithSharedPool(args.Packet);
+
+            // handle compound packet
         });
-
-
 
         while (true)
         {

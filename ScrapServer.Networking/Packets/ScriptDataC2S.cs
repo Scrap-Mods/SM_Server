@@ -7,14 +7,8 @@ namespace ScrapServer.Networking.Packets;
 /// The packet sent by the server when it sends a Lua network request or updates client data.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/script-data-c2s"/>
-public struct ScriptDataC2S : IPacket
+public struct ScriptDataC2S : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.ScriptDataC2S;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => false;
-
     /// <summary>
     /// The script data.
     /// </summary>
@@ -23,23 +17,30 @@ public struct ScriptDataC2S : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        writer.WriteByte((byte)PacketId.ScriptDataC2S);
+        using var compWriter = writer.WriteLZ4();
+
         if (Data == null)
         {
+            compWriter.Writer.WriteUInt32(0);
             return;
         }
         foreach (var data in Data)
         {
-            data.Serialize(ref writer);
+            data.Serialize(ref compWriter.Writer);
         }
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
+        reader.ReadByte();
+        var compReader = reader.ReadLZ4().Reader;
+
         var dataList = new List<BlobData>();
-        while (reader.BytesLeft > 0)
+        while (compReader.BytesLeft > 0)
         {
-            dataList.Add(reader.ReadObject<BlobData>());
+            dataList.Add(compReader.ReadObject<BlobData>());
         }
         Data = dataList.ToArray();
     }

@@ -9,14 +9,8 @@ namespace ScrapServer.Networking.Packets;
 /// the player's name and their character customization options.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/networking/packets/character-info"/>
-public struct CharacterInfo : IPacket
+public struct CharacterInfo : IBitSerializable
 {
-    /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.CharacterInfo;
-
-    /// <inheritdoc/>
-    public static bool IsCompressable => true;
-
     /// <summary>
     /// The players's name displayed in chat and above the character model.
     /// </summary>
@@ -30,6 +24,9 @@ public struct CharacterInfo : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        writer.WriteByte((byte)PacketId.CharacterInfo);
+        using var compWriter = writer.WriteLZ4().Writer;
+
         if (Name != null)
         {
             var byteLen = Encoding.UTF8.GetByteCount(Name);
@@ -37,21 +34,24 @@ public struct CharacterInfo : IPacket
             {
                 throw new ArgumentException($"Character name too long: {byteLen} bytes (max is {UInt16.MaxValue}).");
             }
-            writer.WriteUInt16((UInt16)byteLen);
-            writer.WriteString(Name);
+            compWriter.WriteUInt16((UInt16)byteLen);
+            compWriter.WriteString(Name);
         }
         else
         {
-            writer.WriteUInt16(0);
+            compWriter.WriteUInt16(0);
         }
-        writer.WriteObject(Customization);
+        compWriter.WriteObject(Customization);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        var byteLen = reader.ReadUInt16();
-        Name = reader.ReadString(byteLen);
-        Customization = reader.ReadObject<CharacterCustomization>();
+        reader.ReadByte();
+        var compReadeer = reader.ReadLZ4().Reader;
+
+        var byteLen = compReadeer.ReadUInt16();
+        Name = compReadeer.ReadString(byteLen);
+        Customization = compReadeer.ReadObject<CharacterCustomization>();
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ScrapServer.Networking.Packets.Data;
+﻿namespace ScrapServer.Networking;
 
 public enum PacketId : byte
 {
