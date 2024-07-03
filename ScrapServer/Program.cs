@@ -1,8 +1,8 @@
 ﻿using Steamworks;
-using ScrapServer.Networking.Packets;
-using ScrapServer.Networking.Steam;
-using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Networking;
+using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Networking.Steam;
 using ScrapServer.Utility.Serialization;
 using System.Text;
 
@@ -42,7 +42,7 @@ internal class Program
         {
             Console.WriteLine($"Client connected! {args.Client.Username}");
 
-            args.Client.Send(new ClientAccepted());
+            args.Client.Send(PacketId.ClientAccepted, new NullPacket());
             Console.WriteLine("Sent ClientAccepted");
         };
 
@@ -50,7 +50,7 @@ internal class Program
         {
             Console.WriteLine("Received Hello");
 
-            args.Client.Send(new ServerInfo
+            args.Client.Send(PacketId.ServerInfo, new ServerInfo
             {
                 Version = 729,
                 Gamemode = Gamemode.FlatTerrain,
@@ -64,11 +64,11 @@ internal class Program
             });
             Console.WriteLine("Sent ServerInfo");
 
-            args.Client.Send(new GenericDataS2C());
+            args.Client.Send(PacketId.GenericDataS2C, new GenericDataS2C());
             Console.WriteLine("Sent Initialization Data");
 
             var data = Encoding.ASCII.GetBytes("\x00\x00\x00\xCE\x19\x00\x0b\x13xJ):\x1d\xb2#R\n\xa3\xac\x0f\x9a}\xed8i\x00\x04\x02\x00\x00\x00\xff\xfe\x04\x00\x00\x00+\xf1\x0e\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x05\x00inChemical\x11\x00\x90\x02\x80inOil\x02\x00J):\x1d\xb2#R\n\xa3\xac\x0f\x9a}\xed8i\x00\x04\x01\x00\x00\x00\xff\xfe\x04\x00\x00\x00+\xf1\x0e\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x05\x00inChemical\x11\x00\x90\x02\x80inOil\x02\x00 \x89`3#\xa4W\x89\xa0<\xa7S>;\xff\x84\x00\x04\x01\x00\x00\x00\xff\xfe\x04\x00\x00\x00\x1e\xf0\r\x04LUA\x00\x00\x00\x01\x05\x00\x00\x00\x01\x02\x00\x00\x00\x02\x00time\x03?\x00\x00\x00");
-            args.Client.Send(new RawPacket { Data = data, PacketId = 29 });
+            args.Client.Send(PacketId.CompoundPacket, new RawPacket { Data = data });
 
             Console.WriteLine("Sent Raw Packet");
         });
@@ -80,7 +80,7 @@ internal class Program
 
             // Validate checksum?
 
-            args.Client.Send(new ChecksumsAccepted());
+            args.Client.Send(PacketId.ChecksumsAccepted, new NullPacket());
             Console.WriteLine("Sent ChecksumAccepted");
         });
 
@@ -91,7 +91,7 @@ internal class Program
 
             // do stuff with the character
 
-            args.Client.Send(new JoinConfirmation());
+            args.Client.Send(PacketId.JoinConfirmation, new NullPacket());
             Console.WriteLine("Sent JoinConfirmation");
         });
 

@@ -121,7 +121,18 @@ public sealed class SteamworksServer : IServer
         socketManager.Interface = new SocketInterface(this);
     }
 
-    public void Receive(SteamworksClient client, ReadOnlySpan<byte> data) => packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, data));
+    /// <inheritdoc/>
+    public void Receive(IClient client, ReadOnlySpan<byte> data)
+    {
+        if (data.Length > 1)
+        {
+            packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, data[1..]));
+        }
+        else
+        {
+            packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, []));
+        }
+    }
 
     /// <inheritdoc/>
     public void Handle(PacketId id, PacketEventHandler handler)

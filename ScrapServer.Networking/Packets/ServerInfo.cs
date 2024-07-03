@@ -60,21 +60,18 @@ public struct ServerInfo : IBitSerializable
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteByte((byte)PacketId.ServerInfo);
-        using var compWriter = writer.WriteLZ4();
-
-        compWriter.Writer.WriteUInt32(Version);
-        compWriter.Writer.WriteGamemode(Gamemode);
-        compWriter.Writer.WriteUInt32(Seed);
-        compWriter.Writer.WriteUInt32(GameTick);
+        writer.WriteUInt32(Version);
+        writer.WriteGamemode(Gamemode);
+        writer.WriteUInt32(Seed);
+        writer.WriteUInt32(GameTick);
 
         if (ModData == null)
         {
-            compWriter.Writer.WriteUInt32(0);
+            writer.WriteUInt32(0);
         }
         else
         {
-            compWriter.Writer.WriteUInt32((UInt32)ModData.Length);
+            writer.WriteUInt32((UInt32)ModData.Length);
             foreach (var modData in ModData)
             {
                 writer.WriteObject(modData);
@@ -83,79 +80,76 @@ public struct ServerInfo : IBitSerializable
 
         if (SomeData == null)
         {
-            compWriter.Writer.WriteUInt16(0);
+            writer.WriteUInt16(0);
         }
         else
         {
-            compWriter.Writer.WriteUInt16((UInt16)SomeData.Length);
-            compWriter.Writer.WriteBytes(SomeData);
+            writer.WriteUInt16((UInt16)SomeData.Length);
+            writer.WriteBytes(SomeData);
         }
 
         if (ScriptData == null)
         {
-            compWriter.Writer.WriteUInt32(0);
+            writer.WriteUInt32(0);
         }
         else
         {
-            compWriter.Writer.WriteUInt32((UInt32)ScriptData.Length);
+            writer.WriteUInt32((UInt32)ScriptData.Length);
             foreach (var scriptData in ScriptData)
             {
-                compWriter.Writer.WriteObject(scriptData);
+                writer.WriteObject(scriptData);
             }
         }
 
         if (GenericData == null)
         {
-            compWriter.Writer.WriteUInt32(0);
+            writer.WriteUInt32(0);
         }
         else
         {
-            compWriter.Writer.WriteUInt32((UInt32)GenericData.Length);
+            writer.WriteUInt32((UInt32)GenericData.Length);
             foreach (var generictData in GenericData)
             {
-                compWriter.Writer.WriteObject(generictData);
+                writer.WriteObject(generictData);
             }
         }
 
-        compWriter.Writer.WriteServerFlags(Flags);
+        writer.WriteServerFlags(Flags);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadByte();
-        using var compReader = reader.ReadLZ4();
+        Version = reader.ReadUInt32();
+        Gamemode = reader.ReadGamemode();
+        Seed = reader.ReadUInt32();
+        GameTick = reader.ReadUInt32();
 
-        Version = compReader.Reader.ReadUInt32();
-        Gamemode = compReader.Reader.ReadGamemode();
-        Seed = compReader.Reader.ReadUInt32();
-        GameTick = compReader.Reader.ReadUInt32();
-
-        var modDataCount = compReader.Reader.ReadUInt32();
+        var modDataCount = reader.ReadUInt32();
         ModData = new ModData[modDataCount];
         for (var i = 0; i < modDataCount; i++)
         {
-            ModData[i] = compReader.Reader.ReadObject<ModData>();
+            ModData[i] = reader.ReadObject<ModData>();
         }
 
-        var someDataCount = compReader.Reader.ReadUInt16();
+        var someDataCount = reader.ReadUInt16();
         SomeData = new byte[someDataCount];
-        compReader.Reader.ReadBytes(SomeData);
+        reader.ReadBytes(SomeData);
 
-        var scriptDataCount = compReader.Reader.ReadUInt32();
+        var scriptDataCount = reader.ReadUInt32();
         ScriptData = new BlobDataRef[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = compReader.Reader.ReadObject<BlobDataRef>();
+            ScriptData[i] = reader.ReadObject<BlobDataRef>();
         }
 
-        var genericDataCount = compReader.Reader.ReadUInt32();
+        var genericDataCount = reader.ReadUInt32();
         GenericData = new BlobDataRef[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = compReader.Reader.ReadObject<BlobDataRef>();
+            GenericData[i] = reader.ReadObject<BlobDataRef>();
         }
 
-        Flags = compReader.Reader.ReadServerFlags();
+        Flags = reader.ReadServerFlags();
     }
 }

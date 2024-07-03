@@ -101,23 +101,25 @@ public sealed class SteamworksClient : IClient
     }
 
     /// <inheritdoc/>
-    public void Send<T>(T packet) where T : IBitSerializable, new()
+    public void Send<T>(PacketId id, T packet) where T : IBitSerializable, new()
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
 
         var writer = BitWriter.WithSharedPool();
-        packet.Serialize(ref writer);
+        writer.WriteByte((byte)id);
+
+        if (packet != null)
+        {
+            using var compWriter = writer.WriteLZ4();
+            packet.Serialize(ref compWriter.Writer);
+        }
 
         connection.SendMessage(writer.Data);
     }
-
     /// <inheritdoc/>
-    public void Receive<T>(T packet) where T : IBitSerializable, new()
+    public void Receive(ReadOnlySpan<byte> data)
     {
-        var writer = BitWriter.WithSharedPool();
-        packet.Serialize(ref writer);
-
-        server.Receive(this, writer.Data);
+        server.Receive(this, data);
     }
 
     ~SteamworksClient()

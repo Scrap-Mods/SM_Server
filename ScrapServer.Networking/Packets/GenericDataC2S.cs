@@ -18,11 +18,9 @@ public struct GenericDataC2S : IBitSerializable
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteByte((byte)PacketId.GenericDataC2S);
-        using var compWriter = writer.WriteLZ4();
         if (Data == null)
         {
-            compWriter.Writer.WriteUInt32(0);
+            writer.WriteUInt32(0);
             return;
         }
         foreach (var data in Data)
@@ -34,13 +32,10 @@ public struct GenericDataC2S : IBitSerializable
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadByte();
-        using var compReader = reader.ReadLZ4(reader.BytesLeft);
-
         var dataList = new List<BlobData>();
-        while (compReader.Reader.BytesLeft > 0)
+        while (reader.BytesLeft > 0)
         {
-            dataList.Add(compReader.Reader.ReadObject<BlobData>());
+            dataList.Add(reader.ReadObject<BlobData>());
         }
         Data = dataList.ToArray();
     }

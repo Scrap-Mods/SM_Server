@@ -25,16 +25,17 @@ public interface IClient : IDisposable
     public event EventHandler<ClientEventArgs>? StateChanged;
 
     /// <summary>
-    /// Sends a raw packet to the client.
-    /// </summary>
-    /// <param name="packet">The raw packet data.</param>
-    public void Send<T>(T packet) where T : IBitSerializable, new();
+    /// Sends a packet to the client.
+    /// </summary
+    /// <param name="id">The id of the packet.</param>
+    /// <param name="packet">The packet data.</param>
+    public void Send<T>(PacketId id, T packet) where T : IBitSerializable, new();
 
     /// <summary>
-    /// "Receives" a raw packet and runs the handlers for it.
-    /// </summary
-    /// <param name="packet">The packet data of the raw packet</param>
-    public void Receive<T>(T packet) where T : IBitSerializable, new();
+    /// Injects data as if the client recieved it.
+    /// </summary>
+    /// <param name="data">The raw data.</param>
+    public void Receive(ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Accepts the incoming connection.

@@ -27,35 +27,29 @@ public struct FileChecksums : IBitSerializable
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteByte((byte)PacketId.FileChecksums);
-        using var compWriter = writer.WriteLZ4().Writer;
-        
         if (Checksums == null)
         {
-            compWriter.WriteUInt32(0);
+            writer.WriteUInt32(0);
             return;
         }
 
-        compWriter.WriteUInt32((UInt32)Checksums.Length);
+        writer.WriteUInt32((UInt32)Checksums.Length);
         
         foreach (uint checksum in Checksums)
         {
-            compWriter.WriteUInt32(checksum);
+            writer.WriteUInt32(checksum);
         }
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadByte();
-        using var compReader = reader.ReadLZ4(reader.BytesLeft);
-        
-        uint length = compReader.Reader.ReadUInt32();
+        uint length = reader.ReadUInt32();
         Checksums = new uint[length];
 
         for (int i = 0; i < length; i++)
         {
-            Checksums[i] = compReader.Reader.ReadUInt32();
+            Checksums[i] = reader.ReadUInt32();
         }
     }
 }

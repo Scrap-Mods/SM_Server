@@ -24,9 +24,6 @@ public struct CharacterInfo : IBitSerializable
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteByte((byte)PacketId.CharacterInfo);
-        using var compWriter = writer.WriteLZ4();
-
         if (Name != null)
         {
             var byteLen = Encoding.UTF8.GetByteCount(Name);
@@ -34,24 +31,21 @@ public struct CharacterInfo : IBitSerializable
             {
                 throw new ArgumentException($"Character name too long: {byteLen} bytes (max is {UInt16.MaxValue}).");
             }
-            compWriter.Writer.WriteUInt16((UInt16)byteLen);
-            compWriter.Writer.WriteString(Name);
+            writer.WriteUInt16((UInt16)byteLen);
+            writer.WriteString(Name);
         }
         else
         {
-            compWriter.Writer.WriteUInt16(0);
+            writer.WriteUInt16(0);
         }
-        compWriter.Writer.WriteObject(Customization);
+        writer.WriteObject(Customization);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        reader.ReadByte();
-        using var compReadeer = reader.ReadLZ4();
-
-        var byteLen = compReadeer.Reader.ReadUInt16();
-        Name = compReadeer.Reader.ReadString(byteLen);
-        Customization = compReadeer.Reader.ReadObject<CharacterCustomization>();
+        var byteLen = reader.ReadUInt16();
+        Name = reader.ReadString(byteLen);
+        Customization = reader.ReadObject<CharacterCustomization>();
     }
 }

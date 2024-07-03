@@ -47,7 +47,14 @@ public interface IServer : IDisposable
     /// </summary>
     /// <param name="id">The id to subscribe this callback to.</param>
     /// <param name="handler">The delegate to be called when a packet is received.</param>
-    public void Handle(PacketId id, PacketEventHandler handler);
+    public void Handle(PacketId id, PacketEventHandler handler)
+
+    /// <summary>
+    /// Receive data from socket or data stream and processes it with the handlers
+    /// </summary>
+    /// <param name="client">The client sending the data.</param>
+    /// <param name="data">The data itself.</param>
+    public void Receive(IClient client, ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Runs a single iteration of the event loop.
