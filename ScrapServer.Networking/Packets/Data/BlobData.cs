@@ -55,16 +55,4 @@ public struct BlobData : IBitSerializable
         Data = new byte[decomp.DecompressedLength]; 
         decomp.Reader.ReadBytes(Data);
     }
-
-    public BlobData WithData<T>(T data) where T : IBitSerializable
-    {
-        using var writer = BitWriter.WithSharedPool();
-
-        writer.WriteObject(data);
-
-        return this with
-        {
-            Data = writer.Data.ToArray()
-        };
-    }
 }

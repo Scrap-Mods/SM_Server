@@ -46,7 +46,6 @@ internal class Program
         server.Handle<FileChecksums>((o, args2) =>
         {
             Console.WriteLine("Received FileChecksum");
-            Console.WriteLine(args2.Packet.Checksums);
 
             // handled checksum?
 
@@ -57,7 +56,6 @@ internal class Program
         server.Handle<CharacterInfo>((o, args2) =>
         {
             Console.WriteLine("Received CharacterInfo");
-            Console.WriteLine(args2.Packet.Name);
 
             // handle CharacterInfo
 
@@ -148,7 +146,8 @@ internal class Program
                 Key = [0x2, 0x00, 0x00, 0x00],
                 WorldID = 65534,
                 Flags = 13,
-            }.WithData(playerData);
+                Data = playerData.ToBytes()
+            };
 
             var genericInit = new GenericInitData { Data = [blobData], GameTick = 0 };
             args2.Client.Send(genericInit);
