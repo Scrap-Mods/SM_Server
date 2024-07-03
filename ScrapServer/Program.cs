@@ -89,6 +89,8 @@ internal class Program
             Console.WriteLine("Received CharacterInfo");
             var character = args.Deserialize<CharacterInfo>();
 
+            // do stuff with the character
+
             args.Client.Send(new JoinConfirmation());
             Console.WriteLine("Sent JoinConfirmation");
         });

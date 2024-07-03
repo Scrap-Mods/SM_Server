@@ -16,7 +16,7 @@ public struct RawPacket : IBitSerializable
         compWriter.Writer.WriteBytes(Data);
     }
 
-    public readonly void Deserialize(ref BitReader reader)
+    public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
 
