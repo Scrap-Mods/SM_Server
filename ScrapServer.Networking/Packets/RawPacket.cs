@@ -8,12 +8,6 @@ public struct RawPacket : IBitSerializable
     public byte[] Data;
     public byte PacketId;
 
-    public RawPacket(byte[] data, byte id)
-    {
-        Data = data;
-        PacketId = id;
-    }
-
     public readonly void Serialize(ref BitWriter writer)
     {
         writer.WriteByte(PacketId);
