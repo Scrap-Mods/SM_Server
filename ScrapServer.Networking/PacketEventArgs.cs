@@ -5,28 +5,35 @@ namespace ScrapServer.Networking;
 /// <summary>
 /// The arguments for an incoming client packet event.
 /// </summary>
-public readonly ref struct PacketEventArgs
+public readonly ref struct PacketEventArgs<T> where T : IBitSerializable
 {
     /// <summary>
     /// Gets the client that sent the packet.
     /// </summary>
     /// <value>The client.</value>
-    public IClient Client { get; }
+    readonly public IClient Client { get; }
+
+    /// <summary>
+    /// Gets the packet id.
+    /// </summary>
+    /// <value>The id.</value>
+   readonly public PacketId PacketId { get; }   
 
     /// <summary>
     /// Gets the packet data.
     /// </summary>
     /// <value>Packet object.</value>
-    public ReadOnlySpan<byte> Packet { get; }
+    readonly public T Data { get; }
 
     /// <summary>
     /// Initializes a new instance of <see cref="PacketEventArgs"/>.
     /// </summary>
     /// <param name="client">The client that sent the packet.</param>
-    /// <param name="packet">The packet data.</param>
-    public PacketEventArgs(IClient client, ReadOnlySpan<byte> packet)
+    /// <param name="data">The packet data.</param>
+    public PacketEventArgs(IClient client, PacketId id, T data)
     {
         Client = client;
-        Packet = packet;
+        PacketId = id;
+        Data = data;
     }
 }

@@ -1,18 +1,26 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking;
 using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
 using System.Diagnostics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Drawing;
 
-namespace ScrapServer.Networking.Steam;
+namespace ScrapServer.Vanilla;
+
 
 /// <summary>
 /// An implementation of <see cref="IServer"/> which uses the Steamworks socket manager.
 /// </summary>
 public sealed class SteamworksServer : IServer
 {
+    private readonly ref struct RawPacketEventArgs
+    {
+        public readonly IClient Client;
+        public readonly ReadOnlySpan<byte> Data;
+
+        public RawPacketEventArgs(IClient client, ReadOnlySpan<byte> data) { Client = client; Data = data; }
+    }
+    private delegate void RawPacketEventHandler(object? sender, RawPacketEventArgs args);
+
     private class SocketInterface : ISocketManager
     {
         private readonly SteamworksServer clientManager;
@@ -80,7 +88,7 @@ public sealed class SteamworksServer : IServer
                 dataSpan = new ReadOnlySpan<byte>((void*)data, size);
             }
 
-            clientManager.Receive(client, dataSpan);
+            clientManager.ReceiveRaw(client, dataSpan);
         }
     }
 
@@ -104,7 +112,7 @@ public sealed class SteamworksServer : IServer
     private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
-    private PacketEventHandler?[]? packetHandlers = null;
+    private RawPacketEventHandler?[]? packetHandlers = null;
 
     private bool isDisposed = false;
 
@@ -113,7 +121,7 @@ public sealed class SteamworksServer : IServer
     /// </summary>
     public SteamworksServer()
     {
-        packetHandlers = new PacketEventHandler?[256];
+        packetHandlers = new RawPacketEventHandler?[256];
         connectedClients = new List<SteamworksClient>();
         connectingClients = new List<SteamworksClient>();
         clients = new Dictionary<uint, SteamworksClient>();
@@ -121,28 +129,51 @@ public sealed class SteamworksServer : IServer
         socketManager.Interface = new SocketInterface(this);
     }
 
-    /// <inheritdoc/>
-    public void Receive(IClient client, ReadOnlySpan<byte> data)
+    private void ReceiveRaw(IClient client, ReadOnlySpan<byte> dataSpan)
     {
-        if (data.Length > 1)
+        var id = dataSpan[0];
+
+        if (packetHandlers == null)
         {
-            packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, data[1..]));
+            throw new UnreachableException("Packet handlers has not been initialized");
+        }
+        else if (packetHandlers[id] == null)
+        {
+            throw new InvalidOperationException("Packet handler for this id is null");
         }
         else
         {
-            packetHandlers?[data[0]]?.Invoke(this, new PacketEventArgs(client, []));
+            packetHandlers[id].Invoke(this, new RawPacketEventArgs(client, dataSpan));
         }
     }
 
-    /// <inheritdoc/>
-    public void Handle(PacketId id, PacketEventHandler handler)
+    /// <inheritdoc
+    public void Handle<T>(PacketId id, PacketEventHandler<T> handler) where T : IBitSerializable, new()
     {
         if (packetHandlers == null)
         {
-            throw new UnreachableException("Packet handlers have not been initialized");
+            throw new UnreachableException("Packet handlers has not been initialized");
         }
 
-        packetHandlers[(byte)id] += handler;
+        packetHandlers[(byte)id] += (o, args) =>
+        {
+            var reader = BitReader.WithSharedPool(args.Data);
+            var t = reader.ReadObject<T>();
+
+            handler(o, new PacketEventArgs<T>(args.Client, (PacketId) args.Data[0], t));
+        };
+    }
+
+    /// <inheritdoc
+    public void Receive<T>(PacketEventArgs<T> args) where T : IBitSerializable, new()
+    {
+        // NOTE(ArcPrime): this isn't great for performance (serializing once more just to deserialize again), but you shouldn't be injecting packets much anyway
+
+        var writer = BitWriter.WithSharedPool();
+        writer.WriteByte((byte)args.PacketId);
+        writer.WriteObject(args.Data);
+
+        ReceiveRaw(args.Client, writer.Data);
     }
 
     /// <inheritdoc/>
@@ -186,5 +217,4 @@ public sealed class SteamworksServer : IServer
             GC.SuppressFinalize(this);
         }
     }
-
 }

@@ -28,14 +28,15 @@ public interface IClient : IDisposable
     /// Sends a packet to the client.
     /// </summary
     /// <param name="id">The id of the packet.</param>
-    /// <param name="packet">The packet data.</param>
-    public void Send<T>(PacketId id, T packet) where T : IBitSerializable, new();
+    /// <param name="data">The packet data.</param>
+    public void Send<T>(PacketId id, T data) where T : IBitSerializable, new();
 
     /// <summary>
-    /// Injects data as if the client recieved it.
+    /// Injects a packet into the handlers as if the client recieved it.
     /// </summary>
-    /// <param name="data">The raw data.</param>
-    public void Receive(ReadOnlySpan<byte> data);
+    /// <param name="id">The id of the packet.</param>
+    /// <param name="data">The packet data.</param>
+    public void Receive<T>(PacketId id, T data) where T : IBitSerializable, new();
 
     /// <summary>
     /// Accepts the incoming connection.

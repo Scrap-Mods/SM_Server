@@ -1,7 +1,7 @@
 ﻿using Steamworks;
 using Steamworks.Data;
 
-namespace ScrapServer.Networking.Steam;
+namespace ScrapServer.Vanilla;
 
 internal static class ConnectionExtensions
 {

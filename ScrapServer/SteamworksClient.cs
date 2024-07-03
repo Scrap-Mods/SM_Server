@@ -1,12 +1,9 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking;
 using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
-using System.Buffers;
-using System.Linq.Expressions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ScrapServer.Networking.Steam;
+namespace ScrapServer.Vanilla;
 
 /// <summary>
 /// An implementation of <see cref="IClient"/> used by <see cref="SteamworksServer"/>.
@@ -101,25 +98,21 @@ public sealed class SteamworksClient : IClient
     }
 
     /// <inheritdoc/>
-    public void Send<T>(PacketId id, T packet) where T : IBitSerializable, new()
+    public void Send<T>(PacketId id, T data) where T : IBitSerializable, new()
     {
         ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
 
         var writer = BitWriter.WithSharedPool();
         writer.WriteByte((byte)id);
-
-        if (packet != null)
-        {
-            using var compWriter = writer.WriteLZ4();
-            packet.Serialize(ref compWriter.Writer);
-        }
+        writer.WriteObject(data);
 
         connection.SendMessage(writer.Data);
     }
+
     /// <inheritdoc/>
-    public void Receive(ReadOnlySpan<byte> data)
+    public void Receive<T>(PacketId id, T data) where T : IBitSerializable, new()
     {
-        server.Receive(this, data);
+        server.Receive(new PacketEventArgs<T>(this, id, data));
     }
 
     ~SteamworksClient()
