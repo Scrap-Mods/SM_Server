@@ -4,16 +4,21 @@ using ScrapServer.Utility.Serialization;
 namespace ScrapServer.Networking.Packets;
 
 /// <summary>
-/// The packet sent by the client to the server containing generic game data.
+/// The packet sent by the server to the client containing generic game data.
 /// </summary>
-/// <seealso href="https://docs.scrapmods.io/docs/networking/packets/generic-data-c2s"/>
-public struct GenericDataC2S : IPacket
+/// <seealso href="https://docs.scrapmods.io/docs/networking/packets/generic-initialization-data"/>
+public struct GenericInitData : IPacket
 {
     /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.GenericDataC2S;
+    public static PacketId PacketId => PacketId.GenericInitData;
 
     /// <inheritdoc/>
     public static bool IsCompressable => true;
+
+    /// <summary>
+    /// The current game tick.
+    /// </summary>
+    public UInt32 GameTick;
 
     /// <summary>
     /// The generic game data.
@@ -23,6 +28,7 @@ public struct GenericDataC2S : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
+        writer.WriteUInt32(GameTick);
         if (Data == null)
         {
             return;
@@ -36,6 +42,7 @@ public struct GenericDataC2S : IPacket
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
+        GameTick = reader.ReadUInt32();
         var dataList = new List<BlobData>();
         while (reader.BytesLeft > 0)
         {

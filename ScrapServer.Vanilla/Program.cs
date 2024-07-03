@@ -1,7 +1,7 @@
 ﻿using Steamworks;
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Networking;
+using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Vanilla;
 
@@ -39,7 +39,7 @@ internal class Program
         {
             Console.WriteLine($"Client connected! {args.Client.Username}");
 
-            args.Client.Send(new ClientAccepted());
+            args.Client.Send(new ClientAccepted {});
             Console.WriteLine("Sent ClientAccepted");
         };
 
@@ -50,7 +50,7 @@ internal class Program
 
             // handled checksum?
 
-            args2.Client.Send(new ChecksumsAccepted());
+            args2.Client.Send(new ChecksumsAccepted {});
             Console.WriteLine("Sent ChecksumAccepted");
         });
 
@@ -61,8 +61,13 @@ internal class Program
 
             // handle CharacterInfo
 
-            args2.Client.Send(new JoinConfirmation());
+            args2.Client.Send(new JoinConfirmation {});
             Console.WriteLine("Sent JoinConfirmation");
+        });
+
+        server.Handle<CompoundPacket>((o, args2) =>
+        {
+            var reader = BitReader.WithSharedPool(args2.Packet.Data);
         });
 
 
@@ -79,8 +84,79 @@ internal class Program
             });
             Console.WriteLine("Sent ServerInfo");
 
-            args2.Client.Send(new GenericDataS2C());
+            var characterCustomization = new CharacterCustomization
+            {
+                Gender = Gender.Male,
+                Items = [
+                    new CharacterItem
+                    {
+                        PaletteIndex = 1,
+                        VariantId = Guid.Parse("cc273e37-4ba8-498e-ac5e-3497403c7fe2")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("87b7d156-8b83-4612-9cb1-93b768de8dc1")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("00000000-0000-0000-0000-000000000000")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("915a8a36-3bbc-427e-ae00-4954208053b9")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("8de62bd5-c7b3-4b2c-8d30-f986dff5ef70")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("18fdfb7c-42ae-463c-8ee5-d2ce271c3ec8")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("803b41c1-a6f9-475c-953d-dd78c5ae99c4")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Parse("e5ba292b-1772-463f-8010-b97c48bc9298")
+                    },
+                ]
+            };
+
+            var playerData = new PlayerData
+            {
+                CharacterID = 1,
+                SteamID = 76561198142527219,
+                InventoryContainerID = 3,
+                CarryContainer = 2,
+                CarryColor = uint.MaxValue,
+                Name = "TechnologicNickFR",
+                CharacterCustomization = characterCustomization,
+            };
+
+            var blobData = new BlobData
+            {
+                Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+                Key = [0x2, 0x00, 0x00, 0x00],
+                WorldID = 65534,
+                Flags = 13,
+            }.WithData(playerData);
+
+            var genericInit = new GenericInitData { Data = [blobData], GameTick = 0 };
+            args2.Client.Send(genericInit);
             Console.WriteLine("Sent Initialization Data");
+
+            var compound = new CompoundPacket.Builder().Write(new InitNetworkUpdate { }).Build();
+            args2.Client.Send(compound);
+            Console.WriteLine("Sent InitializationNetworkUpdate");
         });
 
         while (true)

@@ -13,12 +13,12 @@ public struct ScriptDataS2C : IPacket
     public static PacketId PacketId => PacketId.ScriptDataS2C;
 
     /// <inheritdoc/>
-    public static bool IsCompressable => false;
+    public static bool IsCompressable => true;
 
     /// <summary>
     /// The current game tick.
     /// </summary>
-    public UInt32 Tick;
+    public UInt32 GameTick;
 
     /// <summary>
     /// The script data.
@@ -28,7 +28,7 @@ public struct ScriptDataS2C : IPacket
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(Tick);
+        writer.WriteUInt32(GameTick);
         if (Data == null)
         {
             return;
@@ -42,7 +42,7 @@ public struct ScriptDataS2C : IPacket
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
-        Tick = reader.ReadUInt32();
+        GameTick = reader.ReadUInt32();
         var dataList = new List<BlobData>();
         while (reader.BytesLeft > 0)
         {

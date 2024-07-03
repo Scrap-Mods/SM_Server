@@ -13,7 +13,7 @@ public struct ScriptDataC2S : IPacket
     public static PacketId PacketId => PacketId.ScriptDataC2S;
 
     /// <inheritdoc/>
-    public static bool IsCompressable => false;
+    public static bool IsCompressable => true;
 
     /// <summary>
     /// The script data.

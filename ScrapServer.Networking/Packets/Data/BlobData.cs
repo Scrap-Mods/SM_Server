@@ -4,7 +4,7 @@ namespace ScrapServer.Networking.Packets.Data;
 
 public struct BlobData : IBitSerializable
 {
-    public Guid UUID;
+    public Guid Uid;
     public byte[]? Key;
     public UInt16 WorldID;
     public byte Flags;
@@ -12,7 +12,7 @@ public struct BlobData : IBitSerializable
 
     public readonly void Serialize(ref BitWriter writer)
     {
-        writer.WriteGuid(UUID);
+        writer.WriteGuid(Uid);
 
         if (Key == null)
         {
@@ -41,7 +41,7 @@ public struct BlobData : IBitSerializable
 
     public void Deserialize(ref BitReader reader)
     {
-        UUID = reader.ReadGuid();
+        Uid = reader.ReadGuid();
 
         ushort keyLength = reader.ReadUInt16();
         Key = new byte[keyLength];
@@ -54,5 +54,17 @@ public struct BlobData : IBitSerializable
         using var decomp = reader.ReadLZ4(compressedLength);
         Data = new byte[decomp.DecompressedLength]; 
         decomp.Reader.ReadBytes(Data);
+    }
+
+    public BlobData WithData<T>(T data) where T : IBitSerializable
+    {
+        using var writer = BitWriter.WithSharedPool();
+
+        writer.WriteObject(data);
+
+        return this with
+        {
+            Data = writer.Data.ToArray()
+        };
     }
 }

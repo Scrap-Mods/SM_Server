@@ -25,7 +25,7 @@ public struct CharacterInfo : IPacket
     /// <summary>
     /// The players's character customization options.
     /// </summary>
-    public Character Customization;
+    public CharacterCustomization Customization;
 
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
@@ -52,6 +52,6 @@ public struct CharacterInfo : IPacket
     {
         var byteLen = reader.ReadUInt16();
         Name = reader.ReadString(byteLen);
-        Customization = reader.ReadObject<Character>();
+        Customization = reader.ReadObject<CharacterCustomization>();
     }
 }

@@ -17,6 +17,9 @@ public interface IPacket : IBitSerializable
     /// <summary>
     /// Gets whether the packets of this type should be compressed or not.
     /// </summary>
+    /// <remarks>
+    /// This only applies when sending the packet by itself, not when it is within another packet
+    /// </remarks>
     /// <value><see langword="true"/> if the packets are compressable, <see langword="false"/> if not.</value>
     public virtual static bool IsCompressable => false;
 }
