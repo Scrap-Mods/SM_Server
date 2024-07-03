@@ -1,6 +1,6 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking.Packets;
 
-namespace ScrapServer.Networking.Client;
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// Represents a server listening for incoming connections.
@@ -37,19 +37,10 @@ public interface IServer : IDisposable
     public event EventHandler<ClientEventArgs>? ClientDisconnected;
 
     /// <summary>
-    /// Registers a handler for packets coming from any client 
-    /// connected to this server.
+    /// Registers a handler for packets of specified type coming from the client.
     /// </summary>
-    /// <param name="handler">The delegate to be called when a packet is received.</param>
-    public void HandleRaw(RawPacketEventHandler handler);
-
-    /// <summary>
-    /// Registers a handler for packets with the specified id 
-    /// coming from any client connected to this server.
-    /// </summary>
-    /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
-    /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
+    /// <param name="handler">The delegate to be called when a packet is receive.</param>
+    public void Handle<T>(PacketEventHandler<T> handler) where T : IPacket, new();
 
     /// <summary>
     /// Runs a single iteration of the event loop.

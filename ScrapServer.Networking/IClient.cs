@@ -1,13 +1,7 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Packets.Data;
 
-namespace ScrapServer.Networking.Client;
-
-/// <summary>
-/// A delegate for handling incoming messages from the client.
-/// </summary>
-/// <param name="sender">The sender of the event.</param>
-/// <param name="args">The event args.</param>
-public delegate void RawPacketEventHandler(object? sender, RawPacketEventArgs args);
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// Represents a client connected to a <see cref="IServer"/> for sending and receiving packets.
@@ -32,23 +26,20 @@ public interface IClient : IDisposable
     public event EventHandler<ClientEventArgs>? StateChanged;
 
     /// <summary>
-    /// Registers a handler for incoming packets.
+    /// Sends a packet to the client.
     /// </summary>
-    /// <param name="handler">The delegate to be called when a packet is receive.</param>
-    public void HandleRaw(RawPacketEventHandler handler);
+    /// <param name="packet">The packet.</param>
+    public void Send<T>(T packet) where T : IPacket;
 
     /// <summary>
-    /// Registers a handler for incoming packets with the specified id.
+    /// Injects a raw packet to be sent to the handlers
     /// </summary>
-    /// <param name="packetId">The id of packets handled by <paramref name="handler"/>.</param>
-    /// <param name="handler">The delegate to be called when a matching packet is received.</param>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler);
-
-    /// <summary>
-    /// Sends a raw packet to the client.
-    /// </summary>
-    /// <param name="data">The raw packet data.</param>
-    public void SendRaw(ReadOnlySpan<byte> data);
+    /// <remarks>
+    /// <paramref name="data"> is uncompressed and does not contain a packet ID.
+    /// </remarks>
+    /// <param name="id">The id of the packet.</param>
+    /// <param name="data">The raw packet.</param>
+    public void Inject(PacketId id, ReadOnlySpan<byte> data);
 
     /// <summary>
     /// Accepts the incoming connection.

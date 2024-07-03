@@ -1,4 +1,4 @@
-﻿namespace ScrapServer.Networking.Client;
+﻿namespace ScrapServer.Networking;
 
 /// <summary>
 /// The arguments for generic <see cref="IClient"/> events.

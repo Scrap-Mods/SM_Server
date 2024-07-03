@@ -1,8 +1,11 @@
-﻿using ScrapServer.Networking.Packets.Data;
+﻿using ScrapServer.Networking;
+using ScrapServer.Networking.Packets;
+using ScrapServer.Networking.Packets.Data;
+using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
 
-namespace ScrapServer.Networking.Client.Steam;
+namespace ScrapServer.Vanilla;
 
 /// <summary>
 /// An implementation of <see cref="IServer"/> which uses the Steamworks socket manager.
@@ -20,7 +23,7 @@ public sealed class SteamworksServer : IServer
 
         public void OnConnecting(Connection connection, ConnectionInfo info)
         {
-            var client = new SteamworksClient(connection, info.Identity);
+            var client = new SteamworksClient(clientManager, connection, info.Identity);
 
             clientManager.clients.Add(connection.Id, client);
             clientManager.connectedClients.Add(client);
@@ -78,8 +81,7 @@ public sealed class SteamworksServer : IServer
 
             var packetId = (PacketId)dataSpan[0];
 
-            client.ReceivePacket(packetId, dataSpan);
-            clientManager.ReceivePacket(client, packetId, dataSpan);
+            clientManager.ReceiveCompressed(client, packetId, dataSpan[1..]);
         }
     }
 
@@ -103,8 +105,8 @@ public sealed class SteamworksServer : IServer
     private readonly Dictionary<uint, SteamworksClient> clients;
     private readonly SocketManager socketManager;
 
-    private RawPacketEventHandler? packetHandler = null;
-    private RawPacketEventHandler?[]? typedPacketHandlers = null;
+    private RawPacketEventHandler?[] uncompressedPacketHandlers = new RawPacketEventHandler?[256];
+    private RawPacketEventHandler?[] compressedPacketHandlers = new RawPacketEventHandler?[256];
 
     private bool isDisposed = false;
 
@@ -121,23 +123,50 @@ public sealed class SteamworksServer : IServer
     }
 
     /// <inheritdoc/>
-    public void HandleRaw(RawPacketEventHandler handler)
+    public void Handle<T>(PacketEventHandler<T> handler) where T : IPacket, new()
     {
-        packetHandler += handler;
+        compressedPacketHandlers[(byte)T.PacketId] += (o, args) =>
+        {
+            var reader = BitReader.WithSharedPool(args.Data);
+
+            T packet;
+
+            if (T.IsCompressable)
+            {
+                using var decomp = reader.ReadLZ4();
+                packet = decomp.Reader.ReadObject<T>();
+            }
+            else
+            {
+                packet = reader.ReadObject<T>();
+            }
+
+            var eventArgs = new PacketEventArgs<T>(args.Client, args.PacketId, packet);
+            handler(this, eventArgs);
+        };
+        uncompressedPacketHandlers[(byte)T.PacketId] += (o, args) =>
+        {
+            var reader = BitReader.WithSharedPool(args.Data);
+
+            T packet = reader.ReadObject<T>();
+
+            var eventArgs = new PacketEventArgs<T>(args.Client, args.PacketId, packet);
+            handler(this, eventArgs);
+        };
     }
 
-    /// <inheritdoc/>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
-    {
-        typedPacketHandlers ??= new RawPacketEventHandler[256];
-        typedPacketHandlers[(byte)packetId] += handler;
-    }
-
-    private void ReceivePacket(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
+    internal void ReceiveCompressed(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
     {
         var args = new RawPacketEventArgs(client, packetId, data);
-        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
-        packetHandler?.Invoke(this, args);
+
+        compressedPacketHandlers[(byte)packetId]?.Invoke(this, args);
+    }
+
+    internal void ReceiveUncompressed(SteamworksClient client, PacketId packetId, ReadOnlySpan<byte> data)
+    {
+        var args = new RawPacketEventArgs(client, packetId, data);
+
+        uncompressedPacketHandlers[(byte)packetId]?.Invoke(this, args);
     }
 
     /// <inheritdoc/>
@@ -181,5 +210,4 @@ public sealed class SteamworksServer : IServer
             GC.SuppressFinalize(this);
         }
     }
-
 }

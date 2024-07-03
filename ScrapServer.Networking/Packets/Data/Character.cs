@@ -6,7 +6,7 @@ namespace ScrapServer.Networking.Packets.Data;
 /// A character's customization options including gender and equipped items.
 /// </summary>
 /// <seealso href="https://docs.scrapmods.io/docs/structures/docs/character-customization/"/>
-public struct CharacterCustomization : IBitSerializable
+public struct Character : IBitSerializable
 {
     /// <summary>
     /// The character's gender.

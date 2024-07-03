@@ -1,10 +1,12 @@
 ﻿using ScrapServer.Networking.Packets.Data;
-using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
-using System.Buffers;
+using ScrapServer.Networking;
+using ScrapServer.Networking.Packets;
+using ScrapServer.Utility.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ScrapServer.Networking.Client.Steam;
+namespace ScrapServer.Vanilla;
 
 /// <summary>
 /// An implementation of <see cref="IClient"/> used by <see cref="SteamworksServer"/>.
@@ -33,6 +35,8 @@ internal sealed class SteamworksClient : IClient
         }
     }
 
+    private readonly SteamworksServer server;
+
     /// <inheritdoc/>
     public string? Username => username;
     private readonly string? username = null;
@@ -44,53 +48,56 @@ internal sealed class SteamworksClient : IClient
 
     private readonly Connection connection;
 
-    private RawPacketEventHandler? packetHandler = null;
-    private RawPacketEventHandler?[]? typedPacketHandlers = null;
-
     /// <summary>
     /// Initializes a new instance of <see cref="SteamworksClient"/>.
     /// </summary>
     /// <param name="connection">The underlying steamworks connection.</param>
     /// <param name="identity">The network identity of the client.</param>
-    public SteamworksClient(Connection connection, NetIdentity identity)
+    public SteamworksClient(SteamworksServer server, Connection connection, NetIdentity identity)
     {
         this.connection = connection;
         if (identity.IsSteamId && identity.SteamId.IsValid)
         {
             username = new Friend(identity.SteamId).Name;
         }
+        this.server = server;
     }
 
     /// <inheritdoc/>
-    public void HandleRaw(PacketId packetId, RawPacketEventHandler handler)
+    public void Send<T>(T packet) where T : IPacket
     {
-        typedPacketHandlers ??= new RawPacketEventHandler[256];
-        typedPacketHandlers[(byte)packetId] += handler;
+        var writer = BitWriter.WithSharedPool();
+        writer.WriteByte((byte)T.PacketId);
+        try
+        {
+            if (T.IsCompressable)
+            {
+                using var comp = writer.WriteLZ4();
+                comp.Writer.WriteObject(packet);
+            }
+            else
+            {
+                writer.WriteObject(packet);
+            }
+
+            unsafe
+            {
+                fixed (byte* ptr = writer.Data)
+                {
+                    connection.SendMessage((nint)ptr, writer.Data.Length, SendType.Reliable);
+                }
+            }
+        }
+        finally
+        {
+            writer.Dispose();
+        }
     }
 
     /// <inheritdoc/>
-    public void HandleRaw(RawPacketEventHandler handler)
+    public void Inject(PacketId packetId, ReadOnlySpan<byte> data)
     {
-        packetHandler += handler;
-    }
-
-    /// <inheritdoc/>
-    public void SendRaw(ReadOnlySpan<byte> data)
-    {
-        ObjectDisposedException.ThrowIf(State == ClientState.Disconnected, this);
-        connection.SendMessage(data);
-    }
-
-    /// <summary>
-    /// Runs the registered packet handlers.
-    /// </summary>
-    /// <param name="packetId">The id of the packet.</param>
-    /// <param name="data">The raw data of the packet excluding <paramref name="packetId"/>.</param>
-    internal void ReceivePacket(PacketId packetId, ReadOnlySpan<byte> data)
-    {
-        var args = new RawPacketEventArgs(this, packetId, data);
-        typedPacketHandlers?[(byte)packetId]?.Invoke(this, args);
-        packetHandler?.Invoke(this, args);
+        server.ReceiveUncompressed(this, packetId, data);
     }
 
     /// <inheritdoc/>
