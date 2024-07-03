@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using System.Runtime.InteropServices;
 
 namespace ScrapServer.Networking.Packets;
 
@@ -34,10 +35,12 @@ public struct GenericDataC2S : IBitSerializable
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
+        using var compReader = reader.ReadLZ4(reader.BytesLeft);
+
         var dataList = new List<BlobData>();
-        while (reader.BytesLeft > 0)
+        while (compReader.Reader.BytesLeft > 0)
         {
-            dataList.Add(reader.ReadObject<BlobData>());
+            dataList.Add(compReader.Reader.ReadObject<BlobData>());
         }
         Data = dataList.ToArray();
     }

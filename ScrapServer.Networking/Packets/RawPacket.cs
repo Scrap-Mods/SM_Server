@@ -20,7 +20,7 @@ public struct RawPacket : IBitSerializable
     {
         reader.ReadByte();
 
-        var compReader = reader.ReadLZ4().Reader;
-        compReader.ReadBytes(Data);
+        using var compReader = reader.ReadLZ4(reader.BytesLeft);
+        compReader.Reader.ReadBytes(Data);
     }
 }

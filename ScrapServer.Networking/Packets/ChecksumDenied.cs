@@ -27,17 +27,17 @@ public struct ChecksumDenied : IBitSerializable
     public readonly void Serialize(ref BitWriter writer)
     {
         writer.WriteByte((byte)PacketId.ChecksumsDenied);
-        using var compWriter = writer.WriteLZ4().Writer;
+        using var compWriter = writer.WriteLZ4();
 
-        compWriter.WriteUInt32(Index);
+        compWriter.Writer.WriteUInt32(Index);
     }
 
     /// <inheritdoc/>
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
-        var compReader = reader.ReadLZ4().Reader;
+        using var compReader = reader.ReadLZ4();
 
-        Index = compReader.ReadUInt32();
+        Index = compReader.Reader.ReadUInt32();
     }
 }

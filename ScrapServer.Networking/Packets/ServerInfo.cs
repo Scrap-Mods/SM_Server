@@ -124,37 +124,38 @@ public struct ServerInfo : IBitSerializable
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
-        var compReader = reader.ReadLZ4().Reader;
-        Version = compReader.ReadUInt32();
-        Gamemode = compReader.ReadGamemode();
-        Seed = compReader.ReadUInt32();
-        GameTick = compReader.ReadUInt32();
+        using var compReader = reader.ReadLZ4();
 
-        var modDataCount = compReader.ReadUInt32();
+        Version = compReader.Reader.ReadUInt32();
+        Gamemode = compReader.Reader.ReadGamemode();
+        Seed = compReader.Reader.ReadUInt32();
+        GameTick = compReader.Reader.ReadUInt32();
+
+        var modDataCount = compReader.Reader.ReadUInt32();
         ModData = new ModData[modDataCount];
         for (var i = 0; i < modDataCount; i++)
         {
-            ModData[i] = compReader.ReadObject<ModData>();
+            ModData[i] = compReader.Reader.ReadObject<ModData>();
         }
 
-        var someDataCount = compReader.ReadUInt16();
+        var someDataCount = compReader.Reader.ReadUInt16();
         SomeData = new byte[someDataCount];
-        compReader.ReadBytes(SomeData);
+        compReader.Reader.ReadBytes(SomeData);
 
-        var scriptDataCount = compReader.ReadUInt32();
+        var scriptDataCount = compReader.Reader.ReadUInt32();
         ScriptData = new BlobDataRef[scriptDataCount];
         for (var i = 0; i < scriptDataCount; i++)
         {
-            ScriptData[i] = compReader.ReadObject<BlobDataRef>();
+            ScriptData[i] = compReader.Reader.ReadObject<BlobDataRef>();
         }
 
-        var genericDataCount = compReader.ReadUInt32();
+        var genericDataCount = compReader.Reader.ReadUInt32();
         GenericData = new BlobDataRef[genericDataCount];
         for (var i = 0; i < genericDataCount; i++)
         {
-            GenericData[i] = compReader.ReadObject<BlobDataRef>();
+            GenericData[i] = compReader.Reader.ReadObject<BlobDataRef>();
         }
 
-        Flags = compReader.ReadServerFlags();
+        Flags = compReader.Reader.ReadServerFlags();
     }
 }

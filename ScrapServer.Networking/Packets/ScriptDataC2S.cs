@@ -35,12 +35,12 @@ public struct ScriptDataC2S : IBitSerializable
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
-        var compReader = reader.ReadLZ4().Reader;
+        using var compReader = reader.ReadLZ4(reader.BytesLeft);
 
         var dataList = new List<BlobData>();
-        while (compReader.BytesLeft > 0)
+        while (compReader.Reader.BytesLeft > 0)
         {
-            dataList.Add(compReader.ReadObject<BlobData>());
+            dataList.Add(compReader.Reader.ReadObject<BlobData>());
         }
         Data = dataList.ToArray();
     }

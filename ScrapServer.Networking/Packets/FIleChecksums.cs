@@ -48,14 +48,14 @@ public struct FileChecksums : IBitSerializable
     public void Deserialize(ref BitReader reader)
     {
         reader.ReadByte();
-        var compReader = reader.ReadLZ4().Reader;
+        using var compReader = reader.ReadLZ4(reader.BytesLeft);
         
-        uint length = compReader.ReadUInt32();
+        uint length = compReader.Reader.ReadUInt32();
         Checksums = new uint[length];
 
         for (int i = 0; i < length; i++)
         {
-            Checksums[i] = compReader.ReadUInt32();
+            Checksums[i] = compReader.Reader.ReadUInt32();
         }
     }
 }
