@@ -108,11 +108,6 @@ public sealed class SteamworksClient : IClient
         var writer = BitWriter.WithSharedPool();
         packet.Serialize(ref writer);
 
-        foreach (var b in writer.Data)
-        {
-            Console.WriteLine(b);
-        }
-
         connection.SendMessage(writer.Data);
     }
 
