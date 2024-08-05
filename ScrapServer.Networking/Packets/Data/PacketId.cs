@@ -18,6 +18,7 @@ public enum PacketId : byte
     DisplayMessage = 18,
     DisplayAlertText = 19,
     InitNetworkUpdate = 21,
+    NetworkUpdate = 22,
     ScriptDataS2C = 25,
     ScriptDataC2S = 26,
     GenericDataS2C = 27,

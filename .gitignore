@@ -364,3 +364,7 @@ FodyWeavers.xsd
 
 #Binary files
 *.dll
+
+# Added by cargo
+
+/target

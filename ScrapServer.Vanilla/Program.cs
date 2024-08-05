@@ -2,6 +2,7 @@
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using System.Text;
 
 namespace ScrapServer.Vanilla;
 
@@ -63,11 +64,7 @@ internal class Program
             Console.WriteLine("Sent JoinConfirmation");
         });
 
-        server.Handle<CompoundPacket>((o, args2) =>
-        {
-            var reader = BitReader.WithSharedPool(args2.Packet.Data);
-        });
-
+        server.Handle<CompoundPacket>((o, args2) => { });
 
         server.Handle<Hello>((o, args2) =>
         {
@@ -140,7 +137,7 @@ internal class Program
                 CharacterCustomization = characterCustomization,
             };
 
-            var blobData = new BlobData
+            var initBlobData = new BlobData
             {
                 Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
                 Key = [0x2, 0x00, 0x00, 0x00],
@@ -149,11 +146,39 @@ internal class Program
                 Data = playerData.ToBytes()
             };
 
-            var genericInit = new GenericInitData { Data = [blobData], GameTick = 0 };
+            var genericInit = new GenericInitData { Data = [initBlobData], GameTick = 1 };
             args2.Client.Send(genericInit);
             Console.WriteLine("Sent Initialization Data");
 
-            var compound = new CompoundPacket.Builder().Write(new InitNetworkUpdate { }).Build();
+            BlobData[] scriptBlobData = [
+                new BlobData {
+                    Uid = Guid.Parse("4a293a1d-b223-520a-a3ac-0f9a7ded3869"),
+                    Key = [0x2, 0, 0, 0],
+                    WorldID = 65534,
+                    Flags = 4,
+                    Data = Encoding.ASCII.GetBytes("\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x02\x80inOil\x02\x02\x00\x00\x00\x05\x00inChemical\x02\x00"),
+                },
+                new BlobData {
+                    Uid = Guid.Parse("4a293a1d-b223-520a-a3ac-0f9a7ded3869"),
+                    Key = [0x1, 0, 0, 0],
+                    WorldID = 65534,
+                    Flags = 4,
+                    Data = Encoding.ASCII.GetBytes("\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x02\x80inOil\x02\x02\x00\x00\x00\x05\x00inChemical\x02\x00"),
+                },
+                new BlobData {
+                    Uid = Guid.Parse("20896033-23a4-5789-a03c-a7533e3bff84"),
+                    Key = [0x1, 0, 0, 0],
+                    WorldID = 65534,
+                    Flags = 4,
+                    Data = Encoding.ASCII.GetBytes("\x04LUA\x00\x00\x00\x01\x05\x00\x00\x00\x01\x02\x00\x00\x00\x02\x00time\x03?\x00\x00\x00"),
+                },
+            ];
+
+            var compound = new CompoundPacket.Builder()
+                .Write(new InitNetworkUpdate { GameTick = 2, Data = [
+                .Write(new ScriptDataS2C { GameTick = 0, Data = scriptBlobData })
+                .Build();
+
             args2.Client.Send(compound);
             Console.WriteLine("Sent InitializationNetworkUpdate");
         });

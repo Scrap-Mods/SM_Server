@@ -3,23 +3,25 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets;
 
-public struct InitNetworkUpdate : IPacket
+public struct NetworkUpdate : IPacket
 {
     /// <inheritdoc/>
-    public static PacketId PacketId => PacketId.InitNetworkUpdate;
+    public static PacketId PacketId => PacketId.NetworkUpdate;
 
     /// <inheritdoc/>
     public static bool IsCompressable => true;
 
-    public NetworkUpdate Update;
+    public UInt32 GameTick;
+    public NetObj[] Updates;
 
     public void Deserialize(ref BitReader reader)
     {
-        Update.Deserialize(ref reader);
+        GameTick = reader.ReadUInt32();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        Update.Serialize(ref writer);
+        writer.WriteUInt32(GameTick);
+        writer.WriteBytes(Data);
     }
 }
