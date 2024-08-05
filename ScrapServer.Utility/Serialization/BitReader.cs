@@ -259,19 +259,6 @@ public ref struct BitReader
     }
 
     /// <summary>
-    /// Reads a <see cref="float"/> and advances the reader.
-    /// </summary>
-    /// <param name="byteOrder">The endianness of the binary encoded number.</param>
-    /// <returns>The read <see cref="double"/></returns>
-    public float ReadFloat(ByteOrder byteOrder = ByteOrder.BigEndian)
-    {
-        Span<byte> bytes = stackalloc byte[sizeof(float)];
-        ReadBytes(bytes);
-        BitHelper.ApplyByteOrder(bytes, byteOrder);
-        return BitConverter.ToSingle(bytes);
-    }
-
-    /// <summary>
     /// Reads a <see cref="Guid"/> and advances the reader.
     /// </summary>
     /// <param name="byteOrder">The endianness of the encoded fields of the <see cref="Guid"/>.</param>

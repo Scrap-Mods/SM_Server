@@ -16,15 +16,15 @@ public struct Vector3f
 
     public void ReadXYZ(ref BitReader reader)
     {
-        X = reader.ReadFloat();
-        Y = reader.ReadFloat();
-        Z = reader.ReadFloat();
+        X = reader.ReadSingle();
+        Y = reader.ReadSingle();
+        Z = reader.ReadSingle();
     }
 
     public void WriteXYZ(ref BitWriter writer)
     {
-        writer.WriteFloat(X);
-        writer.WriteFloat(Y);
-        writer.WriteFloat(Z);
+        writer.WriteSingle(X);
+        writer.WriteSingle(Y);
+        writer.WriteSingle(Z);
     }
 }

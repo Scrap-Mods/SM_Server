@@ -304,19 +304,6 @@ public struct BitWriter : IDisposable
     }
 
     /// <summary>
-    /// Writes a <see cref="float"/>.
-    /// </summary>
-    /// <param name="value">The value to write.</param>
-    /// <param name="byteOrder">The endianness of the binary encoded number.</param>
-    public void WriteFloat(float value, ByteOrder byteOrder = ByteOrder.BigEndian)
-    {
-        Span<byte> bytes = stackalloc byte[sizeof(float)];
-        BitConverter.TryWriteBytes(bytes, value);
-        BitHelper.ApplyByteOrder(bytes, byteOrder);
-        WriteBytes(bytes);
-    }
-
-    /// <summary>
     /// Writes a <see cref="Guid"/>.
     /// </summary>
     /// <param name="value">The <see cref="Guid"/> to write.</param>

@@ -130,8 +130,8 @@ public struct CreateCharacter
         SteamId = reader.ReadUInt64();
         Position.ReadXYZ(ref reader);
         WorldId = reader.ReadUInt16();
-        Yaw = reader.ReadFloat();
-        Pitch = reader.ReadFloat();
+        Yaw = reader.ReadSingle();
+        Pitch = reader.ReadSingle();
         CharacterUUID = reader.ReadGuid();
     }
 
@@ -141,8 +141,8 @@ public struct CreateCharacter
         writer.WriteUInt64(SteamId.Value);
         Position.WriteXYZ(ref writer);
         writer.WriteUInt16(WorldId);
-        writer.WriteFloat(Yaw);
-        writer.WriteFloat(Pitch);
+        writer.WriteSingle(Yaw);
+        writer.WriteSingle(Pitch);
         writer.WriteGuid(CharacterUUID);
     }
 }
