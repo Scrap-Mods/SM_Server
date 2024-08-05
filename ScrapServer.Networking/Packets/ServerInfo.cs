@@ -85,11 +85,11 @@ public struct ServerInfo : IPacket
 
         if (SomeData == null)
         {
-            writer.WriteUInt32(0);
+            writer.WriteUInt16(0);
         }
         else
         {
-            writer.WriteUInt32((UInt32)SomeData.Length);
+            writer.WriteUInt16((UInt16)SomeData.Length);
             writer.WriteBytes(SomeData);
         }
 
@@ -106,8 +106,8 @@ public struct ServerInfo : IPacket
             }
         }
 
-        if (GenericData == null)
-        {
+        if (GenericData == null) { 
+        
             writer.WriteUInt32(0);
         }
         else

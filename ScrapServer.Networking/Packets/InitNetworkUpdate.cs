@@ -11,15 +11,19 @@ public struct InitNetworkUpdate : IPacket
     /// <inheritdoc/>
     public static bool IsCompressable => true;
 
-    public NetworkUpdate Update;
+    public UInt32 GameTick;
+    public byte[] Updates;
 
     public void Deserialize(ref BitReader reader)
     {
-        Update.Deserialize(ref reader);
+        GameTick = reader.ReadUInt32();
+        Updates = new byte[reader.BytesLeft];
+        reader.ReadBytes(Updates);
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        Update.Serialize(ref writer);
+        writer.WriteUInt32(GameTick);
+        writer.WriteBytes(Updates);
     }
 }

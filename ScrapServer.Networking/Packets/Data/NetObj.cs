@@ -1,11 +1,5 @@
 ﻿using ScrapServer.Utility.Serialization;
 using Steamworks;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScrapServer.Networking.Packets.Data;
 
@@ -50,7 +44,6 @@ public enum NetworkUpdateType {
     Remove = 0x5
 };
 
-
 public enum NetObjType {
     RigidBody = 0,
     ChildShape = 1,
@@ -69,31 +62,30 @@ public enum NetObjType {
     ShapeGroup = 14
 };
 
-public interface NetObj : IBitSerializable
+public struct NetObj : IBitSerializable
 {
-    public virtual static NetworkUpdateType UpdateType => NetworkUpdateType.Update;
-    public virtual static NetObjType ObjectType => NetObjType.RigidBody;
+    public UInt16 Size;
+    public NetworkUpdateType UpdateType;
+    public NetObjType ObjectType;
 
-    public static int ReserveHeader<T>(ref BitWriter writer) where T: NetObj
+    public void Deserialize(ref BitReader reader)
     {
-        byte combined = (byte) (((byte)T.UpdateType << 5) | (byte)T.ObjectType);
+        Size = reader.ReadUInt16();
+        byte combined = reader.ReadByte();
 
-        int byteIndex = writer.ByteIndex;
-        int bitIndex = writer.BitIndex;
-
-        if (bitIndex != 0)
-        {
-            byteIndex += 1;
-            bitIndex = 0;
-        } 
-
-        writer.WriteUInt16(0);
-        writer.WriteByte(combined);
-
-        return byteIndex;
+        UpdateType = (NetworkUpdateType) (combined >> 5);
+        ObjectType = (NetObjType) (combined & 0b00011111);
     }
 
-    public static void WriteHeader(ref BitWriter writer, int position)
+    public void Serialize(ref BitWriter writer)
+    {
+        writer.WriteUInt16(Size);
+        byte combined = (byte)((byte)ObjectType | (byte)UpdateType << 5);
+
+        writer.WriteByte(combined);
+    }
+
+    public static void WriteSize(ref BitWriter writer, int position)
     {
         int byteIndex = writer.ByteIndex;
         int bitIndex = writer.BitIndex;
@@ -107,28 +99,45 @@ public interface NetObj : IBitSerializable
     }
 }
 
-public struct CreateCharacter : NetObj
+public struct CreateUpdate : IBitSerializable
 {
-    public static NetworkUpdateType UpdateType => NetworkUpdateType.Create;
-    public static NetObjType ObjectType => NetObjType.Character;
-
-    ControllerType ControllerType;
-    UInt32 NetObjId;
-    SteamId SteamId;
-    Vector3f Position;
-    UInt16 WorldId;
-    float Yaw;
-    float Pitch;
-    Guid CharacterUUID;
+    public ControllerType ControllerType;
 
     public void Deserialize(ref BitReader reader)
     {
- 
+        ControllerType = (ControllerType)reader.ReadByte();
     }
 
     public void Serialize(ref BitWriter writer)
     {
         writer.WriteByte((byte)ControllerType);
+    }
+}
+
+public struct CreateCharacter
+{
+    public UInt32 NetObjId;
+    public SteamId SteamId;
+    public Vector3f Position;
+    public UInt16 WorldId;
+    public float Yaw;
+    public float Pitch;
+    public Guid CharacterUUID;
+
+    public void Deserialize(ref BitReader reader)
+    {
+        NetObjId = reader.ReadUInt32();
+        SteamId = reader.ReadUInt64();
+        Position.ReadXYZ(ref reader);
+        WorldId = reader.ReadUInt16();
+        Yaw = reader.ReadFloat();
+        Pitch = reader.ReadFloat();
+        CharacterUUID = reader.ReadGuid();
+    }
+
+    public void Serialize(ref BitWriter writer)
+    {
+        writer.WriteUInt32(NetObjId);
         writer.WriteUInt64(SteamId.Value);
         Position.WriteXYZ(ref writer);
         writer.WriteUInt16(WorldId);

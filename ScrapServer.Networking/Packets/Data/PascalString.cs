@@ -7,25 +7,18 @@ using System.Threading.Tasks;
 
 namespace ScrapServer.Networking.Packets.Data;
 
-public struct BlobDataRef : IBitSerializable
+public struct PascalString : IBitSerializable
 {
-    public Guid Uid;
-    public byte[] Key;
+    public string str;
 
     public void Deserialize(ref BitReader reader)
     {
-        Uid = reader.ReadGuid();
-
-        var size = reader.ReadUInt16();
-        Key = new byte[size];
-
-        reader.ReadBytes(Key);
+        var length = reader.ReadUInt16();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteGuid(Uid);
-        writer.WriteUInt16((UInt16)Key.Length);
-        writer.WriteBytes(Key);
+        writer.WriteUInt16((UInt16)str.Length);
+        writer.WriteBytes(Encoding.ASCII.GetBytes(str));
     }
 }

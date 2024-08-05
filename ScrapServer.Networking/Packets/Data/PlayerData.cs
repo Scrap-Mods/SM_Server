@@ -31,7 +31,7 @@ public struct PlayerData : IBitSerializable
         writer.WriteUInt32(InventoryContainerID);
         writer.WriteUInt32(CarryContainer);
         writer.WriteUInt32(CarryColor);
-        writer.WriteByte(0);
+        writer.WriteByte(1);
         writer.WriteByte((byte)Name.Length);
         writer.WriteString(Name);
         writer.WriteObject(CharacterCustomization);

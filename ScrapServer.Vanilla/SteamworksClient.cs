@@ -37,6 +37,9 @@ internal sealed class SteamworksClient : IClient
 
     private readonly SteamworksServer server;
 
+    private readonly UInt64 steamid;
+    public UInt64 Id => steamid;
+
     /// <inheritdoc/>
     public string? Username => username;
     private readonly string? username = null;
@@ -58,6 +61,7 @@ internal sealed class SteamworksClient : IClient
         this.connection = connection;
         if (identity.IsSteamId && identity.SteamId.IsValid)
         {
+            steamid = identity.SteamId;
             username = new Friend(identity.SteamId).Name;
         }
         this.server = server;

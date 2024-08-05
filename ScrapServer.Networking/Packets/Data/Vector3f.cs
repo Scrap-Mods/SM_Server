@@ -10,9 +10,9 @@ namespace ScrapServer.Networking.Packets.Data;
 
 public struct Vector3f
 {
-    float X;
-    float Y;
-    float Z;
+    public float X;
+    public float Y;
+    public float Z;
 
     public void ReadXYZ(ref BitReader reader)
     {

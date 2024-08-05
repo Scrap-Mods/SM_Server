@@ -8,6 +8,8 @@ namespace ScrapServer.Networking;
 /// </summary>
 public interface IClient : IDisposable
 {
+    public UInt64 Id { get;  }
+
     /// <summary>
     /// Gets the username of the client.
     /// </summary>
