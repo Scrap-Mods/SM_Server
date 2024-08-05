@@ -194,6 +194,8 @@ internal class Program
                 .Write(new ScriptDataS2C { GameTick = 4, Data = scriptBlobData })
                 .Build();
 
+            args2.Client.Send(compound);
+
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
         });
 
@@ -313,7 +315,7 @@ internal class Program
                 Data = worldData.ToBytes(),
             };
 
-            var genericInit = new GenericInitData { Data = [gameplayOptions, worldOptions, initBlobData], GameTick = 1 };
+            var genericInit = new GenericInitData { Data = [gameplayOptions, worldOptions, initBlobData], GameTick = 0 };
             args2.Client.Send(genericInit);
 
             Console.WriteLine("Sent Host Character Generic Initialization Data");
