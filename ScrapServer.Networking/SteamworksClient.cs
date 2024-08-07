@@ -6,12 +6,12 @@ using ScrapServer.Networking.Packets;
 using ScrapServer.Utility.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ScrapServer.Vanilla;
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// An implementation of <see cref="IClient"/> used by <see cref="SteamworksServer"/>.
 /// </summary>
-internal sealed class SteamworksClient : IClient
+public sealed class SteamworksClient : IClient
 {
     /// <inheritdoc/>
     public ClientState State

@@ -7,19 +7,17 @@ using System.Threading.Tasks;
 
 namespace ScrapServer.Networking.Packets.Data;
 
-public struct PascalString : IBitSerializable
+public struct CreateNetObj : IBitSerializable
 {
-    public string str;
+    public ControllerType ControllerType;
 
     public void Deserialize(ref BitReader reader)
     {
-        var length = reader.ReadUInt16();
-        throw new NotImplementedException();
+        ControllerType = (ControllerType)reader.ReadByte();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt16((UInt16)str.Length);
-        writer.WriteBytes(Encoding.ASCII.GetBytes(str));
+        writer.WriteByte((byte)ControllerType);
     }
 }

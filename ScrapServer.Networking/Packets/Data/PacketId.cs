@@ -19,9 +19,11 @@ public enum PacketId : byte
     DisplayAlertText = 19,
     InitNetworkUpdate = 21,
     NetworkUpdate = 22,
+    UnreliableUpdate = 24,
     ScriptDataS2C = 25,
     ScriptDataC2S = 26,
     GenericDataS2C = 27,
     GenericDataC2S = 28,
     CompoundPacket = 29,
+    PlayerMovement = 30,
 }

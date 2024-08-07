@@ -4,7 +4,7 @@ namespace ScrapServer.Networking.Packets.Data;
 
 public struct PlayerData : IBitSerializable
 {
-    public UInt32 CharacterID;
+    public Int32 CharacterID;
     public UInt64 SteamID;
     public UInt32 InventoryContainerID;
     public UInt32 CarryContainer;
@@ -14,7 +14,7 @@ public struct PlayerData : IBitSerializable
 
     public void Deserialize(ref BitReader reader)
     {
-        CharacterID = reader.ReadUInt32();
+        CharacterID = reader.ReadInt32();
         SteamID = reader.ReadUInt64();
         InventoryContainerID = reader.ReadUInt32();
         CarryContainer = reader.ReadUInt32();
@@ -26,7 +26,7 @@ public struct PlayerData : IBitSerializable
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(CharacterID);
+        writer.WriteInt32(CharacterID);
         writer.WriteUInt64(SteamID);
         writer.WriteUInt32(InventoryContainerID);
         writer.WriteUInt32(CarryContainer);

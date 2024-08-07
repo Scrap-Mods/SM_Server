@@ -5,7 +5,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
 	<ItemGroup>
@@ -15,6 +14,7 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\ScrapServer.Networking\ScrapServer.Networking.csproj" />
 	  <ProjectReference Include="..\ScrapServer.Utility\ScrapServer.Utility.csproj" />
-	</ItemGroup>
+    <ProjectReference Include="..\ScrapServer.Core\ScrapServer.Core.csproj" />
+  </ItemGroup>
 
 </Project>

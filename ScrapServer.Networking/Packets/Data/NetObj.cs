@@ -99,50 +99,33 @@ public struct NetObj : IBitSerializable
     }
 }
 
-public struct CreateUpdate : IBitSerializable
+public struct NetObjUnreliable : IBitSerializable
 {
-    public ControllerType ControllerType;
+    public UInt16 Size;
+    public NetObjType ObjectType;
 
     public void Deserialize(ref BitReader reader)
     {
-        ControllerType = (ControllerType)reader.ReadByte();
+        Size = reader.ReadUInt16();
+        ObjectType = (NetObjType) reader.ReadByte();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteByte((byte)ControllerType);
-    }
-}
-
-public struct CreateCharacter
-{
-    public UInt32 NetObjId;
-    public SteamId SteamId;
-    public Vector3f Position;
-    public UInt16 WorldId;
-    public float Yaw;
-    public float Pitch;
-    public Guid CharacterUUID;
-
-    public void Deserialize(ref BitReader reader)
-    {
-        NetObjId = reader.ReadUInt32();
-        SteamId = reader.ReadUInt64();
-        Position.ReadXYZ(ref reader);
-        WorldId = reader.ReadUInt16();
-        Yaw = reader.ReadSingle();
-        Pitch = reader.ReadSingle();
-        CharacterUUID = reader.ReadGuid();
+        writer.WriteUInt16(Size);
+        writer.WriteByte((byte)ObjectType);
     }
 
-    public void Serialize(ref BitWriter writer)
+    public static void WriteSize(ref BitWriter writer, int position)
     {
-        writer.WriteUInt32(NetObjId);
-        writer.WriteUInt64(SteamId.Value);
-        Position.WriteXYZ(ref writer);
-        writer.WriteUInt16(WorldId);
-        writer.WriteSingle(Yaw);
-        writer.WriteSingle(Pitch);
-        writer.WriteGuid(CharacterUUID);
+        int byteIndex = writer.ByteIndex;
+        int bitIndex = writer.BitIndex;
+
+        writer.Seek(position);
+
+        UInt16 size = (UInt16)(byteIndex - position);
+
+        writer.WriteUInt16(size);
+        writer.Seek(byteIndex, bitIndex);
     }
 }

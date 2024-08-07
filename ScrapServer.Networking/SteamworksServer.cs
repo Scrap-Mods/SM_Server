@@ -1,11 +1,10 @@
-﻿using ScrapServer.Networking;
-using ScrapServer.Networking.Packets;
+﻿using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
 
-namespace ScrapServer.Vanilla;
+namespace ScrapServer.Networking;
 
 /// <summary>
 /// An implementation of <see cref="IServer"/> which uses the Steamworks socket manager.

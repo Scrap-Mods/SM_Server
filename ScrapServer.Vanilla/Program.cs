@@ -1,7 +1,9 @@
 ﻿using Steamworks;
+using ScrapServer.Networking;
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using ScrapServer.Core;
 using System.Text;
 
 namespace ScrapServer.Vanilla;
@@ -29,6 +31,7 @@ internal class Program
         SteamFriends.SetRichPresence("connect", string.Format("-connect_steam_id {0} -friend_steam_id {0}", steamid));
 
         var server = new SteamworksServer();
+        UInt32 tick = 0;
 
         server.ClientConnecting += (o, args) =>
         {
@@ -112,7 +115,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = 0xFFFFFFFF,
+                CharacterID = -1,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -130,13 +133,14 @@ internal class Program
                 Data = playerData.ToBytes()
             };
 
-            var genericInit = new GenericInitData { Data = [initBlobData], GameTick = 3 };
+            var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
             args2.Client.Send(genericInit);
 
+            CharacterService.Characters.Append(new Character { });
 
             playerData = new PlayerData
             {
-                CharacterID = 2,
+                CharacterID = CharacterService.Characters.Length,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -154,8 +158,14 @@ internal class Program
                 Data = playerData.ToBytes()
             };
 
-            genericInit = new GenericInitData { Data = [initBlobData], GameTick = 3 };
+            genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
             args2.Client.Send(genericInit);
+
+            PlayerService.Players[args2.Client] = new Player
+            {
+                CharacterID = CharacterService.Characters.Length,
+                Name = "TechnologicNickFR"
+            };
 
             Console.WriteLine("Sent Client GenericInitData");
 
@@ -178,7 +188,7 @@ internal class Program
 
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
-            var createUpdate = new CreateUpdate { ControllerType = (ControllerType)0 };
+            var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
             var characterCreate = new CreateCharacter { NetObjId = 2, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
@@ -190,8 +200,8 @@ internal class Program
             stream.Dispose();
 
             var compound = new CompoundPacket.Builder()
-                .Write(new InitNetworkUpdate { GameTick = 4, Updates = data })
-                .Write(new ScriptDataS2C { GameTick = 4, Data = scriptBlobData })
+                .Write(new InitNetworkUpdate { GameTick = tick, Updates = data })
+                .Write(new ScriptDataS2C { GameTick = tick, Data = scriptBlobData })
                 .Build();
 
             args2.Client.Send(compound);
@@ -199,7 +209,12 @@ internal class Program
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
         });
 
-        server.Handle<CompoundPacket>((o, args2) => { });
+        server.Handle<PlayerMovement>((o, args2) =>
+        {
+            var player = PlayerService.Players[args2.Client];
+
+            CharacterService.MoveCharacter(player.CharacterID, args2.Packet.Direction, args2.Packet.Keys);
+        });
 
         server.Handle<Hello>((o, args2) =>
         {
@@ -209,7 +224,7 @@ internal class Program
                 Version = 729,
                 Gamemode = Gamemode.FlatTerrain,
                 Seed = 1023853875,
-                GameTick = 0,
+                GameTick = tick,
                 GenericData = [
                     new BlobDataRef {
                         Uid =  Guid.Parse("44ac020c-aec7-4f8b-b230-34d2e3bd23eb"),
@@ -277,7 +292,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = 1,
+                CharacterID = 0,
                 SteamID = 76561198158782028,
                 InventoryContainerID = 3,
                 CarryContainer = 2,
@@ -285,6 +300,8 @@ internal class Program
                 Name = "Prime",
                 CharacterCustomization = characterCustomization,
             };
+
+            CharacterService.Characters.Append(new Character { });
 
             var initBlobData = new BlobData
             {
@@ -315,7 +332,7 @@ internal class Program
                 Data = worldData.ToBytes(),
             };
 
-            var genericInit = new GenericInitData { Data = [gameplayOptions, worldOptions, initBlobData], GameTick = 0 };
+            var genericInit = new GenericInitData { Data = [gameplayOptions, worldOptions, initBlobData], GameTick = tick };
             args2.Client.Send(genericInit);
 
             Console.WriteLine("Sent Host Character Generic Initialization Data");
@@ -325,12 +342,21 @@ internal class Program
         {
             server.Poll();
 
+            //NOTE(AP): See comment in CharacterService.cs
+            foreach (var client in server.ConnectedClients)
+            {
+                CharacterService.Tick(tick, client);
+            }
+            PlayerService.Tick(tick);
+
             // if user pressed DEL in console, close the server:
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.Delete)
             {
                 Console.WriteLine("exiting...");
                 break;
             }
+
+            tick++;
         }
         server.Dispose();
         SteamClient.Shutdown();
