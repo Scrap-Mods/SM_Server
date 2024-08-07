@@ -141,11 +141,11 @@ internal class Program
             var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
             args2.Client.Send(genericInit);
 
-            CharacterService.Characters.Append(new Character { });
+            CharacterService.Characters.Add(new Character { });
 
             playerData = new PlayerData
             {
-                CharacterID = CharacterService.Characters.Length - 1,
+                CharacterID = CharacterService.Characters.Count - 1,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -168,7 +168,7 @@ internal class Program
 
             PlayerService.Players[args2.Client] = new Player
             {
-                CharacterID = CharacterService.Characters.Length - 1,
+                CharacterID = CharacterService.Characters.Count - 1,
                 Name = "TechnologicNickFR"
             };
 
@@ -194,7 +194,7 @@ internal class Program
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
             var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Length - 1, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Count - 1, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
             createUpdate.Serialize(ref stream);
@@ -311,8 +311,8 @@ internal class Program
                 CharacterCustomization = characterCustomization,
             };
 
-            CharacterService.Characters.Append(new Character { });
-            CharacterService.Characters.Append(new Character { });
+            CharacterService.Characters.Add(new Character { });
+            CharacterService.Characters.Add(new Character { });
 
             var initBlobData = new BlobData
             {
@@ -368,6 +368,7 @@ internal class Program
             }
 
             tick++;
+            Thread.Sleep(16);
         }
         server.Dispose();
         SteamClient.Shutdown();

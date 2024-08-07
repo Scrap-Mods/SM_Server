@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ScrapServer.Core;
 
-public struct Character
+public class Character
 {
     public Vector3 Position;
     public Vector3 Velocity;
@@ -21,7 +21,7 @@ public struct Character
 
 public static class CharacterService
 {
-    public static Character[] Characters = [];
+    public static List<Character> Characters = [];
 
     public static void MoveCharacter(int characterId, byte moveDir, PlayerMovementKey key)
     {
@@ -40,10 +40,13 @@ public static class CharacterService
     public static void Tick(UInt32 tick, IClient client)
     {
         var stream = BitWriter.WithSharedPool();
-        var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
 
-        for (var i = 0; i < Characters.Length; i++)
+        for (var i = 0; i < Characters.Count; i++)
         {
+            var position = stream.BitIndex == 0 ? stream.ByteIndex : stream.ByteIndex + 1;
+            stream.Seek(position);
+
+            var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
             var velocity = Characters[i].Velocity;
 
             Characters[i].Position += velocity;
@@ -64,9 +67,9 @@ public static class CharacterService
             netObj.Serialize(ref stream);
             updateCharacter.Serialize(ref stream);
             isNotTumbling.Serialize(ref stream);
+            NetObj.WriteSize(ref stream, position);
         }
 
-        NetObj.WriteSize(ref stream, 0);
         client.Send(new UnreliableUpdate { CurrentTick = tick, ServerTick = tick, Updates = stream.Data.ToArray() });
         stream.Dispose();
     }
