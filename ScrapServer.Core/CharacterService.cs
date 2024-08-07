@@ -39,14 +39,15 @@ public static class CharacterService
     //TODO(AP): Once networking is refactored, remove the "client" parameter
     public static void Tick(UInt32 tick, IClient client)
     {
+        var stream = BitWriter.WithSharedPool();
+        var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
+
         for (var i = 0; i < Characters.Length; i++)
         {
             var velocity = Characters[i].Velocity;
 
             Characters[i].Position += velocity;
 
-            var stream = BitWriter.WithSharedPool();
-            var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
             var updateCharacter = new UpdateUnreliableCharacter { CharacterId = i, IsTumbling = false };
 
             double angle = Math.Atan2(velocity.X, velocity.Y);
@@ -63,9 +64,10 @@ public static class CharacterService
             netObj.Serialize(ref stream);
             updateCharacter.Serialize(ref stream);
             isNotTumbling.Serialize(ref stream);
-            NetObj.WriteSize(ref stream, 0);
-
-            client.Send(new UnreliableUpdate { CurrentTick = tick, ServerTick = tick, Updates = stream.Data.ToArray() });
         }
+
+        NetObj.WriteSize(ref stream, 0);
+        client.Send(new UnreliableUpdate { CurrentTick = tick, ServerTick = tick, Updates = stream.Data.ToArray() });
+        stream.Dispose();
     }
 }

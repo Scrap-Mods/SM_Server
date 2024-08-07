@@ -83,6 +83,11 @@ internal class Program
                     new CharacterItem
                     {
                         PaletteIndex = 0,
+                        VariantId = Guid.Empty
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
                         VariantId = Guid.Parse("00000000-0000-0000-0000-000000000000")
                     },
                     new CharacterItem
@@ -140,7 +145,7 @@ internal class Program
 
             playerData = new PlayerData
             {
-                CharacterID = CharacterService.Characters.Length,
+                CharacterID = CharacterService.Characters.Length - 1,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -163,7 +168,7 @@ internal class Program
 
             PlayerService.Players[args2.Client] = new Player
             {
-                CharacterID = CharacterService.Characters.Length,
+                CharacterID = CharacterService.Characters.Length - 1,
                 Name = "TechnologicNickFR"
             };
 
@@ -189,7 +194,7 @@ internal class Program
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
             var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-            var characterCreate = new CreateCharacter { NetObjId = 2, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Length - 1, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
             createUpdate.Serialize(ref stream);
@@ -239,7 +244,7 @@ internal class Program
                         Key = [0x01, 0x00, 0x00, 0x00],
                     },
                 ],
-                Flags = ServerFlags.None
+                Flags = ServerFlags.DeveloperMode
             });
             Console.WriteLine("Sent ServerInfo");
 
@@ -256,6 +261,11 @@ internal class Program
                     {
                         PaletteIndex = 0,
                         VariantId = Guid.Parse("87b7d156-8b83-4612-9cb1-93b768de8dc1")
+                    },
+                    new CharacterItem
+                    {
+                        PaletteIndex = 0,
+                        VariantId = Guid.Empty
                     },
                     new CharacterItem
                     {
@@ -292,7 +302,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = 0,
+                CharacterID = 1,
                 SteamID = 76561198158782028,
                 InventoryContainerID = 3,
                 CarryContainer = 2,
@@ -301,6 +311,7 @@ internal class Program
                 CharacterCustomization = characterCustomization,
             };
 
+            CharacterService.Characters.Append(new Character { });
             CharacterService.Characters.Append(new Character { });
 
             var initBlobData = new BlobData
@@ -343,9 +354,9 @@ internal class Program
             server.Poll();
 
             //NOTE(AP): See comment in CharacterService.cs
-            foreach (var client in server.ConnectedClients)
+            foreach (var pair in PlayerService.Players)
             {
-                CharacterService.Tick(tick, client);
+                CharacterService.Tick(tick, pair.Key);
             }
             PlayerService.Tick(tick);
 

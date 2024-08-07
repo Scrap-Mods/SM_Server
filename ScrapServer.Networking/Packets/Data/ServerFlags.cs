@@ -4,5 +4,5 @@
 public enum ServerFlags : byte
 {
     None = 0,
-    DeveloperMode = 1
+    DeveloperMode = 0x80
 }
