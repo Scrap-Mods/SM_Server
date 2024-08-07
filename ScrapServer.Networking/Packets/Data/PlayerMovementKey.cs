@@ -8,9 +8,9 @@ namespace ScrapServer.Networking.Packets.Data;
 
 public enum PlayerMovementKey
 {
-    JUMP = 0,
-    CRAWL = 1,
-    HORIZONTAL = 2,
-    SPRINT = 4,
-    AIM = 8,
+    JUMP = 1 << 0,
+    CRAWL = 1 << 1,
+    HORIZONTAL = 1 << 2,
+    SPRINT = 1 << 3,
+    AIM = 1 << 4,
 }

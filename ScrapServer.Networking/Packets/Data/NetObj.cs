@@ -101,31 +101,31 @@ public struct NetObj : IBitSerializable
 
 public struct NetObjUnreliable : IBitSerializable
 {
-    public UInt16 Size;
+    public byte Size;
     public NetObjType ObjectType;
 
     public void Deserialize(ref BitReader reader)
     {
-        Size = reader.ReadUInt16();
+        Size = reader.ReadByte();
         ObjectType = (NetObjType) reader.ReadByte();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt16(Size);
+        writer.WriteByte((byte)Size);
         writer.WriteByte((byte)ObjectType);
     }
 
     public static void WriteSize(ref BitWriter writer, int position)
     {
+        writer.GoToNearestByte();
         int byteIndex = writer.ByteIndex;
-        int bitIndex = writer.BitIndex;
 
         writer.Seek(position);
 
-        UInt16 size = (UInt16)(byteIndex - position);
+        byte size = (byte)(byteIndex - position);
 
-        writer.WriteUInt16(size);
-        writer.Seek(byteIndex, bitIndex);
+        writer.WriteByte(size);
+        writer.Seek(byteIndex);
     }
 }

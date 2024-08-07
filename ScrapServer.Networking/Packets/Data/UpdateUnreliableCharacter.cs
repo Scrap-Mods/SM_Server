@@ -35,7 +35,7 @@ public struct IsNotTumbling : IBitSerializable
     public byte Direction;
     public byte Yaw;
     public byte Pitch;
-    Vector3f Position;
+    public Vector3f Position;
 
     public void Deserialize(ref BitReader reader)
     {
@@ -44,14 +44,14 @@ public struct IsNotTumbling : IBitSerializable
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteBit(Jump);
-        writer.WriteBit(Crawl);
-        writer.WriteBit(Horizontal);
+        writer.WriteBit(false);
+        writer.WriteBit(false);
+        writer.WriteBit(false);
+        writer.WriteBit(false);
         writer.WriteBit(Sprint);
-        writer.WriteBit(false);
-        writer.WriteBit(false);
-        writer.WriteBit(false);
-        writer.WriteBit(false);
+        writer.WriteBit(Horizontal);
+        writer.WriteBit(Crawl);
+        writer.WriteBit(Jump);
 
         writer.WriteByte(Direction);
         writer.WriteByte(Yaw);
