@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
+using OpenTK.Mathematics;
 
 namespace ScrapServer.Networking.Packets.Utils;
 
@@ -27,5 +28,15 @@ internal static class BitReaderExtensions
         {
             return reader.ReadObject<T>();
         }
+    }
+
+    public static Vector3 ReadVector3XYZ(this ref BitReader reader)
+    {
+        return new Vector3
+        {
+            X = reader.ReadSingle(),
+            Y = reader.ReadSingle(),
+            Z = reader.ReadSingle()
+        };
     }
 }

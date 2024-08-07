@@ -1,9 +1,6 @@
 ﻿using ScrapServer.Utility.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ScrapServer.Networking.Packets.Utils;
+using OpenTK.Mathematics;
 
 namespace ScrapServer.Networking.Packets.Data;
 
@@ -35,7 +32,7 @@ public struct IsNotTumbling : IBitSerializable
     public byte Direction;
     public byte Yaw;
     public byte Pitch;
-    public Vector3f Position;
+    public Vector3 Position;
 
     public void Deserialize(ref BitReader reader)
     {
@@ -57,6 +54,6 @@ public struct IsNotTumbling : IBitSerializable
         writer.WriteByte(Yaw);
         writer.WriteByte(Pitch);
 
-        Position.WriteXYZ(ref writer);
+        writer.WriteVector3XYZ(Position);
     }
 }

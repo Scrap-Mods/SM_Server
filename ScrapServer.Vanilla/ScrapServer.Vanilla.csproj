@@ -9,7 +9,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="aelsi2.Facepunch.Steamworks" Version="2.3.4" />
-	</ItemGroup>
+    <PackageReference Include="OpenTK.Mathematics" Version="4.8.2" />
+  </ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\ScrapServer.Networking\ScrapServer.Networking.csproj" />

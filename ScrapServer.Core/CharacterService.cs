@@ -2,25 +2,26 @@
 using ScrapServer.Networking.Packets;
 using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.Intrinsics;
-using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Mathematics;
 
 namespace ScrapServer.Core;
 
 public class Character
 {
-    public Vector3 Position = new(0, 0, 0.72f);
+    public Matrix3 Rotation;
+    public Vector3 Position = new Vector3(0, 0, 0.72f);
     public Vector3 Velocity;
-    public Vector3 LookDirection;
 }
 
 public static class CharacterService
 {
+    private static byte ConvertAngleToBinary(double angle)
+    {
+       angle = (angle + Math.PI * 2) % (Math.PI * 2);
+
+       return (byte)(256 * (angle) / (2 * Math.PI));
+    }
+
     public static List<Character> Characters = [];
 
     public static void MoveCharacter(int characterId, byte moveDir, PlayerMovementKey key)
@@ -29,14 +30,19 @@ public static class CharacterService
 
         if ((key & PlayerMovementKey.HORIZONTAL) == PlayerMovementKey.HORIZONTAL) 
         {
-            double angle = 2 * Math.PI * ((double)moveDir) / 255;
-            vector = new Vector3((float)Math.Cos(angle), (float)Math.Sin(angle), 0) * 2;
+            double direction = 2 * Math.PI * ((double)moveDir) / 256;
+            vector = new Vector3((float)Math.Cos(direction) * 0.11f, (float)Math.Sin(direction) * 0.11f, 0);
         }
 
-        foreach (var character in Characters)
-        {
-            character.Velocity = vector;
-        }
+        Characters[characterId].Velocity = vector;
+    }
+
+    public static void LookCharacter(int characterId, byte yaw, byte pitch)
+    {
+        double angleYaw = 2 * Math.PI * ((double)yaw) / 256;
+        double anglePitch = 2 * Math.PI * ((double)pitch) / 256;
+
+        Characters[characterId].Rotation = Matrix3.CreateRotationZ((float)angleYaw);
     }
 
     //TODO(AP): Once networking is refactored, remove the "client" parameter
@@ -50,26 +56,24 @@ public static class CharacterService
             var position = stream.ByteIndex;
 
             var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
+            
             var velocity = Characters[i].Velocity;
+            var rotation = Characters[i].Rotation;
 
-            Characters[i].Position += velocity;
+            Characters[i].Position += velocity * rotation;
 
             var updateCharacter = new UpdateUnreliableCharacter { CharacterId = i, IsTumbling = false };
 
-            double angle = Math.Atan2(velocity.X, velocity.Y);
-            byte binaryAngle = (byte)(255 * angle / (2 * Math.PI));
+            double angleMove = Math.Atan2(velocity.Y, velocity.X);
+            var anglesLook = rotation.ExtractRotation().ToEulerAngles();
 
             var isNotTumbling = new IsNotTumbling
             {
                 Horizontal = velocity != Vector3.Zero,
-                Direction = binaryAngle,
-                Yaw = 0,
-                Pitch = 0,
-                Position = new Vector3f {
-                    X = Characters[i].Position.X,
-                    Y = Characters[i].Position.Y,
-                    Z = Characters[i].Position.Z
-                }
+                Direction = ConvertAngleToBinary(angleMove),
+                Yaw = ConvertAngleToBinary(anglesLook.Z),
+                Pitch = ConvertAngleToBinary(anglesLook.X),
+                Position = Characters[i].Position
             };
 
             netObj.Serialize(ref stream);

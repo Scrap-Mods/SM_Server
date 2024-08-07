@@ -5,6 +5,7 @@ using ScrapServer.Networking.Packets.Data;
 using ScrapServer.Utility.Serialization;
 using ScrapServer.Core;
 using System.Text;
+using OpenTK.Mathematics;
 
 namespace ScrapServer.Vanilla;
 
@@ -63,7 +64,7 @@ internal class Program
 
             // handle CharacterInfo
 
-            args2.Client.Send(new JoinConfirmation {});
+            args2.Client.Send(new JoinConfirmation { });
             Console.WriteLine("Sent JoinConfirmation");
 
             var characterCustomization = new CharacterCustomization
@@ -139,7 +140,11 @@ internal class Program
             };
 
             var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
-            args2.Client.Send(genericInit);
+
+            foreach (var client in server.ConnectedClients)
+            {
+                client.Send(genericInit);
+            }
 
             CharacterService.Characters.Add(new Character { });
 
@@ -164,7 +169,11 @@ internal class Program
             };
 
             genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
-            args2.Client.Send(genericInit);
+
+            foreach (var client in server.ConnectedClients)
+            {
+                client.Send(genericInit);
+            }
 
             PlayerService.Players[args2.Client] = new Player
             {
@@ -194,7 +203,7 @@ internal class Program
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
             var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Count - 1, SteamId = args2.Client.Id, Position = new Vector3f { X = 0, Y = 0, Z = 1 }, CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Count - 1, SteamId = args2.Client.Id, Position = new Vector3(0,0,1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
             createUpdate.Serialize(ref stream);
@@ -209,7 +218,10 @@ internal class Program
                 .Write(new ScriptDataS2C { GameTick = tick, Data = scriptBlobData })
                 .Build();
 
-            args2.Client.Send(compound);
+            foreach (var client in server.ConnectedClients)
+            {
+                client.Send(compound);
+            }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
         });
@@ -219,6 +231,7 @@ internal class Program
             var player = PlayerService.Players[args2.Client];
 
             CharacterService.MoveCharacter(player.CharacterID, args2.Packet.Direction, args2.Packet.Keys);
+            CharacterService.LookCharacter(player.CharacterID, args2.Packet.Yaw, args2.Packet.Pitch);
         });
 
         server.Handle<Hello>((o, args2) =>
@@ -302,7 +315,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = 1,
+                CharacterID = 0,
                 SteamID = 76561198158782028,
                 InventoryContainerID = 3,
                 CarryContainer = 2,
@@ -311,7 +324,6 @@ internal class Program
                 CharacterCustomization = characterCustomization,
             };
 
-            CharacterService.Characters.Add(new Character { });
             CharacterService.Characters.Add(new Character { });
 
             var initBlobData = new BlobData
@@ -368,7 +380,7 @@ internal class Program
             }
 
             tick++;
-            Thread.Sleep(16);
+            Thread.Sleep(25);
         }
         server.Dispose();
         SteamClient.Shutdown();
