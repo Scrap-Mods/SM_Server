@@ -26,4 +26,5 @@ public enum PacketId : byte
     GenericDataC2S = 28,
     CompoundPacket = 29,
     PlayerMovement = 30,
+    Broadcast = 123,
 }

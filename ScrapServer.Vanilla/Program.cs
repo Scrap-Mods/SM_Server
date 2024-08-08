@@ -341,6 +341,18 @@ internal class Program
             Console.WriteLine("Sent Host Character Generic Initialization Data");
         });
 
+        server.Handle<Broadcast>((o, args2) =>
+        {
+            foreach (var client in server.ConnectedClients)
+            {
+                if (client != args2.Client)
+                {
+                    client.Send(args2.Packet);
+                }
+            }
+            Console.WriteLine("BBL DRIZZY DRAKE");
+        });
+
         while (true)
         {
             server.Poll();
