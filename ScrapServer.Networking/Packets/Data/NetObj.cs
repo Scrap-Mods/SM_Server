@@ -5,6 +5,7 @@ namespace ScrapServer.Networking.Packets.Data;
 
 public enum ControllerType
 {
+    Unknown = 0,
     ElectricMotor = 0x1,
     MotorController = 0x2,
     SteeringController = 0x3,

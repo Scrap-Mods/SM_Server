@@ -188,20 +188,57 @@ internal class Program
             var data = stream.Data.ToArray();
             stream.Dispose();
 
-            var compound = new CompoundPacket.Builder()
-                .Write(new InitNetworkUpdate { GameTick = tick, Updates = data })
-                .Write(new ScriptDataS2C { GameTick = tick, Data = [] })
-                .Build();
 
-            args2.Client.Send(compound);
+            args2.Client.Send(new InitNetworkUpdate { GameTick = tick, Updates = data });
+            args2.Client.Send(new ScriptDataS2C { GameTick = tick, Data = [] });
 
-            foreach (var client in server.ConnectedClients)
+            foreach (var client in PlayerService.Players.Keys)
             {
                 if (client != args2.Client)
                 {
                     client.Send(new NetworkUpdate { GameTick = tick, Updates = data });
                 }
             }
+
+            foreach (var client in PlayerService.Players)
+            {
+                if (client.Value == player) continue;
+
+                stream = BitWriter.WithSharedPool();
+
+                // Create packet
+                character = CharacterService.GetCharacter(client.Value);
+                netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
+                createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
+                characterCreate = new CreateCharacter { NetObjId = (uint)character.Id, SteamId = args2.Client.Id, Position = new Vector3(0, 0, 1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+
+                netObj.Serialize(ref stream);
+                createUpdate.Serialize(ref stream);
+                characterCreate.Serialize(ref stream);
+                NetObj.WriteSize(ref stream, 0);
+
+                // Update packet
+                netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Update, Size = 0 };
+                var characterUpdate = new UpdateCharacter {
+                    Color = new Networking.Packets.Data.Color4 { Alpha = 0xFF, Blue = 0xFF, Green = 0xFF, Red = 0xFF },
+                    Movement = new MovementState { IsClimbing = false, IsDiving = false, IsDowned = false, IsSwimming = false, IsTumbling = false, Unknown = false },
+                    PlayerInfo = new PlayerId { IsPlayer = true, UnitId = character.Id },
+                    SelectedItem = new Item { InstanceId = 0, Uuid = Guid.Empty }
+                };
+
+                stream.GoToNearestByte();
+                var position = stream.ByteIndex;
+                netObj.Serialize(ref stream);
+                characterUpdate.Serialize(ref stream);
+                NetObj.WriteSize(ref stream, position);
+
+                data = stream.Data.ToArray();
+
+                args2.Client.Send(new NetworkUpdate { GameTick = tick, Updates = data });
+
+                stream.Dispose();
+            }
+
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
         });
@@ -298,7 +335,7 @@ internal class Program
             var playerData = new PlayerData
             {
                 CharacterID = 1,
-                SteamID = 76561198158782028,
+                SteamID = 0,
                 InventoryContainerID = 3,
                 CarryContainer = 2,
                 CarryColor = uint.MaxValue,

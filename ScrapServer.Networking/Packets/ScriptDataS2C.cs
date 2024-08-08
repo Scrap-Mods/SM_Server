@@ -23,16 +23,13 @@ public struct ScriptDataS2C : IPacket
     /// <summary>
     /// The script data.
     /// </summary>
-    public BlobData[]? Data;
+    public BlobData[] Data;
 
     /// <inheritdoc/>
     public readonly void Serialize(ref BitWriter writer)
     {
         writer.WriteUInt32(GameTick);
-        if (Data == null)
-        {
-            return;
-        }
+
         foreach (var data in Data)
         {
             data.Serialize(ref writer);

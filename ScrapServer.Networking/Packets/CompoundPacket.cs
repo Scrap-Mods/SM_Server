@@ -14,11 +14,11 @@ public struct CompoundPacket : IPacket
         {
             writer = BitWriter.WithSharedPool();
         }
-
+            
         public Builder Write<T>(T data) where T : IPacket
         {
+            writer.GoToNearestByte();
             var byteIndexBefore = writer.ByteIndex;
-            var bitIndexBefore = writer.BitIndex;
 
             writer.WriteUInt32(0);
             writer.WriteByte((byte)T.PacketId);
@@ -27,7 +27,7 @@ public struct CompoundPacket : IPacket
             var byteIndexAfter = writer.ByteIndex;
             var bitIndexAfter = writer.BitIndex;
 
-            writer.Seek(byteIndexBefore, bitIndexBefore);
+            writer.Seek(byteIndexBefore);
 
             writer.WriteUInt32((UInt32) (byteIndexAfter - byteIndexBefore - 4));
 
