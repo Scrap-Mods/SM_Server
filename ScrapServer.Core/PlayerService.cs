@@ -9,7 +9,6 @@ namespace ScrapServer.Core;
 
 public class Player
 {
-    public string Name = "MECHANIC";
     public int Id;
 }
 
@@ -32,7 +31,6 @@ public static class PlayerService
         // If it still cannot be found, we make a new one
         player = new Player
         {
-            Name = "TechnologicNickFR",
             Id = NextPlayerID,
         };
 

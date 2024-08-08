@@ -8,7 +8,8 @@ namespace ScrapServer.Core;
 
 public class Character
 {
-    public int Id;
+    public int Id = -1;
+    public string Name = "MECHANIC";
     public Matrix3 HeadRotation = Matrix3.Identity;
     public Matrix3 BodyRotation = Matrix3.Identity;
     public Vector3 Position = new Vector3(0, 0, 0.72f);

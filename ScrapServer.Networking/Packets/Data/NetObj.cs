@@ -88,15 +88,15 @@ public struct NetObj : IBitSerializable
 
     public static void WriteSize(ref BitWriter writer, int position)
     {
+        writer.GoToNearestByte();
         int byteIndex = writer.ByteIndex;
-        int bitIndex = writer.BitIndex;
 
         writer.Seek(position);
 
         UInt16 size = (UInt16)(byteIndex - position);
 
         writer.WriteUInt16(size);
-        writer.Seek(byteIndex, bitIndex);
+        writer.Seek(byteIndex);
     }
 }
 

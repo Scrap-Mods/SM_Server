@@ -4,7 +4,7 @@ using Steamworks;
 using OpenTK.Mathematics;
 
 namespace ScrapServer.Networking.Packets.Data;
-public struct CreateCharacter
+public class CreateCharacter
 {
     public UInt32 NetObjId;
     public SteamId SteamId;
