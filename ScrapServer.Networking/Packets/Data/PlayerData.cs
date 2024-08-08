@@ -9,6 +9,7 @@ public struct PlayerData : IBitSerializable
     public UInt32 InventoryContainerID;
     public UInt32 CarryContainer;
     public UInt32 CarryColor;
+    public byte PlayerID;
     public string Name;
     public CharacterCustomization CharacterCustomization;
 
@@ -19,7 +20,7 @@ public struct PlayerData : IBitSerializable
         InventoryContainerID = reader.ReadUInt32();
         CarryContainer = reader.ReadUInt32();
         CarryColor = reader.ReadUInt32();
-        reader.ReadByte();
+        PlayerID = reader.ReadByte();
         Name = reader.ReadString(reader.ReadByte());
         CharacterCustomization = reader.ReadObject<CharacterCustomization>();
     }
@@ -31,7 +32,7 @@ public struct PlayerData : IBitSerializable
         writer.WriteUInt32(InventoryContainerID);
         writer.WriteUInt32(CarryContainer);
         writer.WriteUInt32(CarryColor);
-        writer.WriteByte(1);
+        writer.WriteByte(PlayerID);
         writer.WriteByte((byte)Name.Length);
         writer.WriteString(Name);
         writer.WriteObject(CharacterCustomization);

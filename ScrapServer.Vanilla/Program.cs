@@ -6,6 +6,7 @@ using ScrapServer.Utility.Serialization;
 using ScrapServer.Core;
 using System.Text;
 using OpenTK.Mathematics;
+using System.Numerics;
 
 namespace ScrapServer.Vanilla;
 
@@ -129,6 +130,7 @@ internal class Program
                 InventoryContainerID = 2,
                 CarryContainer = 4,
                 CarryColor = uint.MaxValue,
+                PlayerID = (byte)player.Id,
                 Name = "TechnologicNickFR",
                 CharacterCustomization = characterCustomization,
             };
@@ -323,6 +325,7 @@ internal class Program
                     InventoryContainerID = 1,
                     CarryContainer = 2,
                     CarryColor = uint.MaxValue,
+                    PlayerID = 0,
                     Name = "Prime",
                     CharacterCustomization = characterCustomization,
                 };
