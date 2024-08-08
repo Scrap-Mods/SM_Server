@@ -8,27 +8,36 @@ namespace ScrapServer.Core;
 
 public class Character
 {
-    public Matrix3 Rotation;
+    public Matrix3 HeadRotation = Matrix3.Identity;
+    public Matrix3 BodyRotation = Matrix3.Identity;
     public Vector3 Position = new Vector3(0, 0, 0.72f);
-    public Vector3 Velocity;
+    public Vector3 Velocity = Vector3.Zero;
 }
 
 public static class CharacterService
 {
+    private static Dictionary<int, Character> Characters = [];
+    private static int GlobalCharacterCount = 0;
+
     private static byte ConvertAngleToBinary(double angle)
     {
-       angle = (angle + Math.PI * 2) % (Math.PI * 2);
+        angle = (angle + Math.PI * 2) % (Math.PI * 2);
 
-       return (byte)(256 * (angle) / (2 * Math.PI));
+        return (byte)(256 * (angle) / (2 * Math.PI));
     }
 
-    public static List<Character> Characters = [];
+    public static int SpawnCharacter(Character character)
+    {
+        Characters[GlobalCharacterCount++] = character;
+
+        return GlobalCharacterCount;
+    }
 
     public static void MoveCharacter(int characterId, byte moveDir, PlayerMovementKey key)
     {
         Vector3 vector = Vector3.Zero;
 
-        if ((key & PlayerMovementKey.HORIZONTAL) == PlayerMovementKey.HORIZONTAL) 
+        if ((key & PlayerMovementKey.HORIZONTAL) == PlayerMovementKey.HORIZONTAL)
         {
             double direction = 2 * Math.PI * ((double)moveDir) / 256;
             vector = new Vector3((float)Math.Cos(direction) * 0.11f, (float)Math.Sin(direction) * 0.11f, 0);
@@ -42,7 +51,11 @@ public static class CharacterService
         double angleYaw = 2 * Math.PI * ((double)yaw) / 256;
         double anglePitch = 2 * Math.PI * ((double)pitch) / 256;
 
-        Characters[characterId].Rotation = Matrix3.CreateRotationZ((float)angleYaw);
+        var matrixYaw = Matrix3.CreateRotationZ((float)angleYaw);
+        var matrixPitch = Matrix3.CreateRotationX((float)anglePitch);
+
+        Characters[characterId].BodyRotation = matrixYaw;
+        Characters[characterId].HeadRotation = matrixYaw * matrixPitch;
     }
 
     //TODO(AP): Once networking is refactored, remove the "client" parameter
@@ -50,26 +63,23 @@ public static class CharacterService
     {
         var stream = BitWriter.WithSharedPool();
 
-        for (var i = 0; i < Characters.Count; i++)
+        foreach (var character in Characters.Values)
         {
             stream.GoToNearestByte();
             var position = stream.ByteIndex;
 
             var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
-            
-            var velocity = Characters[i].Velocity;
-            var rotation = Characters[i].Rotation;
 
-            Characters[i].Position += velocity * rotation;
+            character.Position += character.Velocity * character.BodyRotation;
 
             var updateCharacter = new UpdateUnreliableCharacter { CharacterId = i, IsTumbling = false };
 
-            double angleMove = Math.Atan2(velocity.Y, velocity.X);
-            var anglesLook = rotation.ExtractRotation().ToEulerAngles();
+            double angleMove = Math.Atan2(character.Velocity.Y, character.Velocity.X);
+            var anglesLook = character.HeadRotation.ExtractRotation().ToEulerAngles();
 
             var isNotTumbling = new IsNotTumbling
             {
-                Horizontal = velocity != Vector3.Zero,
+                Horizontal = character.Velocity != Vector3.Zero,
                 Direction = ConvertAngleToBinary(angleMove),
                 Yaw = ConvertAngleToBinary(anglesLook.Z),
                 Pitch = ConvertAngleToBinary(anglesLook.X),

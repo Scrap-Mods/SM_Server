@@ -146,11 +146,11 @@ internal class Program
                 client.Send(genericInit);
             }
 
-            CharacterService.Characters.Add(new Character { });
+            var id = CharacterService.SpawnCharacter(new Character { });
 
             playerData = new PlayerData
             {
-                CharacterID = CharacterService.Characters.Count - 1,
+                CharacterID = id,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -177,7 +177,7 @@ internal class Program
 
             PlayerService.Players[args2.Client] = new Player
             {
-                CharacterID = CharacterService.Characters.Count - 1,
+                CharacterID = id,
                 Name = "TechnologicNickFR"
             };
 
@@ -324,7 +324,7 @@ internal class Program
                 CharacterCustomization = characterCustomization,
             };
 
-            CharacterService.Characters.Add(new Character { });
+            var id = CharacterService.SpawnCharacter(new Character { });
 
             var initBlobData = new BlobData
             {
