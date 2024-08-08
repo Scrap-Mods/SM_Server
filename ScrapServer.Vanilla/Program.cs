@@ -67,6 +67,9 @@ internal class Program
             args2.Client.Send(new JoinConfirmation { });
             Console.WriteLine("Sent JoinConfirmation");
 
+            var player = PlayerService.GetPlayer(args2.Client);
+            var character = CharacterService.GetCharacter(player);
+
             var characterCustomization = new CharacterCustomization
             {
                 Gender = Gender.Male,
@@ -119,9 +122,33 @@ internal class Program
                 ]
             };
 
+            //var playerData = new PlayerData
+            //{
+            //    CharacterID = -1,
+            //    SteamID = args2.Client.Id,
+            //    InventoryContainerID = 3,
+            //    CarryContainer = 4,
+            //    CarryColor = uint.MaxValue,
+            //    Name = "TechnologicNickFR",
+            //    CharacterCustomization = characterCustomization,
+            //};
+
+            //var initBlobData = new BlobData
+            //{
+            //    Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+            //    Key = [0x2, 0x00, 0x00, 0x00],
+            //    WorldID = 65534,
+            //    Flags = 13,
+            //    Data = playerData.ToBytes()
+            //};
+
+            //var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
+
+            //args2.Client.Send(genericInit);
+
             var playerData = new PlayerData
             {
-                CharacterID = -1,
+                CharacterID = character.Id,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 3,
                 CarryContainer = 4,
@@ -133,7 +160,7 @@ internal class Program
             var initBlobData = new BlobData
             {
                 Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-                Key = [0x2, 0x00, 0x00, 0x00],
+                Key = BitConverter.GetBytes(character.Id),
                 WorldID = 65534,
                 Flags = 13,
                 Data = playerData.ToBytes()
@@ -141,69 +168,17 @@ internal class Program
 
             var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
 
-            foreach (var client in server.ConnectedClients)
+            foreach (var client in PlayerService.Players.Keys)
             {
                 client.Send(genericInit);
             }
-
-            var id = CharacterService.SpawnCharacter(new Character { });
-
-            playerData = new PlayerData
-            {
-                CharacterID = id,
-                SteamID = args2.Client.Id,
-                InventoryContainerID = 3,
-                CarryContainer = 4,
-                CarryColor = uint.MaxValue,
-                Name = "TechnologicNickFR",
-                CharacterCustomization = characterCustomization,
-            };
-
-            initBlobData = new BlobData
-            {
-                Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-                Key = [0x2, 0x00, 0x00, 0x00],
-                WorldID = 65534,
-                Flags = 13,
-                Data = playerData.ToBytes()
-            };
-
-            genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
-
-            foreach (var client in server.ConnectedClients)
-            {
-                client.Send(genericInit);
-            }
-
-            PlayerService.Players[args2.Client] = new Player
-            {
-                CharacterID = id,
-                Name = "TechnologicNickFR"
-            };
 
             Console.WriteLine("Sent Client GenericInitData");
-
-            BlobData[] scriptBlobData = [
-               new BlobData {
-                    Uid = Guid.Parse("4a293a1d-b223-520a-a3ac-0f9a7ded3869"),
-                    Key = [0x1, 0, 0, 0],
-                    WorldID = 65534,
-                    Flags = 4,
-                    Data = Encoding.ASCII.GetBytes("\x07LUA\x00\x00\x00\x01\x05\x00\x00\x00\x02\x02\x00\x00\x00\x02\x80inOil\x02\x02\x00\x00\x00\x05\x00inChemical\x02\x00"),
-               },
-                new BlobData {
-                    Uid = Guid.Parse("20896033-23a4-5789-a03c-a7533e3bff84"),
-                    Key = [0x1, 0, 0, 0],
-                    WorldID = 65534,
-                    Flags = 4,
-                    Data = Encoding.ASCII.GetBytes("\x04LUA\x00\x00\x00\x01\x05\x00\x00\x00\x01\x02\x00\x00\x00\x02\x00time\x03?\x00\x00\x00"),
-                },
-            ];
 
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
             var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-            var characterCreate = new CreateCharacter { NetObjId = (uint) CharacterService.Characters.Count - 1, SteamId = args2.Client.Id, Position = new Vector3(0,0,1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+            var characterCreate = new CreateCharacter { NetObjId = (uint) character.Id, SteamId = args2.Client.Id, Position = new Vector3(0,0,1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
             createUpdate.Serialize(ref stream);
@@ -215,12 +190,17 @@ internal class Program
 
             var compound = new CompoundPacket.Builder()
                 .Write(new InitNetworkUpdate { GameTick = tick, Updates = data })
-                .Write(new ScriptDataS2C { GameTick = tick, Data = scriptBlobData })
+                .Write(new ScriptDataS2C { GameTick = tick, Data = [] })
                 .Build();
+
+            args2.Client.Send(compound);
 
             foreach (var client in server.ConnectedClients)
             {
-                client.Send(compound);
+                if (client != args2.Client)
+                {
+                    client.Send(new NetworkUpdate { GameTick = tick, Updates = data });
+                }
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
@@ -228,10 +208,12 @@ internal class Program
 
         server.Handle<PlayerMovement>((o, args2) =>
         {
-            var player = PlayerService.Players[args2.Client];
+            var player = PlayerService.GetPlayer(args2.Client);
 
-            CharacterService.MoveCharacter(player.CharacterID, args2.Packet.Direction, args2.Packet.Keys);
-            CharacterService.LookCharacter(player.CharacterID, args2.Packet.Yaw, args2.Packet.Pitch);
+            Console.WriteLine("Player: {0}, {1} Character: {2}", args2.Client.Id.ToString("D"), player.Id.ToString("D"), CharacterService.GetCharacter(player).Id);
+
+            CharacterService.MoveCharacter(player, args2.Packet.Direction, args2.Packet.Keys);
+            CharacterService.LookCharacter(player, args2.Packet.Yaw, args2.Packet.Pitch);
         });
 
         server.Handle<Hello>((o, args2) =>
@@ -315,7 +297,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = 0,
+                CharacterID = 1,
                 SteamID = 76561198158782028,
                 InventoryContainerID = 3,
                 CarryContainer = 2,
@@ -323,8 +305,6 @@ internal class Program
                 Name = "Prime",
                 CharacterCustomization = characterCustomization,
             };
-
-            var id = CharacterService.SpawnCharacter(new Character { });
 
             var initBlobData = new BlobData
             {
@@ -365,11 +345,7 @@ internal class Program
         {
             server.Poll();
 
-            //NOTE(AP): See comment in CharacterService.cs
-            foreach (var pair in PlayerService.Players)
-            {
-                CharacterService.Tick(tick, pair.Key);
-            }
+            CharacterService.Tick(tick);
             PlayerService.Tick(tick);
 
             // if user pressed DEL in console, close the server:

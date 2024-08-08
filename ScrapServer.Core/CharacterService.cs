@@ -8,6 +8,7 @@ namespace ScrapServer.Core;
 
 public class Character
 {
+    public int Id;
     public Matrix3 HeadRotation = Matrix3.Identity;
     public Matrix3 BodyRotation = Matrix3.Identity;
     public Vector3 Position = new Vector3(0, 0, 0.72f);
@@ -16,8 +17,8 @@ public class Character
 
 public static class CharacterService
 {
-    private static Dictionary<int, Character> Characters = [];
-    private static int GlobalCharacterCount = 0;
+    private static Dictionary<Player, Character> Characters = [];
+    private static int NextCharacterID = 2;
 
     private static byte ConvertAngleToBinary(double angle)
     {
@@ -26,14 +27,30 @@ public static class CharacterService
         return (byte)(256 * (angle) / (2 * Math.PI));
     }
 
-    public static int SpawnCharacter(Character character)
+    public static Character GetCharacter(Player player)
     {
-        Characters[GlobalCharacterCount++] = character;
+        Character? character;
+        var found = Characters.TryGetValue(player, out character);
 
-        return GlobalCharacterCount;
+        if (found) return character;
+
+        // If character isn't in Dict, we load it from the save database into the dict and return it
+
+        // ...
+
+        // If it still cannot be found, we make a new one
+        character = new Character
+        {
+            Id = NextCharacterID
+        };
+
+        Characters[player] = character;
+        NextCharacterID += 1;
+
+        return character;
     }
 
-    public static void MoveCharacter(int characterId, byte moveDir, PlayerMovementKey key)
+    public static void MoveCharacter(Player player, byte moveDir, PlayerMovementKey key)
     {
         Vector3 vector = Vector3.Zero;
 
@@ -43,10 +60,10 @@ public static class CharacterService
             vector = new Vector3((float)Math.Cos(direction) * 0.11f, (float)Math.Sin(direction) * 0.11f, 0);
         }
 
-        Characters[characterId].Velocity = vector;
+        Characters[player].Velocity = vector;
     }
 
-    public static void LookCharacter(int characterId, byte yaw, byte pitch)
+    public static void LookCharacter(Player playerId, byte yaw, byte pitch)
     {
         double angleYaw = 2 * Math.PI * ((double)yaw) / 256;
         double anglePitch = 2 * Math.PI * ((double)pitch) / 256;
@@ -54,12 +71,12 @@ public static class CharacterService
         var matrixYaw = Matrix3.CreateRotationZ((float)angleYaw);
         var matrixPitch = Matrix3.CreateRotationX((float)anglePitch);
 
-        Characters[characterId].BodyRotation = matrixYaw;
-        Characters[characterId].HeadRotation = matrixYaw * matrixPitch;
+        Characters[playerId].BodyRotation = matrixYaw;
+        Characters[playerId].HeadRotation = matrixYaw * matrixPitch;
     }
 
     //TODO(AP): Once networking is refactored, remove the "client" parameter
-    public static void Tick(UInt32 tick, IClient client)
+    public static void Tick(UInt32 tick)
     {
         var stream = BitWriter.WithSharedPool();
 
@@ -72,7 +89,7 @@ public static class CharacterService
 
             character.Position += character.Velocity * character.BodyRotation;
 
-            var updateCharacter = new UpdateUnreliableCharacter { CharacterId = i, IsTumbling = false };
+            var updateCharacter = new UpdateUnreliableCharacter { CharacterId = character.Id, IsTumbling = false };
 
             double angleMove = Math.Atan2(character.Velocity.Y, character.Velocity.X);
             var anglesLook = character.HeadRotation.ExtractRotation().ToEulerAngles();
@@ -83,7 +100,7 @@ public static class CharacterService
                 Direction = ConvertAngleToBinary(angleMove),
                 Yaw = ConvertAngleToBinary(anglesLook.Z),
                 Pitch = ConvertAngleToBinary(anglesLook.X),
-                Position = Characters[i].Position
+                Position = character.Position
             };
 
             netObj.Serialize(ref stream);
@@ -91,8 +108,12 @@ public static class CharacterService
             isNotTumbling.Serialize(ref stream);
             NetObjUnreliable.WriteSize(ref stream, position);
         }
+        
+        foreach (var client in PlayerService.Players.Keys)
+        {
+            client.Send(new UnreliableUpdate { CurrentTick = tick, ServerTick = tick, Updates = stream.Data.ToArray() });
+        }
 
-        client.Send(new UnreliableUpdate { CurrentTick = tick, ServerTick = tick, Updates = stream.Data.ToArray() });
         stream.Dispose();
     }
 }
