@@ -32,11 +32,20 @@ internal static class BitReaderExtensions
 
     public static Vector3 ReadVector3XYZ(this ref BitReader reader)
     {
-        return new Vector3
-        {
-            X = reader.ReadSingle(),
-            Y = reader.ReadSingle(),
-            Z = reader.ReadSingle()
-        };
+        var x = reader.ReadSingle();
+        var y = reader.ReadSingle();
+        var z = reader.ReadSingle();
+
+        return new Vector3(x, y, z);
+    }
+
+    public static Vector3 ReadVector3ZYX(this ref BitReader reader)
+    {
+
+        var x = reader.ReadSingle();
+        var y = reader.ReadSingle();
+        var z = reader.ReadSingle();
+
+        return new Vector3(z, y, x);
     }
 }

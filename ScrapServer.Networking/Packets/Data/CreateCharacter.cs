@@ -18,7 +18,7 @@ public class CreateCharacter
     {
         NetObjId = reader.ReadUInt32();
         SteamId = reader.ReadUInt64();
-        Position = reader.ReadVector3XYZ();
+        Position = reader.ReadVector3ZYX();
         WorldId = reader.ReadUInt16();
         Yaw = reader.ReadSingle();
         Pitch = reader.ReadSingle();
@@ -29,7 +29,7 @@ public class CreateCharacter
     {
         writer.WriteUInt32(NetObjId);
         writer.WriteUInt64(SteamId.Value);
-        writer.WriteVector3XYZ(Position);
+        writer.WriteVector3ZYX(Position);
         writer.WriteUInt16(WorldId);
         writer.WriteSingle(Yaw);
         writer.WriteSingle(Pitch);

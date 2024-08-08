@@ -124,7 +124,7 @@ internal class Program
 
             var playerData = new PlayerData
             {
-                CharacterID = -1,
+                CharacterID = character.Id,
                 SteamID = args2.Client.Id,
                 InventoryContainerID = 2,
                 CarryContainer = 4,
@@ -136,28 +136,13 @@ internal class Program
             var initBlobData = new BlobData
             {
                 Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-                Key = BitConverter.GetBytes(player.Id),
-                WorldID = 65534,
-                Flags = 13,
-                Data = playerData.ToBytes()
-            };
-
-            var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
-
-            args2.Client.Send(genericInit);
-
-            playerData.CharacterID = character.Id;
-
-            initBlobData = new BlobData
-            {
-                Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
                 Key = BitConverter.GetBytes(character.Id),
                 WorldID = 65534,
                 Flags = 13,
                 Data = playerData.ToBytes()
             };
 
-            genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
+            var genericInit = new GenericInitData { Data = [initBlobData], GameTick = tick };
 
             foreach (var client in PlayerService.Players.Keys)
             {
@@ -169,7 +154,7 @@ internal class Program
             var stream = BitWriter.WithSharedPool();
             var netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
             var createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-            var characterCreate = new CreateCharacter { NetObjId = (uint) character.Id, SteamId = args2.Client.Id, Position = new Vector3(0,0,1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+            var characterCreate = new CreateCharacter { NetObjId = (uint) character.Id, SteamId = args2.Client.Id, Position = new Vector3(0,0,0.72f), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
             netObj.Serialize(ref stream);
             createUpdate.Serialize(ref stream);
@@ -181,7 +166,7 @@ internal class Program
 
             // Compound packet
             var compound = new CompoundPacket.Builder()
-                .Write(new NetworkUpdate { GameTick = tick, Updates = data })
+                .Write(new InitNetworkUpdate { GameTick = tick, Updates = data })
                 .Write(new ScriptDataS2C { GameTick = tick, Data = [] })
                 .Build();
 
@@ -205,7 +190,7 @@ internal class Program
                 character = CharacterService.GetCharacter(client.Value);
                 netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Create, Size = 0 };
                 createUpdate = new CreateNetObj { ControllerType = (ControllerType)0 };
-                characterCreate = new CreateCharacter { NetObjId = (uint)character.Id, SteamId = args2.Client.Id, Position = new Vector3(0, 0, 1), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
+                characterCreate = new CreateCharacter { NetObjId = (uint)character.Id, SteamId = args2.Client.Id, Position = new Vector3(0, 0, 0.72f), CharacterUUID = Guid.Empty, Pitch = 0, Yaw = 0, WorldId = 1 };
 
                 netObj.Serialize(ref stream);
                 createUpdate.Serialize(ref stream);
@@ -214,10 +199,10 @@ internal class Program
 
                 // Update packet
                 netObj = new NetObj { ObjectType = NetObjType.Character, UpdateType = NetworkUpdateType.Update, Size = 0 };
-                var characterUpdate = new UpdateCharacter {
+                var characterUpdate = new UpdateCharacter
+                {
                     Color = new Networking.Packets.Data.Color4 { Alpha = 0xFF, Blue = 0xFF, Green = 0xFF, Red = 0xFF },
                     Movement = new MovementState { IsClimbing = false, IsDiving = false, IsDowned = false, IsSwimming = false, IsTumbling = false, Unknown = false },
-                    PlayerInfo = new PlayerId { IsPlayer = true, UnitId = character.Id },
                     SelectedItem = new Item { InstanceId = -1, Uuid = Guid.Empty }
                 };
 
@@ -277,10 +262,12 @@ internal class Program
             });
             Console.WriteLine("Sent ServerInfo");
 
-            var characterCustomization = new CharacterCustomization
+            foreach (var character in PlayerService.Players)
             {
-                Gender = Gender.Male,
-                Items = [
+                var characterCustomization = new CharacterCustomization
+                {
+                    Gender = Gender.Male,
+                    Items = [
                     new CharacterItem
                     {
                         PaletteIndex = 1,
@@ -327,27 +314,28 @@ internal class Program
                         VariantId = Guid.Parse("e5ba292b-1772-463f-8010-b97c48bc9298")
                     },
                 ]
-            };
+                };
 
-            var playerData = new PlayerData
-            {
-                CharacterID = 1,
-                SteamID = 0,
-                InventoryContainerID = 1,
-                CarryContainer = 2,
-                CarryColor = uint.MaxValue,
-                Name = "Prime",
-                CharacterCustomization = characterCustomization,
-            };
+                var playerData = new PlayerData
+                {
+                    CharacterID = 1,
+                    SteamID = 0,
+                    InventoryContainerID = 1,
+                    CarryContainer = 2,
+                    CarryColor = uint.MaxValue,
+                    Name = "Prime",
+                    CharacterCustomization = characterCustomization,
+                };
 
-            var initBlobData = new BlobData
-            {
-                Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-                Key = [0x1, 0x00, 0x00, 0x00],
-                WorldID = 65534,
-                Flags = 13,
-                Data = playerData.ToBytes()
-            };
+                var initBlobData = new BlobData
+                {
+                    Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+                    Key = [0x1, 0x00, 0x00, 0x00],
+                    WorldID = 65534,
+                    Flags = 13,
+                    Data = playerData.ToBytes()
+                };
+            }
 
             var gameplayOptions = new BlobData
             {

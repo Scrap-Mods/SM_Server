@@ -22,4 +22,11 @@ internal static class BitWriterExtensions
         writer.WriteSingle(vector.Y);
         writer.WriteSingle(vector.Z);
     }
+
+    public static void WriteVector3ZYX(this ref BitWriter writer, Vector3 vector)
+    {
+        writer.WriteSingle(vector.Z);
+        writer.WriteSingle(vector.X);
+        writer.WriteSingle(vector.Y);
+    }
 }

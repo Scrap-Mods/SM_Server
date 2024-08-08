@@ -18,8 +18,8 @@ public class Character
 
 public static class CharacterService
 {
-    private static Dictionary<Player, Character> Characters = [];
     private static int NextCharacterID = 2;
+    public static Dictionary<Player, Character> Characters = [];
 
     private static byte ConvertAngleToBinary(double angle)
     {
