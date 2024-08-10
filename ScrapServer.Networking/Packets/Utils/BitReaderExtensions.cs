@@ -48,4 +48,14 @@ internal static class BitReaderExtensions
 
         return new Vector3(z, y, x);
     }
+
+    public static Color4 ReadColor4(this ref BitReader reader)
+    {
+        var r = reader.ReadByte() / 0xFF;
+        var g = reader.ReadByte() / 0xFF;
+        var b = reader.ReadByte() / 0xFF;
+        var a = reader.ReadByte() / 0xFF;
+
+        return new Color4(r, g, b, a);
+    }
 }

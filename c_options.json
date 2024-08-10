@@ -1,0 +1,2058 @@
+{
+   "categoryList" : [
+      {
+         "name" : "Face",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head01/char_female_head01.rend",
+               "femaleCode" : 2650447882,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head01/char_male_head01.rend",
+               "maleCode" : 4246458074,
+               "projection" : [
+                  -73.28713226318359,
+                  62.98201751708984,
+                  -66.12987518310547,
+                  70.13927459716797
+               ],
+               "uuid" : "acc63e3d-29cf-4f4b-a515-d126d03746fa"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head02/char_female_head02.rend",
+               "femaleCode" : 601024968,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head02/char_male_head02.rend",
+               "maleCode" : 3146539788,
+               "projection" : [
+                  -71.17831420898438,
+                  63.85224914550781,
+                  -66.10469055175781,
+                  68.92587280273438
+               ],
+               "uuid" : "0fb22fe3-4fea-459a-a2b5-a226e9f7dcfb"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head03/char_female_head03.rend",
+               "femaleCode" : 4253280805,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head03/char_male_head03.rend",
+               "maleCode" : 511361679,
+               "projection" : [
+                  -73.76793670654297,
+                  63.13899612426758,
+                  -66.15886688232422,
+                  70.74807739257813
+               ],
+               "uuid" : "c958bad6-6a20-4526-829f-397e62f421f5"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head04/char_female_head04.rend",
+               "femaleCode" : 740292017,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head04/char_male_head04.rend",
+               "maleCode" : 720766574,
+               "projection" : [
+                  -74.75022888183594,
+                  63.97383880615234,
+                  -68.32963562011719,
+                  70.39443206787109
+               ],
+               "uuid" : "cc273e37-4ba8-498e-ac5e-3497403c7fe2"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head05/char_female_head05.rend",
+               "femaleCode" : 2766778403,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head05/char_male_head05.rend",
+               "maleCode" : 1304129267,
+               "projection" : [
+                  -72.11603546142578,
+                  64.35471343994141,
+                  -66.18710327148438,
+                  70.28364562988281
+               ],
+               "uuid" : "121bd328-4d24-4398-b35e-4d5e87842df3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head06/char_female_head06.rend",
+               "femaleCode" : 1184511993,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head06/char_male_head06.rend",
+               "maleCode" : 1392306316,
+               "projection" : [
+                  -72.49189758300781,
+                  63.72295379638672,
+                  -66.17546844482422,
+                  70.03938293457031
+               ],
+               "uuid" : "0c6a7c26-3dc6-442d-ab3b-b74cbf402786"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head07/char_female_head07.rend",
+               "femaleCode" : 2224580787,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head07/char_male_head07.rend",
+               "maleCode" : 2943962379,
+               "projection" : [
+                  -73.65309143066406,
+                  63.07992935180664,
+                  -66.19902038574219,
+                  70.53399658203125
+               ],
+               "uuid" : "cd531ca0-f650-41b1-b739-a735096e798f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head08/char_female_head08.rend",
+               "femaleCode" : 2012401171,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head08/char_male_head08.rend",
+               "maleCode" : 4248529316,
+               "projection" : [
+                  -73.966308593750,
+                  63.12045288085938,
+                  -66.60549926757813,
+                  70.48126220703125
+               ],
+               "uuid" : "f2aa9bab-e2be-45d8-918d-ae6955aba7d4"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head09/char_female_head09.rend",
+               "femaleCode" : 2850895335,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head09/char_male_head09.rend",
+               "maleCode" : 1031461041,
+               "projection" : [
+                  -72.67219543457031,
+                  63.73643493652344,
+                  -66.18428039550781,
+                  70.22434234619141
+               ],
+               "uuid" : "205a9e7d-f55a-412f-ad21-2889e1ee4111"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head010/char_female_head010.rend",
+               "femaleCode" : 2295169805,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head010/char_male_head010.rend",
+               "maleCode" : 1165909184,
+               "projection" : [
+                  -73.95008850097656,
+                  63.30558395385742,
+                  -67.18004608154297,
+                  70.07562255859375
+               ],
+               "uuid" : "989cec9b-e03e-4e17-9812-bfc381028c40"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Head/Female/Female_head011/char_female_head011.rend",
+               "femaleCode" : 1137801826,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Head/Male/char_male_head011/char_male_head011.rend",
+               "maleCode" : 2421357652,
+               "projection" : [
+                  -72.59590148925781,
+                  63.92858886718750,
+                  -66.18954467773438,
+                  70.33494567871094
+               ],
+               "uuid" : "ae6ed023-cf3b-4926-8d8d-722dc302815b"
+            }
+         ],
+         "palette" : [
+            [ "b79a9b", "57261f", "ffad90" ],
+            [ "9e9198", "5d362b", "ffc7a8" ],
+            [ "ab855c", "442324", "e07d4f" ],
+            [ "8a6447", "28191e", "a7543d" ],
+            [ "593925", "1d1119", "6a362b" ]
+         ]
+      },
+      {
+         "name" : "Torso",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Body/Female/char_female_body_jacket.rend",
+               "femaleCode" : 3408641991,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Body/Male/char_male_body_jacket.rend",
+               "maleCode" : 3587576821,
+               "projection" : [ 0.0, 0.0, 0.0, 0.0 ],
+               "uuid" : "4fd6672e-27b6-42c6-8ba6-60837087a641"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_default_jacket/char_female_outfit_default_jacket.rend",
+               "femaleCode" : 1583206423,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_default_jacket/char_male_outfit_default_jacket.rend",
+               "maleCode" : 26934404,
+               "projection" : [
+                  -132.2363433837891,
+                  132.1551513671875,
+                  -134.8937835693359,
+                  129.4977264404297
+               ],
+               "tier" : "common",
+               "uuid" : "e50b3ceb-aa46-4f3e-8343-f28b6cbe34d0"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_defaultdamaged_jacket/char_female_outfit_defaultdamaged_jacket.rend",
+               "femaleCode" : 3042050908,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_defaultdamaged_jacket/char_male_outfit_defaultdamaged_jacket.rend",
+               "maleCode" : 87858282,
+               "projection" : [
+                  -107.831542968750,
+                  95.66737365722656,
+                  -97.67344665527344,
+                  105.8254699707031
+               ],
+               "uuid" : "47ee844c-0028-404d-9293-1b4f3df8a4ea"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_applicator_jacket/char_female_outfit_applicator_jacket.rend",
+               "femaleCode" : 2886945428,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_applicator_jacket/char_male_outfit_applicator_jacket.rend",
+               "maleCode" : 145273494,
+               "projection" : [
+                  -213.4227447509766,
+                  209.6951293945313,
+                  -214.0097961425781,
+                  209.1080627441406
+               ],
+               "tier" : "rare",
+               "uuid" : "9778b063-26ff-456f-820b-2a47e85e5a68"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_automotive_jacket/char_female_outfit_automotive_jacket.rend",
+               "femaleCode" : 2288421572,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_automotive_jacket/char_male_outfit_automotive_jacket.rend",
+               "maleCode" : 320071412,
+               "projection" : [
+                  -116.5361175537109,
+                  89.73163604736328,
+                  -104.3789367675781,
+                  101.8888244628906
+               ],
+               "tier" : "rare",
+               "uuid" : "8fd35b59-b4d5-4378-adf7-44f02d9abd33"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_delivery_jacket/char_female_outfit_delivery_jacket.rend",
+               "femaleCode" : 748548940,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_delivery_jacket/char_male_outfit_delivery_jacket.rend",
+               "maleCode" : 3559904577,
+               "projection" : [
+                  -123.9933624267578,
+                  118.8442306518555,
+                  -120.5597000122070,
+                  122.2778854370117
+               ],
+               "tier" : "epic",
+               "uuid" : "aa987d10-92d7-49ae-b09d-f6853e31d1da"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_demolition_jacket/char_female_outfit_demolition_jacket.rend",
+               "femaleCode" : 1765482486,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_demolition_jacket/char_male_outfit_demolition_jacket.rend",
+               "maleCode" : 3553371637,
+               "projection" : [
+                  -129.4387512207031,
+                  128.1237792968750,
+                  -133.0959320068359,
+                  124.4666061401367
+               ],
+               "tier" : "rare",
+               "uuid" : "a4ff886c-bfff-4b80-a916-70f5909afe02"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_lumberjack_jacket/char_female_outfit_lumberjack_jacket.rend",
+               "femaleCode" : 720371257,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_lumberjack_jacket/char_male_outfit_lumberjack_jacket.rend",
+               "maleCode" : 2906863384,
+               "projection" : [
+                  -217.9833068847656,
+                  211.8908081054688,
+                  -215.5098571777344,
+                  214.3642272949219
+               ],
+               "tier" : "common",
+               "uuid" : "a03db277-9c10-4f75-a5ea-f2f9b24dde9e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_farmer_jacket/char_female_outfit_farmer_jacket.rend",
+               "femaleCode" : 1408083864,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_farmer_jacket/char_male_outfit_farmer_jacket.rend",
+               "maleCode" : 3867099902,
+               "projection" : [
+                  -126.1548538208008,
+                  123.1868896484375,
+                  -128.8350830078125,
+                  120.5066604614258
+               ],
+               "uuid" : "f2c0c91f-4547-416e-b037-f56a8f04368c"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_engineer_jacket/char_female_outfit_engineer_jacket.rend",
+               "femaleCode" : 740427904,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_engineer_jacket/char_male_outfit_engineer_jacket.rend",
+               "maleCode" : 1346849998,
+               "projection" : [
+                  -175.7017059326172,
+                  173.4760437011719,
+                  -170.6323699951172,
+                  178.5453948974609
+               ],
+               "tier" : "common",
+               "uuid" : "f5896dde-b3c9-4699-bf70-c9dfbded8c32"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_painter_jacket/char_female_outfit_painter_jacket.rend",
+               "femaleCode" : 2741163906,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_painter_jacket/char_male_outfit_painter_jacket.rend",
+               "maleCode" : 2670117330,
+               "projection" : [
+                  -160.5932006835938,
+                  159.4711761474609,
+                  -152.9110565185547,
+                  167.1533050537109
+               ],
+               "tier" : "rare",
+               "uuid" : "0de3a02c-8aaa-4fb1-8ff6-a7519cc9c839"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_golf_jacket/char_female_outfit_golf_jacket.rend",
+               "femaleCode" : 278487836,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_golf_jacket/char_male_outfit_golf_jacket.rend",
+               "maleCode" : 3065782200,
+               "projection" : [
+                  -134.2386322021484,
+                  129.3628234863281,
+                  -136.2836303710938,
+                  127.3178253173828
+               ],
+               "tier" : "common",
+               "uuid" : "325ab02a-f316-410f-8e80-ceec4d3b987a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_farmhand_jacket/char_female_outfit_farmhand_jacket.rend",
+               "femaleCode" : 2491839189,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_farmhand_jacket/char_male_outfit_farmhand_jacket.rend",
+               "maleCode" : 919375104,
+               "projection" : [
+                  -90.45143890380859,
+                  75.16822814941406,
+                  -87.24680328369141,
+                  78.37286376953125
+               ],
+               "tier" : "common",
+               "uuid" : "2dc14c75-c359-40e6-b11f-93cdc36c611a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_technician_jacket/char_female_outfit_technician_jacket.rend",
+               "femaleCode" : 1254040160,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_technician_jacket/char_male_outfit_technician_jacket.rend",
+               "maleCode" : 3025938497,
+               "projection" : [
+                  -196.6122131347656,
+                  192.6713562011719,
+                  -198.1329803466797,
+                  191.1505737304688
+               ],
+               "tier" : "common",
+               "uuid" : "915a8a36-3bbc-427e-ae00-4954208053b9"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_stuntman_jacket/char_female_outfit_stuntman_jacket.rend",
+               "femaleCode" : 3897869683,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_stuntman_jacket/char_male_outfit_stuntman_jacket.rend",
+               "maleCode" : 1209708722,
+               "projection" : [
+                  -198.9361724853516,
+                  196.9982910156250,
+                  -203.3039703369141,
+                  192.6304931640625
+               ],
+               "tier" : "challengereward",
+               "uuid" : "420ea3ba-f09b-44ce-9e4c-7040ef057a0c"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_01.rend",
+               "femaleCode" : 108218751,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_01.rend",
+               "maleCode" : 3202005725,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "rare",
+               "uuid" : "f18fb8f9-57aa-488f-a4b9-4472977ed385"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_02.rend",
+               "femaleCode" : 197139902,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_02.rend",
+               "maleCode" : 1236878900,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "32ae4da2-b41c-4d7a-9a46-151fa8fdaef5"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_03.rend",
+               "femaleCode" : 889004318,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_03.rend",
+               "maleCode" : 828298916,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "bce9f168-e972-4364-b3c6-22f014b3cc1a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_04.rend",
+               "femaleCode" : 1521708498,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_04.rend",
+               "maleCode" : 4112012734,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "32afd4e5-fe9a-4b43-83ac-610647a90013"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_05.rend",
+               "femaleCode" : 3254661816,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_05.rend",
+               "maleCode" : 4071262317,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "d5cdc0d0-30ff-49d4-adac-e0342caf75be"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_06.rend",
+               "femaleCode" : 546662713,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_06.rend",
+               "maleCode" : 3985518716,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "de3abc13-31ea-42bc-93cc-3e2a24f306cd"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_07.rend",
+               "femaleCode" : 794942176,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_07.rend",
+               "maleCode" : 1717605041,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "5b5dbb48-d6dc-4866-bbb9-5771984bedd8"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_08.rend",
+               "femaleCode" : 75666713,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_08.rend",
+               "maleCode" : 1366295125,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "de94b7cd-3070-41c0-bb03-d99de71d38ac"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_09.rend",
+               "femaleCode" : 2478948751,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_09.rend",
+               "maleCode" : 34602215,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "f17d12a7-071b-4fc1-b16d-f4bbfeac8ae8"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_10.rend",
+               "femaleCode" : 424791867,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_10.rend",
+               "maleCode" : 976711149,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "8b4e2978-02e8-4cd1-ab96-a9b151897e9d"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_11.rend",
+               "femaleCode" : 2134876995,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_11.rend",
+               "maleCode" : 353162309,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "9b3da27a-9c60-4577-9878-eb2b5fb8eaf9"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_12.rend",
+               "femaleCode" : 1362447468,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_12.rend",
+               "maleCode" : 3192379168,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "882d65f2-b9b1-4805-ae1c-9cd7d20e38ec"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_13.rend",
+               "femaleCode" : 2525840395,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_13.rend",
+               "maleCode" : 3907870307,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "f9571933-d116-4974-a870-de174c8a9138"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_14.rend",
+               "femaleCode" : 2282043439,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_14.rend",
+               "maleCode" : 3598107165,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "d63dbfef-0b6c-44e4-9ac8-32788b8467a7"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_15.rend",
+               "femaleCode" : 705073960,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_15.rend",
+               "maleCode" : 22837161,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "77e9bb3b-e99e-4c02-86fe-d92d0550029e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_16.rend",
+               "femaleCode" : 3150917795,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_16.rend",
+               "maleCode" : 3935636354,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "b970dc1e-64eb-4444-b438-bb05bf213f7a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_17.rend",
+               "femaleCode" : 570903216,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_17.rend",
+               "maleCode" : 3269418226,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "ce977a4d-2cd3-4a0f-93ac-27add8156334"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_18.rend",
+               "femaleCode" : 4272808244,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_18.rend",
+               "maleCode" : 2520889804,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "d6570900-30d7-4b1f-af27-d57375ab07aa"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_19.rend",
+               "femaleCode" : 2495865396,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_19.rend",
+               "maleCode" : 3596640147,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "3534077b-ab28-446b-b875-63af2819e4cf"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_20.rend",
+               "femaleCode" : 2928042033,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_20.rend",
+               "maleCode" : 524245496,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "8ac0f0ce-8627-43cd-a25f-a44fd9cbe498"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_21.rend",
+               "femaleCode" : 550749046,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_21.rend",
+               "maleCode" : 931854395,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "39325df6-fcb8-42b3-9dd9-94be00a53748"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_22.rend",
+               "femaleCode" : 1999799706,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_22.rend",
+               "maleCode" : 3142803494,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "d5a20cbc-7dd8-447d-9321-4262c1133aaa"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_23.rend",
+               "femaleCode" : 504320021,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_23.rend",
+               "maleCode" : 1088967739,
+               "projection" : [
+                  -128.6399841308594,
+                  124.5440521240234,
+                  -132.6086425781250,
+                  120.5754089355469
+               ],
+               "tier" : "common",
+               "uuid" : "73fbbd12-fbca-4da5-92a4-802624002054"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_female_outfit_tshirt_24.rend",
+               "femaleCode" : 2076741819,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Jacket/Outfit_Tshirt/char_male_outfit_tshirt_24.rend",
+               "maleCode" : 452292033,
+               "projection" : [
+                  -103.3152694702148,
+                  97.76559448242188,
+                  -107.0201339721680,
+                  94.06072235107422
+               ],
+               "tier" : "common",
+               "uuid" : "f01e782b-1619-4b28-ad94-0940dfcc9b1e"
+            }
+         ]
+      },
+      {
+         "name" : "Gloves",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Body/Female/char_female_body_gloves.rend",
+               "femaleCode" : 3125877734,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Body/Male/char_male_body_gloves.rend",
+               "maleCode" : 1776803129,
+               "projection" : [ 0.0, 0.0, 0.0, 0.0 ],
+               "uuid" : "68500ade-1a22-46ca-af6e-ec70caf67b09"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_default_gloves/char_shared_outfit_default_gloves.rend",
+               "femaleCode" : 3097003154,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_default_gloves/char_shared_outfit_default_gloves.rend",
+               "maleCode" : 3097003154,
+               "projection" : [
+                  -68.96872711181641,
+                  55.48193740844727,
+                  -59.38951492309570,
+                  65.06114959716797
+               ],
+               "tier" : "common",
+               "uuid" : "30fd5d33-44f2-46c3-9cbd-b7d86c3ff198"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_defaultdamaged_gloves/char_female_outfit_defaultdamaged_gloves.rend",
+               "femaleCode" : 1108660495,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_defaultdamaged_gloves/char_male_outfit_defaultdamaged_gloves.rend",
+               "maleCode" : 1090070126,
+               "projection" : [
+                  -32.24528884887695,
+                  47.16062927246094,
+                  -57.74298095703125,
+                  21.66292953491211
+               ],
+               "uuid" : "9dbfa9f8-8b6c-4ad8-8961-439c12f4912a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_applicator_gloves/char_shared_outfit_applicator_gloves.rend",
+               "femaleCode" : 1975510289,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_applicator_gloves/char_shared_outfit_applicator_gloves.rend",
+               "maleCode" : 1975510289,
+               "projection" : [
+                  -72.77995300292969,
+                  54.99772644042969,
+                  -60.71112823486328,
+                  67.06655883789063
+               ],
+               "tier" : "rare",
+               "uuid" : "ecdf2659-3a13-4296-98d9-2bd469daea8e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_automotive_gloves/char_shared_outfit_automotive_gloves.rend",
+               "femaleCode" : 4246633675,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_automotive_gloves/char_shared_outfit_automotive_gloves.rend",
+               "maleCode" : 4246633675,
+               "projection" : [
+                  -66.75930023193359,
+                  53.08295059204102,
+                  -60.91828536987305,
+                  58.92395782470703
+               ],
+               "tier" : "common",
+               "uuid" : "bc253f7e-bd45-4dde-b663-30d9353cfa73"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_delivery_gloves/char_female_outfit_delivery_gloves.rend",
+               "femaleCode" : 1002159023,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_delivery_gloves/char_male_outfit_delivery_gloves.rend",
+               "maleCode" : 2608345093,
+               "projection" : [
+                  -38.43080902099609,
+                  45.63538360595703,
+                  -41.34738922119141,
+                  42.71880722045898
+               ],
+               "tier" : "common",
+               "uuid" : "454a36e7-faa2-4177-ae88-ceb2e110f201"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_demolition_gloves/char_female_outfit_demolition_gloves.rend",
+               "femaleCode" : 4059263786,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_demolition_gloves/char_male_outfit_demolition_gloves.rend",
+               "maleCode" : 2836169463,
+               "projection" : [
+                  -83.31885528564453,
+                  52.41419219970703,
+                  -61.66518402099609,
+                  74.06786346435547
+               ],
+               "tier" : "common",
+               "uuid" : "cc0ec2c3-6974-4eb0-8fa7-d59b74756e11"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_lumberjack_gloves/char_female_outfit_lumberjack_gloves.rend",
+               "femaleCode" : 1720887538,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_lumberjack_gloves/char_male_outfit_lumberjack_gloves.rend",
+               "maleCode" : 465807486,
+               "projection" : [
+                  -29.51750946044922,
+                  49.23692703247070,
+                  -58.74445343017578,
+                  20.00997924804688
+               ],
+               "tier" : "common",
+               "uuid" : "6bf46d8f-a8e9-4fb9-81d1-ea067318894a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_farmer_gloves/char_shared_outfit_farmer_gloves.rend",
+               "femaleCode" : 4155687992,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_farmer_gloves/char_shared_outfit_farmer_gloves.rend",
+               "maleCode" : 4155687992,
+               "projection" : [
+                  -74.30739593505859,
+                  56.87937164306641,
+                  -60.50358200073242,
+                  70.68318176269531
+               ],
+               "uuid" : "7b0295df-7178-4ccb-a44d-f34d6b792c57"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_engineer_gloves/char_female_outfit_engineer_gloves.rend",
+               "femaleCode" : 2474089150,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_engineer_gloves/char_male_outfit_engineer_gloves.rend",
+               "maleCode" : 2925023724,
+               "projection" : [
+                  -49.09334182739258,
+                  53.43017959594727,
+                  -59.50948333740234,
+                  43.01403808593750
+               ],
+               "tier" : "common",
+               "uuid" : "ce970a0e-4e3c-4473-9717-5e501b4aed76"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_painter_gloves/char_shared_outfit_painter_gloves.rend",
+               "femaleCode" : 2330847043,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_painter_gloves/char_shared_outfit_painter_gloves.rend",
+               "maleCode" : 2330847043,
+               "projection" : [
+                  -57.5437011718750,
+                  51.16897964477539,
+                  -58.59561538696289,
+                  50.11706161499023
+               ],
+               "tier" : "common",
+               "uuid" : "e3572845-2e0b-40ec-a2c1-3f69aadb99ac"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_golf_gloves/char_female_outfit_golf_gloves.rend",
+               "femaleCode" : 42352748,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_golf_gloves/char_male_outfit_golf_gloves.rend",
+               "maleCode" : 27255514,
+               "projection" : [
+                  -37.23996353149414,
+                  49.92446899414063,
+                  -59.12664031982422,
+                  28.03779029846191
+               ],
+               "tier" : "rare",
+               "uuid" : "87f5ccf1-0813-4a52-93ef-d6fd37cb2dec"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_farmhand_gloves/char_female_outfit_farmhand_gloves.rend",
+               "femaleCode" : 2762475360,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_farmhand_gloves/char_male_outfit_farmhand_gloves.rend",
+               "maleCode" : 3130300880,
+               "projection" : [
+                  -68.24710845947266,
+                  52.57880401611328,
+                  -59.98345184326172,
+                  60.84246063232422
+               ],
+               "tier" : "common",
+               "uuid" : "6c65f00b-4663-444a-8f56-12a6fdfef350"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_technician_gloves/char_female_outfit_technician_gloves.rend",
+               "femaleCode" : 457972180,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_technician_gloves/char_male_outfit_technician_gloves.rend",
+               "maleCode" : 1763705059,
+               "projection" : [
+                  -31.12875175476074,
+                  48.29861450195313,
+                  -58.26379394531250,
+                  21.16357612609863
+               ],
+               "tier" : "common",
+               "uuid" : "5a05ccb7-dd1c-49c5-949c-45f63882fbb6"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_stuntman_gloves/char_female_outfit_stuntman_gloves.rend",
+               "femaleCode" : 3380214384,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Gloves/Outfit_stuntman_gloves/char_male_outfit_stuntman_gloves.rend",
+               "maleCode" : 3321194942,
+               "projection" : [
+                  -30.69159507751465,
+                  49.18862915039063,
+                  -58.79566955566406,
+                  21.08455276489258
+               ],
+               "tier" : "challengereward",
+               "uuid" : "6413e3f6-1eb9-4bf4-8c17-88f32e31f458"
+            }
+         ]
+      },
+      {
+         "name" : "Shoes",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Body/Female/char_female_body_shoes.rend",
+               "femaleCode" : 3136359617,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Body/Male/char_male_body_shoes.rend",
+               "maleCode" : 3520837948,
+               "projection" : [ 0.0, 0.0, 0.0, 0.0 ],
+               "uuid" : "3f07f523-79b6-4020-884e-fa816d5ffbf0"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_default_shoes/char_female_outfit_default_shoes.rend",
+               "femaleCode" : 1574095463,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_default_shoes/char_male_outfit_default_shoes.rend",
+               "maleCode" : 378707022,
+               "projection" : [
+                  -70.8527832031250,
+                  90.80199432373047,
+                  -89.12277984619141,
+                  72.53200531005859
+               ],
+               "tier" : "common",
+               "uuid" : "ddac9cbf-422c-4523-97dd-3503d54d4628"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_defaultdamaged_shoes/char_female_outfit_defaultdamaged_shoes.rend",
+               "femaleCode" : 232314899,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_defaultdamaged_shoes/char_male_outfit_defaultdamaged_shoes.rend",
+               "maleCode" : 3670781944,
+               "projection" : [
+                  -67.14944458007813,
+                  16.22764205932617,
+                  -42.62859344482422,
+                  40.74848556518555
+               ],
+               "uuid" : "6dd931e7-29c4-4b33-a14b-b4916c64f05d"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_applicator_shoes/char_female_outfit_applicator_shoes.rend",
+               "femaleCode" : 2545141019,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_applicator_shoes/char_male_outfit_applicator_shoes.rend",
+               "maleCode" : 2793359880,
+               "projection" : [
+                  -65.97244262695313,
+                  92.07426452636719,
+                  -82.05036926269531,
+                  75.9963378906250
+               ],
+               "tier" : "rare",
+               "uuid" : "583ba7e5-edbe-48e2-9ae5-fa939e7d1769"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_automotive_shoes/char_female_outfit_automotive_shoes.rend",
+               "femaleCode" : 2124490695,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_automotive_shoes/char_male_outfit_automotive_shoes.rend",
+               "maleCode" : 3422610112,
+               "projection" : [
+                  -70.46194458007813,
+                  93.59005737304688,
+                  -85.43757629394531,
+                  78.61442565917969
+               ],
+               "tier" : "common",
+               "uuid" : "01b0634c-4294-4aa6-adf5-4e653ad6a782"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_delivery_shoes/char_female_outfit_delivery_shoes.rend",
+               "femaleCode" : 590680199,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_delivery_shoes/char_male_outfit_delivery_shoes.rend",
+               "maleCode" : 1038225539,
+               "projection" : [
+                  -71.66088104248047,
+                  92.17245483398438,
+                  -93.94417572021484,
+                  69.88915252685547
+               ],
+               "tier" : "common",
+               "uuid" : "e192f135-21a2-4277-97ae-66693988797e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_demolition_shoes/char_female_outfit_demolition_shoes.rend",
+               "femaleCode" : 997197223,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_demolition_shoes/char_male_outfit_demolition_shoes.rend",
+               "maleCode" : 830549554,
+               "projection" : [
+                  -72.49162292480469,
+                  90.91491699218750,
+                  -79.64752197265625,
+                  83.7590332031250
+               ],
+               "tier" : "common",
+               "uuid" : "8ade4f22-4524-4399-8ab2-7e6d3a1a7fbd"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_lumberjack_shoes/char_female_outfit_lumberjack_shoes.rend",
+               "femaleCode" : 611141510,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_lumberjack_shoes/char_male_outfit_lumberjack_shoes.rend",
+               "maleCode" : 236235390,
+               "projection" : [
+                  -72.46050262451172,
+                  93.7458496093750,
+                  -82.69149017333984,
+                  83.51485443115234
+               ],
+               "tier" : "common",
+               "uuid" : "aa940318-ccff-4b77-916e-4d9c8eb330cc"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_farmer_shoes/char_female_outfit_farmer_shoes.rend",
+               "femaleCode" : 128579499,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_farmer_shoes/char_male_outfit_farmer_shoes.rend",
+               "maleCode" : 3462229683,
+               "projection" : [
+                  -68.62713623046875,
+                  92.75065612792969,
+                  -93.32760620117188,
+                  68.05017852783203
+               ],
+               "uuid" : "78062d2a-1600-4144-80b6-435560cc0df6"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_engineer_shoes/char_female_outfit_engineer_shoes.rend",
+               "femaleCode" : 746898867,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_engineer_shoes/char_male_outfit_engineer_shoes.rend",
+               "maleCode" : 1730797937,
+               "projection" : [
+                  -73.95436096191406,
+                  96.40670013427734,
+                  -77.24333953857422,
+                  93.11771392822266
+               ],
+               "tier" : "common",
+               "uuid" : "91136fa2-0484-48ce-9109-d5680b138393"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_painter_shoes/char_female_outfit_painter_shoes.rend",
+               "femaleCode" : 437529031,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_painter_shoes/char_male_outfit_painter_shoes.rend",
+               "maleCode" : 1087511737,
+               "projection" : [
+                  -72.76613616943359,
+                  92.70500946044922,
+                  -82.87162017822266,
+                  82.59952545166016
+               ],
+               "tier" : "common",
+               "uuid" : "ef4d8dab-9bec-4d57-ad75-7102bdabd385"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_golf_shoes/char_female_outfit_golf_shoes.rend",
+               "femaleCode" : 2796323139,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_golf_shoes/char_male_outfit_golf_shoes.rend",
+               "maleCode" : 4148527321,
+               "projection" : [
+                  -66.40314483642578,
+                  90.81330108642578,
+                  -60.16204452514648,
+                  97.05439758300781
+               ],
+               "tier" : "common",
+               "uuid" : "6f864131-3d63-459a-a452-4033257400f0"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_farmhand_shoes/char_female_outfit_farmhand_shoes.rend",
+               "femaleCode" : 3926929358,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_farmhand_shoes/char_male_outfit_farmhand_shoes.rend",
+               "maleCode" : 599928396,
+               "projection" : [
+                  -91.99347686767578,
+                  90.99347686767578,
+                  -66.38389587402344,
+                  116.6030578613281
+               ],
+               "tier" : "common",
+               "uuid" : "ed4defaf-a4d0-40e0-ad2b-915d67b0224b"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_technician_shoes/char_female_outfit_technician_shoes.rend",
+               "femaleCode" : 2624576313,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_technician_shoes/char_male_outfit_technician_shoes.rend",
+               "maleCode" : 2227714502,
+               "projection" : [
+                  -94.07116699218750,
+                  93.07120513916016,
+                  -70.82821655273438,
+                  116.3141479492188
+               ],
+               "tier" : "common",
+               "uuid" : "8de62bd5-c7b3-4b2c-8d30-f986dff5ef70"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_stuntman_shoes/char_female_outfit_stuntman_shoes.rend",
+               "femaleCode" : 236093615,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Shoes/Outfit_stuntman_shoes/char_male_outfit_stuntman_shoes.rend",
+               "maleCode" : 980012628,
+               "projection" : [
+                  -73.62756347656250,
+                  111.7902374267578,
+                  -97.555175781250,
+                  87.86260986328125
+               ],
+               "tier" : "challengereward",
+               "uuid" : "000487f4-7843-4f0a-8052-ff79f2072d1d"
+            }
+         ]
+      },
+      {
+         "name" : "Legs",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Body/Female/char_female_body_pants.rend",
+               "femaleCode" : 2376954052,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Body/Male/char_male_body_pants.rend",
+               "maleCode" : 1693630433,
+               "projection" : [ 0.0, 0.0, 0.0, 0.0 ],
+               "uuid" : "64de6298-cbad-4393-84d2-e659a2abf4ef"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_default_pants/char_female_outfit_default_pants.rend",
+               "femaleCode" : 2946754955,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_default_pants/char_male_outfit_default_pants.rend",
+               "maleCode" : 2255259553,
+               "projection" : [
+                  -179.0561981201172,
+                  165.8750762939453,
+                  -177.2599334716797,
+                  167.6713409423828
+               ],
+               "tier" : "common",
+               "uuid" : "3351aec3-5664-4c68-b94e-8990f9d67685"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_defaultdamaged_pants/char_female_outfit_defaultdamaged_pants.rend",
+               "femaleCode" : 2433083525,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_defaultdamaged_pants/char_male_outfit_defaultdamaged_pants.rend",
+               "maleCode" : 1293391393,
+               "projection" : [
+                  -100.0470428466797,
+                  84.77236938476563,
+                  -156.2782287597656,
+                  28.54118728637695
+               ],
+               "uuid" : "4eec76c1-5b84-4940-8814-afd113d2d63f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_applicator_pants/char_female_outfit_applicator_pants.rend",
+               "femaleCode" : 1980146339,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_applicator_pants/char_male_outfit_applicator_pants.rend",
+               "maleCode" : 3707074737,
+               "projection" : [
+                  -96.15576934814453,
+                  91.86658477783203,
+                  -169.0823974609375,
+                  18.93994903564453
+               ],
+               "tier" : "rare",
+               "uuid" : "9293d50d-4a60-4e5d-9712-33d04a5fbea2"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_automotive_pants/char_female_outfit_automotive_pants.rend",
+               "femaleCode" : 1503225495,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_automotive_pants/char_male_outfit_automotive_pants.rend",
+               "maleCode" : 3688138446,
+               "projection" : [
+                  -127.6709442138672,
+                  109.8102874755859,
+                  -195.7454681396484,
+                  41.73577880859375
+               ],
+               "tier" : "epic",
+               "uuid" : "cf9470ae-5fed-442f-9da2-573f1358c73c"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_delivery_pants/char_female_outfit_delivery_pants.rend",
+               "femaleCode" : 2034817849,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_delivery_pants/char_male_outfit_delivery_pants.rend",
+               "maleCode" : 1008151244,
+               "projection" : [
+                  -97.60785675048828,
+                  88.1481933593750,
+                  -153.2958068847656,
+                  32.46025085449219
+               ],
+               "tier" : "rare",
+               "uuid" : "4aa28989-df88-462a-bead-1f7d976a1028"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_demolition_pants/char_female_outfit_demolition_pants.rend",
+               "femaleCode" : 1088514661,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_demolition_pants/char_male_outfit_demolition_pants.rend",
+               "maleCode" : 1839004058,
+               "projection" : [
+                  -110.7350006103516,
+                  93.96439361572266,
+                  -177.5904693603516,
+                  27.10894775390625
+               ],
+               "tier" : "common",
+               "uuid" : "8151e8a4-bf6a-4a88-ae2c-b2f986ce7f90"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_lumberjack_pants/char_female_outfit_lumberjack_pants.rend",
+               "femaleCode" : 3042774819,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_lumberjack_pants/char_male_outfit_lumberjack_pants.rend",
+               "maleCode" : 1830297612,
+               "projection" : [
+                  -88.27702331542969,
+                  79.78617858886719,
+                  -145.3923950195313,
+                  22.67079925537109
+               ],
+               "tier" : "common",
+               "uuid" : "6c31a4ba-5571-4258-a4c2-81c243f9bbd5"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_farmer_pants/char_female_outfit_farmer_pants.rend",
+               "femaleCode" : 2772557159,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_farmer_pants/char_male_outfit_farmer_pants.rend",
+               "maleCode" : 157742002,
+               "projection" : [
+                  -148.2670593261719,
+                  132.2813720703125,
+                  -115.0761947631836,
+                  165.4722442626953
+               ],
+               "uuid" : "4ed054a2-e354-4624-acd6-686b33d414a7"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_engineer_pants/char_female_outfit_engineer_pants.rend",
+               "femaleCode" : 2278978644,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_engineer_pants/char_male_outfit_engineer_pants.rend",
+               "maleCode" : 3180104111,
+               "projection" : [
+                  -102.0241851806641,
+                  85.18670654296875,
+                  -167.3679504394531,
+                  19.84294509887695
+               ],
+               "tier" : "rare",
+               "uuid" : "7d7b8545-c765-4b65-8770-714d1f19551f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_painter_pants/char_female_outfit_painter_pants.rend",
+               "femaleCode" : 647521785,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_painter_pants/char_male_outfit_painter_pants.rend",
+               "maleCode" : 3862574701,
+               "projection" : [
+                  -100.8641357421875,
+                  91.55999755859375,
+                  -168.9869079589844,
+                  23.43722534179688
+               ],
+               "tier" : "common",
+               "uuid" : "173bc4fd-405a-4d55-8158-b0768de0ced3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_golf_pants/char_female_outfit_golf_pants.rend",
+               "femaleCode" : 3714793711,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_golf_pants/char_male_outfit_golf_pants.rend",
+               "maleCode" : 3154408823,
+               "projection" : [
+                  -90.39934539794922,
+                  85.10399627685547,
+                  -143.8550109863281,
+                  31.64832305908203
+               ],
+               "tier" : "rare",
+               "uuid" : "6ed381c7-df16-4407-8fec-056b5534757f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_farmhand_pants/char_female_outfit_farmhand_pants.rend",
+               "femaleCode" : 351543126,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_farmhand_pants/char_male_outfit_farmhand_pants.rend",
+               "maleCode" : 853919636,
+               "projection" : [
+                  -86.17646026611328,
+                  77.91636657714844,
+                  -151.0058288574219,
+                  13.08699989318848
+               ],
+               "tier" : "common",
+               "uuid" : "b8220512-ea42-43c4-87a4-65bce36db395"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_technician_pants/char_female_outfit_technician_pants.rend",
+               "femaleCode" : 2550917001,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_technician_pants/char_male_outfit_technician_pants.rend",
+               "maleCode" : 116521721,
+               "projection" : [
+                  -99.44541168212891,
+                  83.26437377929688,
+                  -165.9211578369141,
+                  16.78860855102539
+               ],
+               "tier" : "rare",
+               "uuid" : "18fdfb7c-42ae-463c-8ee5-d2ce271c3ec8"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_stuntman_pants/char_female_outfit_stuntman_pants.rend",
+               "femaleCode" : 976073652,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Pants/Outfit_stuntman_pants/char_male_outfit_stuntman_pants.rend",
+               "maleCode" : 1186413643,
+               "projection" : [
+                  -90.86448669433594,
+                  82.10081481933594,
+                  -158.084472656250,
+                  14.88082695007324
+               ],
+               "tier" : "challengereward",
+               "uuid" : "472dcc0f-64c2-493a-abdf-39c3a5f4133f"
+            }
+         ]
+      },
+      {
+         "name" : "FacialHair",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_01/char_male_facialhair_01.rend",
+               "femaleCode" : 401529687,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_01/char_male_facialhair_01.rend",
+               "maleCode" : 401529687,
+               "projection" : [
+                  -57.93386077880859,
+                  39.90745544433594,
+                  -83.0905761718750,
+                  14.75073814392090
+               ],
+               "uuid" : "3e0e3926-7d8f-41b1-a149-b3c64706fd44"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_02/char_male_facialhair_02.rend",
+               "femaleCode" : 3441230399,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_02/char_male_facialhair_02.rend",
+               "maleCode" : 3441230399,
+               "projection" : [
+                  -27.93305969238281,
+                  40.85823059082031,
+                  -36.39335632324219,
+                  32.39793395996094
+               ],
+               "uuid" : "3a12115c-d9ee-460e-93c4-4eb5ed96ac86"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_03/char_male_facialhair_03.rend",
+               "femaleCode" : 151548673,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_03/char_male_facialhair_03.rend",
+               "maleCode" : 151548673,
+               "projection" : [
+                  -60.57582092285156,
+                  39.38665008544922,
+                  -82.28395080566406,
+                  17.67852210998535
+               ],
+               "uuid" : "689bad89-e783-408f-a043-faf8e43fb119"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_04/char_male_facialhair_04.rend",
+               "femaleCode" : 1345639853,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_04/char_male_facialhair_04.rend",
+               "maleCode" : 1345639853,
+               "projection" : [
+                  -56.62313079833984,
+                  37.40982055664063,
+                  -88.53140258789063,
+                  5.501558303833008
+               ],
+               "uuid" : "1d58f488-4944-4ce2-8efa-0759df4a3206"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_05/char_male_facialhair_05.rend",
+               "femaleCode" : 2061504222,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_05/char_male_facialhair_05.rend",
+               "maleCode" : 2061504222,
+               "projection" : [
+                  -62.05303192138672,
+                  43.54925537109375,
+                  -78.42364501953125,
+                  27.17864418029785
+               ],
+               "uuid" : "923ea632-61c5-4926-997c-b5a1e7f0f68f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_06/char_male_facialhair_06.rend",
+               "femaleCode" : 4272094317,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_06/char_male_facialhair_06.rend",
+               "maleCode" : 4272094317,
+               "projection" : [
+                  -58.88896179199219,
+                  39.41819763183594,
+                  -89.72974395751953,
+                  8.577423095703125
+               ],
+               "uuid" : "3b5f22bb-4b2d-4e52-a4b9-64d83ab03220"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_07/char_male_facialhair_07.rend",
+               "femaleCode" : 2854593980,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_07/char_male_facialhair_07.rend",
+               "maleCode" : 2854593980,
+               "projection" : [
+                  -51.40702056884766,
+                  9.609443664550781,
+                  -71.14455413818359,
+                  -10.12808609008789
+               ],
+               "uuid" : "424890fc-934b-4434-a16a-e5e9a042e592"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_08/char_male_facialhair_08.rend",
+               "femaleCode" : 4193934660,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_08/char_male_facialhair_08.rend",
+               "maleCode" : 4193934660,
+               "projection" : [
+                  -50.01308441162109,
+                  2.091352462768555,
+                  -66.63712310791016,
+                  -14.53268623352051
+               ],
+               "uuid" : "fbb96932-a443-4bd1-a163-400814677a3d"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_09/char_male_facialhair_09.rend",
+               "femaleCode" : 320448155,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_09/char_male_facialhair_09.rend",
+               "maleCode" : 320448155,
+               "projection" : [
+                  -74.15455627441406,
+                  31.01305770874023,
+                  -81.58819580078125,
+                  23.57941436767578
+               ],
+               "uuid" : "a2600104-1c18-47cf-886e-d52c116b4ebb"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_10/char_male_facialhair_10.rend",
+               "femaleCode" : 139872358,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_10/char_male_facialhair_10.rend",
+               "maleCode" : 139872358,
+               "projection" : [
+                  -69.89216613769531,
+                  46.61688995361328,
+                  -82.99557495117188,
+                  33.51347351074219
+               ],
+               "uuid" : "02e18f86-0de5-4a8f-9ea8-017ba9da35c4"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_11/char_male_facialhair_11.rend",
+               "femaleCode" : 3953361551,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_11/char_male_facialhair_11.rend",
+               "maleCode" : 3953361551,
+               "projection" : [
+                  -76.29218292236328,
+                  44.02589416503906,
+                  -104.7737350463867,
+                  15.54435157775879
+               ],
+               "uuid" : "6e574c6b-f061-4ebf-99a3-6eebf2096fb1"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_12/char_male_facialhair_12.rend",
+               "femaleCode" : 2467111957,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_12/char_male_facialhair_12.rend",
+               "maleCode" : 2467111957,
+               "projection" : [
+                  -43.44132232666016,
+                  1.179878234863281,
+                  -66.38030242919922,
+                  -21.75909805297852
+               ],
+               "uuid" : "75d70a67-5193-48e7-a811-902d1faac0e3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_13/char_male_facialhair_13.rend",
+               "femaleCode" : 205548264,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_13/char_male_facialhair_13.rend",
+               "maleCode" : 205548264,
+               "projection" : [
+                  -78.71595001220703,
+                  61.00482940673828,
+                  -102.8448410034180,
+                  36.87593078613281
+               ],
+               "uuid" : "fb2a87e2-5316-40e0-b16f-f3d0760ea063"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_14/char_male_facialhair_14.rend",
+               "femaleCode" : 2635648354,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Facialfeatures/char_male_facialhair_14/char_male_facialhair_14.rend",
+               "maleCode" : 2635648354,
+               "projection" : [
+                  -44.59080886840820,
+                  -1.887172698974609,
+                  -52.30767822265625,
+                  -9.604042053222656
+               ],
+               "uuid" : "661cf3bd-f0a7-4609-a5fe-a90412726338"
+            }
+         ]
+      },
+      {
+         "name" : "Hair",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/char_male_empty.rend",
+               "femaleCode" : 2773792707,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/char_male_empty.rend",
+               "maleCode" : 2773792707,
+               "projection" : [ 0.0, 0.0, 0.0, 0.0 ],
+               "uuid" : "a47e35d6-a1fe-4274-a080-9ea71134679a"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_01/char_female_hair_01.rend",
+               "femaleCode" : 2300091815,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_01/char_male_hair_01.rend",
+               "maleCode" : 2120415216,
+               "projection" : [
+                  -63.13030242919922,
+                  57.12492370605469,
+                  -33.63179016113281,
+                  86.62343597412109
+               ],
+               "uuid" : "6e95d31c-36b9-4bb6-ad8f-bad5edce9632"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_02/char_male_hair_02.rend",
+               "femaleCode" : 2439129980,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_02/char_male_hair_02.rend",
+               "maleCode" : 2439129980,
+               "projection" : [
+                  -63.80808639526367,
+                  56.90377426147461,
+                  -26.65265846252441,
+                  94.05919647216797
+               ],
+               "uuid" : "c429607b-4386-4058-982f-0dab6f210439"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_03/char_male_hair_03.rend",
+               "femaleCode" : 811578640,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_03/char_male_hair_03.rend",
+               "maleCode" : 811578640,
+               "projection" : [
+                  -63.29063796997070,
+                  61.03583145141602,
+                  -22.15078353881836,
+                  102.1756896972656
+               ],
+               "uuid" : "da891f94-15f0-40db-b34d-ed2a07d2e3b3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_04/char_male_hair_04.rend",
+               "femaleCode" : 1699247186,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_04/char_male_hair_04.rend",
+               "maleCode" : 1699247186,
+               "projection" : [
+                  -70.70854949951172,
+                  35.58623504638672,
+                  0.8382205963134766,
+                  107.1330032348633
+               ],
+               "uuid" : "cdfa114a-bb70-43df-851e-e4ec93eae9d2"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_05/char_male_hair_05.rend",
+               "femaleCode" : 3298121103,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_05/char_male_hair_05.rend",
+               "maleCode" : 3298121103,
+               "projection" : [
+                  -63.47640991210938,
+                  62.45150375366211,
+                  -30.04965209960938,
+                  95.87826538085938
+               ],
+               "uuid" : "b40fa7ab-19d7-4c2b-88ca-f7bea496f7df"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_06/char_male_hair_06.rend",
+               "femaleCode" : 3416070567,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_06/char_male_hair_06.rend",
+               "maleCode" : 3416070567,
+               "projection" : [
+                  -49.71798706054688,
+                  37.08728027343750,
+                  16.20285797119141,
+                  103.0081253051758
+               ],
+               "uuid" : "87b7d156-8b83-4612-9cb1-93b768de8dc1"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_07/char_male_hair_07.rend",
+               "femaleCode" : 3420780095,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Male/char_male_hair_07/char_male_hair_07.rend",
+               "maleCode" : 3420780095,
+               "projection" : [
+                  -59.16773986816406,
+                  58.18532562255859,
+                  -30.93179512023926,
+                  86.42126464843750
+               ],
+               "uuid" : "8b0b067e-858d-40ee-90f9-ddc527909312"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_02/char_female_hair_02.rend",
+               "femaleCode" : 1521650741,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_02/char_female_hair_02.rend",
+               "maleCode" : 1521650741,
+               "projection" : [
+                  -73.95980072021484,
+                  61.91091156005859,
+                  -55.06466674804688,
+                  80.80605316162109
+               ],
+               "uuid" : "296ffd04-d3ff-449b-a079-386675a6faa3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_03/char_female_hair_03.rend",
+               "femaleCode" : 3229215085,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_03/char_female_hair_03.rend",
+               "maleCode" : 3229215085,
+               "projection" : [
+                  -75.58731079101563,
+                  68.71870422363281,
+                  -65.50401306152344,
+                  78.80200958251953
+               ],
+               "uuid" : "1eee6fc1-e031-49af-b91f-c38d99e6851e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_04/char_female_hair_04.rend",
+               "femaleCode" : 2680462523,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_04/char_female_hair_04.rend",
+               "maleCode" : 2680462523,
+               "projection" : [
+                  -73.48310852050781,
+                  61.61709976196289,
+                  -52.67802047729492,
+                  82.42219543457031
+               ],
+               "uuid" : "3b7a0ce5-0a99-4df4-80e7-b1967f51dd7b"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_05/char_female_hair_05.rend",
+               "femaleCode" : 3502728463,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_05/char_female_hair_05.rend",
+               "maleCode" : 3502728463,
+               "projection" : [
+                  -70.03248596191406,
+                  66.09478759765625,
+                  -48.24895095825195,
+                  87.87832641601563
+               ],
+               "uuid" : "557ce0a0-1974-43b3-b29e-848a2b2d3f0b"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_06/char_female_hair_06.rend",
+               "femaleCode" : 444313644,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_06/char_female_hair_06.rend",
+               "maleCode" : 444313644,
+               "projection" : [
+                  -73.90235137939453,
+                  55.00908660888672,
+                  -47.85175323486328,
+                  81.05968475341797
+               ],
+               "uuid" : "d632bba9-ae79-440f-a59d-763d24ee42cd"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_07/char_female_hair_07.rend",
+               "femaleCode" : 2505374058,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Hair/Female/char_female_hair_07/char_female_hair_07.rend",
+               "maleCode" : 2505374058,
+               "projection" : [
+                  -60.35379028320313,
+                  58.3386230468750,
+                  -40.99037933349609,
+                  77.70204162597656
+               ],
+               "uuid" : "f778a483-9231-41de-a0e2-0115509c1a02"
+            }
+         ],
+         "palette" : [
+            [ "110000", "311d11", "311d11" ],
+            [ "1d0000", "6c3313", "6c3313" ],
+            [ "402005", "5e3f23", "5e3f23" ],
+            [ "594310", "beac77", "beac77" ],
+            [ "ae731c", "f0ba53", "f0ba53" ],
+            [ "4e4f55", "a9a9a9", "a9a9a9" ],
+            [ "000000", "1d1d1d", "1d1d1d" ],
+            [ "370500", "f46500", "f46500" ],
+            [ "190000", "9f1f0f", "9f1f0f" ],
+            [ "0a0621", "9241d3", "9241d3" ],
+            [ "000723", "0d2f7a", "0d2f7a" ],
+            [ "1b1c26", "387bc1", "387bc1" ],
+            [ "18296e", "00aaa2", "00aaa2" ],
+            [ "091f0a", "4b9654", "4b9654" ],
+            [ "010705", "1a5d12", "1a5d12" ],
+            [ "0f001f", "6f757d", "6f757d" ],
+            [ "720138", "dc5e7c", "dc5e7c" ],
+            [ "381738", "4e3257", "482f4e" ] 
+         ]
+      },
+      {
+         "name" : "Hats",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_applicator_hat/char_shared_outfit_applicator_hat.rend",
+               "femaleCode" : 3004635080,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_applicator_hat/char_shared_outfit_applicator_hat.rend",
+               "maleCode" : 3004635080,
+               "projection" : [
+                  -94.93711090087891,
+                  93.94959259033203,
+                  -96.36235809326172,
+                  92.52433776855469
+               ],
+               "tier" : "rare",
+               "uuid" : "be0e65e5-a2e6-41ef-94d3-f8d4ac2f304e"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_automotive_hat/char_female_outfit_automotive_hat.rend",
+               "femaleCode" : 130280307,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_automotive_hat/char_male_outfit_automotive_hat.rend",
+               "maleCode" : 199441484,
+               "projection" : [
+                  -70.20169830322266,
+                  57.64060974121094,
+                  -43.39190673828125,
+                  84.45040130615234
+               ],
+               "tier" : "rare",
+               "uuid" : "46861beb-3adb-4ddb-92f7-0ef24716caa0"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_delivery_hat/char_female_outfit_delivery_hat.rend",
+               "femaleCode" : 1812289062,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_delivery_hat/char_male_outfit_delivery_hat.rend",
+               "maleCode" : 1224778509,
+               "projection" : [
+                  -73.48387145996094,
+                  62.16175842285156,
+                  -42.84613037109375,
+                  92.79949951171875
+               ],
+               "tier" : "rare",
+               "uuid" : "5537aa76-7118-4a19-80fa-67ae4ad0a30e"
+            },
+            {
+               "allowHair" : true,
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_demolition_hat/char_shared_outfit_demolition_hat.rend",
+               "femaleCode" : 4123134317,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_demolition_hat/char_shared_outfit_demolition_hat.rend",
+               "maleCode" : 4123134317,
+               "projection" : [
+                  -85.62406158447266,
+                  78.66611480712891,
+                  -66.33279418945313,
+                  97.95737457275391
+               ],
+               "tier" : "epic",
+               "uuid" : "397b1280-672d-48d0-831d-ffe2ac5c3a58"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_lumberjack_hat/char_female_outfit_lumberjack_hat.rend",
+               "femaleCode" : 1060253133,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_lumberjack_hat/char_male_outfit_lumberjack_hat.rend",
+               "maleCode" : 1486852090,
+               "projection" : [
+                  -105.5014953613281,
+                  82.05974578857422,
+                  -87.57732391357422,
+                  99.98393249511719
+               ],
+               "tier" : "rare",
+               "uuid" : "b1e6c5ce-3882-4242-83ad-6f5af940d9f1"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_farmer_hat/char_female_outfit_farmer_hat.rend",
+               "femaleCode" : 2579254319,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_farmer_hat/char_male_outfit_farmer_hat.rend",
+               "maleCode" : 1292048454,
+               "projection" : [
+                  -107.9214553833008,
+                  110.5688018798828,
+                  -65.12248992919922,
+                  153.3677673339844
+               ],
+               "uuid" : "9baebeb4-95dc-4ee6-a1fd-c44cc67ced04"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_engineer_hat/char_female_outfit_engineer_hat.rend",
+               "femaleCode" : 2076430035,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_engineer_hat/char_male_outfit_engineer_hat.rend",
+               "maleCode" : 3759261491,
+               "projection" : [
+                  -71.25683593750,
+                  77.49396514892578,
+                  -53.14277648925781,
+                  95.60801696777344
+               ],
+               "tier" : "rare",
+               "uuid" : "8f0a036c-cda5-4b3b-aceb-0b4365ba60c9"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_painter_hat/char_female_outfit_painter_hat.rend",
+               "femaleCode" : 4083423402,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_painter_hat/char_male_outfit_painter_hat.rend",
+               "maleCode" : 3776481789,
+               "projection" : [
+                  -116.8490829467773,
+                  77.13784027099609,
+                  -115.9541091918945,
+                  78.03281402587891
+               ],
+               "tier" : "epic",
+               "uuid" : "03efc1c8-fa65-49d0-a9a3-65195418c560"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_golf_hat/char_female_outfit_golf_hat.rend",
+               "femaleCode" : 227612279,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_golf_hat/char_male_outfit_golf_hat.rend",
+               "maleCode" : 1800558163,
+               "projection" : [
+                  -69.85103607177734,
+                  70.71199798583984,
+                  -49.566406250,
+                  90.99662017822266
+               ],
+               "tier" : "common",
+               "uuid" : "e60f8e5a-5661-412d-b613-05ab1163b7e2"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_farmhand_hat/char_female_outfit_farmhand_hat.rend",
+               "femaleCode" : 961229078,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_farmhand_hat/char_male_outfit_farmhand_hat.rend",
+               "maleCode" : 153111486,
+               "projection" : [
+                  -75.66755676269531,
+                  66.53416442871094,
+                  -46.11641693115234,
+                  96.08529663085938
+               ],
+               "tier" : "rare",
+               "uuid" : "66dac4fd-e8c1-460a-96e1-9ebc637dd1e3"
+            },
+            {
+               "allowHair" : true,
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_technician_hat/char_female_outfit_technician_hat.rend",
+               "femaleCode" : 1839850307,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_technician_hat/char_male_outfit_technician_hat.rend",
+               "maleCode" : 1898047340,
+               "projection" : [
+                  -73.88831329345703,
+                  57.92886352539063,
+                  -78.84183502197266,
+                  52.97534942626953
+               ],
+               "tier" : "rare",
+               "uuid" : "803b41c1-a6f9-475c-953d-dd78c5ae99c4"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_stuntman_hat/char_female_outfit_stuntman_hat.rend",
+               "femaleCode" : 1349334761,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Hat/Outfit_stuntman_hat/char_male_outfit_stuntman_hat.rend",
+               "maleCode" : 2820491668,
+               "projection" : [
+                  -92.05451965332031,
+                  91.85038757324219,
+                  -92.30064392089844,
+                  91.60427093505859
+               ],
+               "tier" : "challengereward",
+               "uuid" : "6d8ecd00-0b01-48e9-900a-e222d3933515"
+            }
+         ]
+      },
+      {
+         "name" : "Backpack",
+         "options" : [
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_default_backpack/char_shared_outfit_default_backpack.rend",
+               "femaleCode" : 3979213948,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_default_backpack/char_shared_outfit_default_backpack.rend",
+               "maleCode" : 3979213948,
+               "projection" : [
+                  -245.2722473144531,
+                  219.4932250976563,
+                  -207.1301574707031,
+                  257.6353454589844
+               ],
+               "tier" : "common",
+               "uuid" : "3ad8fb46-cd26-4770-b928-790060b219d8"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_defaultdamaged_backpack/char_shared_outfit_defaultdamaged_backpack.rend",
+               "femaleCode" : 1117459758,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_defaultdamaged_backpack/char_shared_outfit_defaultdamaged_backpack.rend",
+               "maleCode" : 1117459758,
+               "projection" : [
+                  -79.15602874755859,
+                  72.17787170410156,
+                  -92.72752380371094,
+                  58.60636138916016
+               ],
+               "uuid" : "d4007071-37e9-4003-82f5-708c6262c7a2"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_applicator_backpack/char_shared_outfit_applicator_backback.rend",
+               "femaleCode" : 993884506,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_applicator_backpack/char_shared_outfit_applicator_backback.rend",
+               "maleCode" : 993884506,
+               "projection" : [
+                  -162.1452331542969,
+                  147.0545959472656,
+                  -140.0303802490234,
+                  169.1694641113281
+               ],
+               "tier" : "epic",
+               "uuid" : "05553c50-bb4a-42bf-ae5e-ebd1b2412656"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_automotive_backpack/char_shared_outfit_automotive_backpack.rend",
+               "femaleCode" : 2007454828,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_automotive_backpack/char_shared_outfit_automotive_backpack.rend",
+               "maleCode" : 2007454828,
+               "projection" : [
+                  -95.34822082519531,
+                  100.1877593994141,
+                  -105.6888275146484,
+                  89.84716033935547
+               ],
+               "tier" : "common",
+               "uuid" : "d94f4713-dc51-4171-9e52-6b2a7de911c3"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_delivery_backpack/char_shared_outfit_delivery_backpack.rend",
+               "femaleCode" : 1859914460,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_delivery_backpack/char_shared_outfit_delivery_backpack.rend",
+               "maleCode" : 1859914460,
+               "projection" : [
+                  -108.4125900268555,
+                  98.94667816162109,
+                  -103.9149627685547,
+                  103.4442977905273
+               ],
+               "tier" : "common",
+               "uuid" : "e9f59ab5-d89f-4a5b-9153-8a21f244f362"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_demolition_backpack/char_shared_outfit_demolition_backpack.rend",
+               "femaleCode" : 4097611596,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_demolition_backpack/char_shared_outfit_demolition_backpack.rend",
+               "maleCode" : 4097611596,
+               "projection" : [
+                  -124.6078033447266,
+                  118.6654052734375,
+                  -109.8619842529297,
+                  133.4112091064453
+               ],
+               "tier" : "rare",
+               "uuid" : "d411a346-c766-473d-9c95-34a2d281c209"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_lumberjack_backpack/char_shared_outfit_lumberjack_backpack.rend",
+               "femaleCode" : 71958423,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_lumberjack_backpack/char_shared_outfit_lumberjack_backpack.rend",
+               "maleCode" : 71958423,
+               "projection" : [
+                  -107.6219024658203,
+                  111.2024383544922,
+                  -136.7475280761719,
+                  82.07681274414063
+               ],
+               "tier" : "common",
+               "uuid" : "8fa65b25-7ac9-4bb7-b9f9-6e2b7d43f916"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_engineer_backpack/char_shared_outfit_engineer_backpack.rend",
+               "femaleCode" : 3464516866,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_engineer_backpack/char_shared_outfit_engineer_backpack.rend",
+               "maleCode" : 3464516866,
+               "projection" : [
+                  -124.5860366821289,
+                  115.1745452880859,
+                  -113.6320419311523,
+                  126.1285324096680
+               ],
+               "tier" : "epic",
+               "uuid" : "c4409a02-2a78-472e-bf3c-17f8e8e0445b"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_painter_backpack/char_shared_outfit_painter_backpack.rend",
+               "femaleCode" : 3649391283,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_painter_backpack/char_shared_outfit_painter_backpack.rend",
+               "maleCode" : 3649391283,
+               "projection" : [
+                  -126.1586303710938,
+                  113.6821136474609,
+                  -158.1563720703125,
+                  81.68435668945313
+               ],
+               "tier" : "rare",
+               "uuid" : "4a0ca19d-50d5-416b-8137-0e827864354f"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_golf_backpack/char_shared_outfit_golf_backpack.rend",
+               "femaleCode" : 87786922,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_golf_backpack/char_shared_outfit_golf_backpack.rend",
+               "maleCode" : 87786922,
+               "projection" : [
+                  -190.1292266845703,
+                  134.9625396728516,
+                  -154.4140319824219,
+                  170.6777343750
+               ],
+               "tier" : "epic",
+               "uuid" : "c5044352-27a6-4bdc-a174-37018baa2332"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_technician_backpack/char_shared_outfit_technician_backpack.rend",
+               "femaleCode" : 3534511255,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_technician_backpack/char_shared_outfit_technician_backpack.rend",
+               "maleCode" : 3534511255,
+               "projection" : [
+                  -74.37958526611328,
+                  87.49625396728516,
+                  -97.19387817382813,
+                  64.68195343017578
+               ],
+               "tier" : "common",
+               "uuid" : "e5ba292b-1772-463f-8010-b97c48bc9298"
+            },
+            {
+               "female" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_stuntman_backpack/char_shared_outfit_stuntman_backpack.rend",
+               "femaleCode" : 136935487,
+               "male" : "$SURVIVAL_DATA/Character/Char_Male/Outfit/Backpack/Outfit_stuntman_backpack/char_shared_outfit_stuntman_backpack.rend",
+               "maleCode" : 136935487,
+               "projection" : [
+                  -193.5491333007813,
+                  146.5040588378906,
+                  -173.0586242675781,
+                  166.9945678710938
+               ],
+               "tier" : "challengereward",
+               "uuid" : "7ea91f3c-bf9b-42b6-b19b-3e8cd112c205"
+            }
+         ]
+      }
+   ]
+}

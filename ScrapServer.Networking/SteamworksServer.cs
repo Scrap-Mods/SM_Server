@@ -126,6 +126,7 @@ public sealed class SteamworksServer : IServer
     {
         compressedPacketHandlers[(byte)T.PacketId] += (o, args) =>
         {
+            Console.WriteLine($"[!] Received Packet: {T.PacketId}\tFrom: {args.Client.Id} ({args.Client.Username ?? "Unknown"})");
             var reader = BitReader.WithSharedPool(args.Data);
 
             T packet;
@@ -145,6 +146,7 @@ public sealed class SteamworksServer : IServer
         };
         uncompressedPacketHandlers[(byte)T.PacketId] += (o, args) =>
         {
+            Console.WriteLine($"[!] Received Packet: {T.PacketId}\tFrom: {args.Client.Id} ({args.Client.Username ?? "Unknown"})");
             var reader = BitReader.WithSharedPool(args.Data);
 
             T packet = reader.ReadObject<T>();

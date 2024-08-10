@@ -70,6 +70,7 @@ public sealed class SteamworksClient : IClient
     /// <inheritdoc/>
     public void Send<T>(T packet) where T : IPacket
     {
+        Console.WriteLine($"[!] Sending Packet: {packet.GetType().Name}\tTo: {Id} ({username ?? "Unknown"})");
         var writer = BitWriter.WithSharedPool();
         writer.WriteByte((byte)T.PacketId);
         try

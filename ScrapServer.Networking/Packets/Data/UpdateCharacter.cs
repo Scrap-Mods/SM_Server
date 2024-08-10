@@ -1,6 +1,8 @@
 ﻿using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Networking.Packets.Data;
+using OpenTK.Mathematics;
+using ScrapServer.Networking.Packets.Utils;
 
 public struct Item
 {
@@ -53,13 +55,7 @@ public struct UpdateCharacter
 
         if (updateColor)
         {
-            Color = new Color4
-            {
-                Red = reader.ReadByte(),
-                Green = reader.ReadByte(),
-                Blue = reader.ReadByte(),
-                Alpha = reader.ReadByte(),
-            };
+            Color = reader.ReadColor4();
         }
 
         if (updateSelectedItem)
@@ -97,13 +93,10 @@ public struct UpdateCharacter
             writer.WriteBit(movement.IsClimbing);
             writer.WriteBit(movement.IsTumbling);
         }
-
+        
         if (Color is Color4 color)
         {
-            writer.WriteByte(color.Red);
-            writer.WriteByte(color.Green);
-            writer.WriteByte(color.Blue);
-            writer.WriteByte(color.Alpha);
+            writer.WriteColor4(color);
         }
 
         if (SelectedItem is Item item)

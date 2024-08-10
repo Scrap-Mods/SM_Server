@@ -10,6 +10,8 @@ namespace ScrapServer.Core;
 public class Player
 {
     public int Id;
+    public ulong SteamId;
+    public string Name;
 }
 
 public static class PlayerService
@@ -32,6 +34,8 @@ public static class PlayerService
         player = new Player
         {
             Id = NextPlayerID,
+            SteamId = client.Id,
+            Name = client.Username ?? "MECHANIC"
         };
 
         Players[client] = player;

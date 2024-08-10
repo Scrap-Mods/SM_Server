@@ -29,4 +29,12 @@ internal static class BitWriterExtensions
         writer.WriteSingle(vector.X);
         writer.WriteSingle(vector.Y);
     }
+
+    public static void WriteColor4(this ref BitWriter writer, Color4 color)
+    {
+        writer.WriteByte((byte)(color.R * 0xFF));
+        writer.WriteByte((byte)(color.G * 0xFF));
+        writer.WriteByte((byte)(color.B * 0xFF));
+        writer.WriteByte((byte)(color.A * 0xFF));
+    }
 }
