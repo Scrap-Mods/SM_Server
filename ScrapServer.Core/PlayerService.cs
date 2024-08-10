@@ -16,7 +16,7 @@ public class Player
 
 public static class PlayerService
 {
-    public static Dictionary<IClient, Player> Players = new Dictionary<IClient, Player>();
+    public static Dictionary<IClient, Player> Players = [];
     public static int NextPlayerID = 1;
 
     public static Player GetPlayer(IClient client)
@@ -42,6 +42,19 @@ public static class PlayerService
         NextPlayerID += 1;
 
         return player;
+    }
+
+    public static void RemovePlayer(IClient client)
+    {
+        Player? player;
+        var found = Players.TryGetValue(client, out player);
+
+        if (player is Player ply)
+        {
+            CharacterService.RemoveCharacter(ply);
+            Players.Remove(client);
+        }
+
     }
 
     public static void Tick(UInt32 tick)

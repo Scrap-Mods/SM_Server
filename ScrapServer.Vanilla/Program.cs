@@ -8,6 +8,7 @@ using System.Text;
 using OpenTK.Mathematics;
 using System.Numerics;
 using System.ComponentModel.DataAnnotations;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace ScrapServer.Vanilla;
 
@@ -49,6 +50,12 @@ internal class Program
 
             args.Client.Send(new ClientAccepted {});
             Console.WriteLine("Sent ClientAccepted");
+        };
+
+        server.ClientDisconnected += (o, args) =>
+        {
+            Console.WriteLine($"Client disconnected... {args.Client.Username}");
+            PlayerService.RemovePlayer(args.Client);
         };
 
         server.Handle<FileChecksums>((o, args2) =>
@@ -95,8 +102,11 @@ internal class Program
             args2.Client.Send(new InitNetworkUpdate { GameTick = tick, Updates = bytes.ToArray() });
             args2.Client.Send(new ScriptDataS2C { GameTick = tick, Data = [] });
 
+            var newCharacterBlob = new GenericInitData { Data = [character.BlobData(tick)], GameTick = tick };
+
             foreach (var client in PlayerService.Players.Keys)
             {
+                client.Send(newCharacterBlob);
                 character.SpawnPackets(client, tick);
             }
 
@@ -115,32 +125,39 @@ internal class Program
 
         server.Handle<Hello>((o, args2) =>
         {
-            Console.WriteLine("Received Hello");
+            List<BlobDataRef> blobDataRefs = [
+                new BlobDataRef {
+                    Uid =  Guid.Parse("44ac020c-aec7-4f8b-b230-34d2e3bd23eb"),
+                    Key = [0x00, 0x00, 0x00, 0x00],
+                },
+                new BlobDataRef {
+                    Uid =  Guid.Parse("3ff36c8b-93f7-4428-ae4d-429a6f0cf77d"),
+                    Key = [0x01, 0x00, 0x00, 0x00],
+                },
+            ];
+
+            foreach (var ply in PlayerService.Players)
+            {
+                var Player = ply.Value;
+                blobDataRefs.Add(new BlobDataRef {
+                    Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+                    Key = BitConverter.GetBytes(Player.Id),
+                });
+            }
+
             args2.Client.Send(new ServerInfo
             {
                 Version = 729,
                 Gamemode = Gamemode.FlatTerrain,
                 Seed = 1023853875,
                 GameTick = tick,
-                GenericData = [
-                    new BlobDataRef {
-                        Uid =  Guid.Parse("44ac020c-aec7-4f8b-b230-34d2e3bd23eb"),
-                        Key = [0x00, 0x00, 0x00, 0x00],
-                    },
-                    new BlobDataRef {
-                        Uid =  Guid.Parse("3ff36c8b-93f7-4428-ae4d-429a6f0cf77d"),
-                        Key = [0x01, 0x00, 0x00, 0x00],
-                    },
-                ],
+                GenericData = blobDataRefs.ToArray(),
                 SomeData = ASCIIEncoding.UTF8.GetBytes("{}"),
                 Flags = ServerFlags.DeveloperMode
             });
-            Console.WriteLine("Sent ServerInfo");
 
 
-            List<BlobData> blobs = [];
-
-            blobs.Add(
+            List<BlobData> blobs = [
                 new BlobData
                 {
                     Uid = Guid.Parse("44ac020c-aec7-4f8b-b230-34d2e3bd23eb"),
@@ -148,10 +165,7 @@ internal class Program
                     WorldID = 65534,
                     Flags = 15,
                     Data = Encoding.ASCII.GetBytes("\x00\x34{\"Difficulty\":1,\"Multiplayer\":3,\"PhysicsQuality\":8}\n"),
-                }
-            );
-
-            blobs.Add(
+                },
                 new BlobData
                 {
                     Uid = Guid.Parse("3ff36c8b-93f7-4428-ae4d-429a6f0cf77d"),
@@ -160,7 +174,8 @@ internal class Program
                     Flags = 13,
                     Data = new WorldData { TerrainParams = "{\"worldFile\":\"\"}\n", Classname = "CreativeFlatWorld", Seed = 1023853875, Filename = "$GAME_DATA/Scripts/game/worlds/CreativeFlatWorld.lua" }.ToBytes(),
                 }
-            );
+            ];
+
 
             foreach (var ply in PlayerService.Players)
             {
@@ -173,7 +188,6 @@ internal class Program
             var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = tick };
             args2.Client.Send(genericInit);
 
-            Console.WriteLine("Sent Host Character Generic Initialization Data");
         });
 
         server.Handle<Broadcast>((o, args2) =>

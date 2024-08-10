@@ -110,6 +110,7 @@ public class Character
         netObj = new NetObj { UpdateType = NetworkUpdateType.Update, ObjectType = NetObjType.Character, Size = 0 };
         var updateCharacter = new UpdateCharacter
         {
+            NetObjId = (uint)Id,
             Color = new Color4(1, 1, 1, 1),
             Movement = new MovementState
             {
@@ -124,6 +125,7 @@ public class Character
             PlayerInfo = new PlayerId { IsPlayer = true, UnitId = Id }
         };
 
+        stream.GoToNearestByte();
         netObj.Serialize(ref stream);
         updateCharacter.Serialize(ref stream);
         NetObj.WriteSize(ref stream, streamPos);
@@ -232,6 +234,17 @@ public static class CharacterService
         Characters[player] = character;
 
         return character!;
+    }
+
+    public static void RemoveCharacter(Player player)
+    {
+        Character? character;
+        _ = Characters.TryGetValue(player, out character);
+        
+        if (character is Character chara)
+        {
+            Characters.Remove(player);
+        }
     }
 
 

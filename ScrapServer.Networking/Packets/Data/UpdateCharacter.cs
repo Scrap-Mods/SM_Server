@@ -28,6 +28,7 @@ public struct MovementState
 
 public struct UpdateCharacter
 {
+    public UInt32 NetObjId;
     public MovementState? Movement;
     public Color4? Color;
     public Item? SelectedItem;
@@ -35,6 +36,8 @@ public struct UpdateCharacter
 
     public void Deserialize(ref BitReader reader)
     {
+        NetObjId = reader.ReadUInt32();
+
         bool updateMovementState = reader.ReadBit();
         bool updateColor = reader.ReadBit();
         bool updateSelectedItem = reader.ReadBit();
@@ -79,6 +82,8 @@ public struct UpdateCharacter
 
     public void Serialize(ref BitWriter writer)
     {
+        writer.WriteUInt32(NetObjId);
+
         writer.WriteBit(Movement != null);
         writer.WriteBit(Color != null);
         writer.WriteBit(SelectedItem != null);
