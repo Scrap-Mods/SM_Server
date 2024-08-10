@@ -102,12 +102,16 @@ internal class Program
             args2.Client.Send(new InitNetworkUpdate { GameTick = tick, Updates = bytes.ToArray() });
             args2.Client.Send(new ScriptDataS2C { GameTick = tick, Data = [] });
 
+
             var newCharacterBlob = new GenericInitData { Data = [character.BlobData(tick)], GameTick = tick };
+            var newCharacterBlobNeg = new GenericInitData { Data = [character.BlobDataNeg(tick)], GameTick = tick };
+            var networkUpdate = new NetworkUpdate { GameTick = tick, Updates = character.InitNetworkPacket(tick) };
 
             foreach (var client in PlayerService.Players.Keys)
             {
+                client.Send(newCharacterBlobNeg);
                 client.Send(newCharacterBlob);
-                character.SpawnPackets(client, tick);
+                client.Send(networkUpdate);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");

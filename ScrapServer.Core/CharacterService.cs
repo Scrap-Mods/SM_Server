@@ -8,7 +8,7 @@ namespace ScrapServer.Core;
 
 public class Character
 {
-    private static int _idCounter = 0;
+    private static int _idCounter = 1;
 
     public int Id { get; private set; }
     public ulong OwnerId { get; set; }
@@ -122,7 +122,7 @@ public class Character
                 IsTumbling = false
             },
             SelectedItem = new Item { Uuid = Guid.Empty, InstanceId = -1 },
-            PlayerInfo = new PlayerId { IsPlayer = true, UnitId = Id }
+            PlayerInfo = new PlayerId { IsPlayer = true, UnitId = PlayerId }
         };
 
         stream.GoToNearestByte();
@@ -146,7 +146,7 @@ public class Character
             InventoryContainerID = InventoryContainerId,
             CarryContainer = CarryContainerId,
             CarryColor = uint.MaxValue,
-            PlayerID = (byte)PlayerId,
+            PlayerID = (byte)(PlayerId-1),
             Name = Name,
             CharacterCustomization = Customization,
         };
@@ -154,7 +154,31 @@ public class Character
         return new BlobData
         {
             Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-            Key = BitConverter.GetBytes(Id),
+            Key = BitConverter.GetBytes((uint)PlayerId),
+            WorldID = 65534,
+            Flags = 13,
+            Data = playerData.ToBytes()
+        };
+    }
+
+    public BlobData BlobDataNeg(uint tick)
+    {
+        var playerData = new PlayerData
+        {
+            CharacterID = -1,
+            SteamID = OwnerId,
+            InventoryContainerID = InventoryContainerId,
+            CarryContainer = CarryContainerId,
+            CarryColor = uint.MaxValue,
+            PlayerID = (byte)(PlayerId - 1),
+            Name = Name,
+            CharacterCustomization = Customization,
+        };
+
+        return new BlobData
+        {
+            Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+            Key = BitConverter.GetBytes((uint)PlayerId),
             WorldID = 65534,
             Flags = 13,
             Data = playerData.ToBytes()

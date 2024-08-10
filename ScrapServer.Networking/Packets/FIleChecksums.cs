@@ -50,6 +50,8 @@ public struct FileChecksums : IPacket
     public void Deserialize(ref BitReader reader)
     {
         uint length = reader.ReadUInt32();
+        if (length != 344) return;
+
         Checksums = new uint[length];
         for (int i = 0; i < length; i++)
         {
