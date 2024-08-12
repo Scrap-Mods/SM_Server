@@ -102,7 +102,8 @@ public sealed class SteamworksServer : IServer
     private readonly List<SteamworksClient> connectingClients;
 
     private readonly Dictionary<uint, SteamworksClient> clients;
-    private readonly SocketManager socketManager;
+    private readonly SocketManager socketManagerP2P;
+    private readonly SocketManager socketManagerIP;
 
     private RawPacketEventHandler?[] uncompressedPacketHandlers = new RawPacketEventHandler?[256];
     private RawPacketEventHandler?[] compressedPacketHandlers = new RawPacketEventHandler?[256];
@@ -117,8 +118,11 @@ public sealed class SteamworksServer : IServer
         connectedClients = new List<SteamworksClient>();
         connectingClients = new List<SteamworksClient>();
         clients = new Dictionary<uint, SteamworksClient>();
-        socketManager = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
-        socketManager.Interface = new SocketInterface(this);
+        socketManagerP2P = SteamNetworkingSockets.CreateRelaySocket<SocketManager>();
+        socketManagerIP = SteamNetworkingSockets.CreateNormalSocket<SocketManager>(NetAddress.AnyIp(38799));
+        var socketInterface = new SocketInterface(this);
+        socketManagerP2P.Interface = socketInterface;
+        socketManagerIP.Interface = socketInterface;
     }
 
     /// <inheritdoc/>
@@ -173,7 +177,8 @@ public sealed class SteamworksServer : IServer
     /// <inheritdoc/>
     public void Poll()
     {
-        socketManager.Receive();
+        socketManagerP2P.Receive();
+        socketManagerIP.Receive();
     }
 
     /// <inheritdoc/>
@@ -181,7 +186,8 @@ public sealed class SteamworksServer : IServer
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            socketManager.Receive();
+            socketManagerP2P.Receive();
+            socketManagerIP.Receive();
         }
     }
 
@@ -195,7 +201,8 @@ public sealed class SteamworksServer : IServer
     {
         if (!isDisposed)
         {
-            socketManager.Close();
+            socketManagerP2P.Close();
+            socketManagerIP.Close();
         }
     }
 
@@ -207,7 +214,8 @@ public sealed class SteamworksServer : IServer
         if (!isDisposed)
         {
             isDisposed = true;
-            socketManager.Close();
+            socketManagerP2P.Close();
+            socketManagerIP.Close();
             GC.SuppressFinalize(this);
         }
     }
