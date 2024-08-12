@@ -191,7 +191,18 @@ public class Character
         client.Send(new GenericInitData { Data = [BlobData(tick)], GameTick = tick });
 
         // Packet 22 - Network Update
-        client.Send(new NetworkUpdate { GameTick = tick, Updates = InitNetworkPacket(tick) });
+        client.Send(new NetworkUpdate { GameTick = tick + 1, Updates = InitNetworkPacket(tick) });
+    }
+
+    public void RemovePackets(IClient client, uint tick)
+    {
+        var netObj = new RemoveNetObj
+        {
+            Header = new NetObj { UpdateType = NetworkUpdateType.Remove, ObjectType = NetObjType.Character, Size = 0 },
+            NetObjId = (uint)Id
+        };
+
+        client.Send(new NetworkUpdate { GameTick = tick, Updates = netObj.ToBytes() });
     }
 
     public class Builder
@@ -267,6 +278,11 @@ public static class CharacterService
         
         if (character is Character chara)
         {
+            foreach (var client in PlayerService.Players.Keys)
+            {
+                chara.RemovePackets(client, 0);
+            }
+
             Characters.Remove(player);
         }
     }

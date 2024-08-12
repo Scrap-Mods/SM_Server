@@ -130,3 +130,27 @@ public struct NetObjUnreliable : IBitSerializable
         writer.Seek(byteIndex);
     }
 }
+
+
+public struct RemoveNetObj : IBitSerializable
+{
+    public NetObj Header;
+    public uint NetObjId;
+
+    public void Deserialize(ref BitReader reader)
+    {
+        Header.Deserialize(ref reader);
+        NetObjId = reader.ReadUInt32();
+    }
+
+    public void Serialize(ref BitWriter writer)
+    {
+        writer.GoToNearestByte();
+        var pos = writer.ByteIndex;
+
+        Header.Serialize(ref writer);
+        writer.WriteUInt32(NetObjId);
+
+        NetObj.WriteSize(ref writer, pos);
+    }
+}

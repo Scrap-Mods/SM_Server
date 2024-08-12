@@ -109,9 +109,7 @@ internal class Program
 
             foreach (var client in PlayerService.Players.Keys)
             {
-                client.Send(newCharacterBlobNeg);
-                client.Send(newCharacterBlob);
-                client.Send(networkUpdate);
+                character.SpawnPackets(client, tick);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
