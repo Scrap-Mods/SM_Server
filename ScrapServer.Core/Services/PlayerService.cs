@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Networking;
 using ScrapServer.Networking.Data;
+using ScrapServer.Core.Utils;
 using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
@@ -28,20 +29,10 @@ public class Player
         SteamConn = null;
     }
 
-    public void Send<T>(T data) where T : IPacket
+    public void Send<T>(T data) where T : IPacket, new()
     {
         var writer = BitWriter.WithSharedPool();
-        writer.WriteByte((byte)T.PacketId);
-
-        if (T.IsCompressable)
-        {
-            using var compWriter = writer.WriteLZ4();
-            compWriter.Writer.WriteObject(data);
-        }
-        else
-        {
-            writer.WriteObject(data);
-        }
+        writer.WritePacket<T>(data);
 
         unsafe
         {
@@ -54,9 +45,10 @@ public class Player
         writer.Dispose();
     }
 
-    internal void Receive(ReadOnlySpan<byte> data)
+    public void Receive(ReadOnlySpan<byte> data)
     {
         var id = (PacketId) data[0];
+        var reader = BitReader.WithSharedPool(data);
  
         if (id == PacketId.Hello)
         {
@@ -127,9 +119,7 @@ public class Player
         }
         else if (id == PacketId.CharacterInfo)
         {
-            var reader = BitReader.WithSharedPool(data[1..]);
-            var compReader = reader.ReadLZ4();
-            var info = compReader.Reader.ReadObject<CharacterInfo>();
+            var info = reader.ReadPacket<CharacterInfo>();
 
             Console.WriteLine("Received CharacterInfo");
 
@@ -171,7 +161,6 @@ public class Player
         }
         else if (id == PacketId.PlayerMovement)
         {
-            var reader = BitReader.WithSharedPool(data[1..]);
             var compReader = reader.ReadLZ4();
             var packet = compReader.Reader.ReadObject<PlayerMovement>();
             compReader.Dispose();
@@ -183,8 +172,7 @@ public class Player
         }
         else if (id == PacketId.Broadcast)
         {
-            var reader = BitReader.WithSharedPool(data);
-            var packet = reader.ReadObject<Broadcast>();
+            var packet = reader.ReadPacket<Broadcast>();
 
             foreach (var player in PlayerService.GetPlayers())
             {
