@@ -1,0 +1,30 @@
+﻿namespace ScrapServer.Networking.Data;
+
+public enum PacketId : byte
+{
+    Empty = 0,
+    Hello = 1,
+    ServerInfo = 2,
+    RequestPassphrase = 3,
+    RespondPassphrase = 4,
+    ClientAccepted = 5,
+    FileChecksums = 6,
+    ChecksumsAccepted = 7,
+    ChecksumsDenied = 8,
+    CharacterInfo = 9,
+    JoinConfirmation = 10,
+    ScriptInitData = 11,
+    GenericInitData = 13,
+    DisplayMessage = 18,
+    DisplayAlertText = 19,
+    InitNetworkUpdate = 21,
+    NetworkUpdate = 22,
+    UnreliableUpdate = 24,
+    ScriptDataS2C = 25,
+    ScriptDataC2S = 26,
+    GenericDataS2C = 27,
+    GenericDataC2S = 28,
+    CompoundPacket = 29,
+    PlayerMovement = 30,
+    Broadcast = 123,
+}
