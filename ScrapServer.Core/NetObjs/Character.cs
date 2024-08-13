@@ -1,9 +1,9 @@
-﻿using OpenTK.Mathematics;
+using OpenTK.Mathematics;
 using ScrapServer.Networking;
 using ScrapServer.Networking.Data;
 using ScrapServer.Utility.Serialization;
 
-namespace ScrapServer.Core;
+namespace ScrapServer.Core.NetObjs;
 
 public class Character
 {
@@ -23,8 +23,9 @@ public class Character
     public Matrix3 BodyRotation { get; set; } = Matrix3.Identity;
     public Vector3 Position { get; set; } = new Vector3(0, 0, 0.72f);
     public Vector3 Velocity { get; set; } = Vector3.Zero;
+    public Vector3 TargetVelocity { get; set; } = Vector3.Zero;
 
-    public float Speed { get; set; } = 0.11f;
+    public float Speed { get; set; } = 4f;
 
     private Character()
     {
@@ -65,7 +66,7 @@ public class Character
             vector = new Vector3((float)Math.Cos(direction) * Speed, (float)Math.Sin(direction) * Speed, 0);
         }
 
-        Velocity = vector;
+        TargetVelocity = vector;
 
         // Extract rotation from yaw and pitch
         double angleYaw = 2 * Math.PI * movement.Yaw / 256;
@@ -86,7 +87,7 @@ public class Character
 
         var anglesLook = HeadRotation.ExtractRotation().ToEulerAngles();
 
-        var netObj = new NetObj { UpdateType = NetworkUpdateType.Create, ObjectType = NetObjType.Character, Size = 0 };
+        var netObj = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Create, ObjectType = NetObjType.Character, Size = 0 };
         var createUpdate = new CreateNetObj { ControllerType = ControllerType.Unknown };
         var characterCreate = new CreateCharacter
         {
@@ -102,11 +103,11 @@ public class Character
         netObj.Serialize(ref stream);
         createUpdate.Serialize(ref stream);
         characterCreate.Serialize(ref stream);
-        NetObj.WriteSize(ref stream, 0);
+        Networking.Data.NetObj.WriteSize(ref stream, 0);
 
         var streamPos = stream.ByteIndex;
 
-        netObj = new NetObj { UpdateType = NetworkUpdateType.Update, ObjectType = NetObjType.Character, Size = 0 };
+        netObj = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Update, ObjectType = NetObjType.Character, Size = 0 };
         var updateCharacter = new UpdateCharacter
         {
             NetObjId = (uint)Id,
@@ -127,7 +128,7 @@ public class Character
         stream.GoToNearestByte();
         netObj.Serialize(ref stream);
         updateCharacter.Serialize(ref stream);
-        NetObj.WriteSize(ref stream, streamPos);
+        Networking.Data.NetObj.WriteSize(ref stream, streamPos);
 
         var data = stream.Data.ToArray();
 
@@ -197,7 +198,7 @@ public class Character
     {
         var netObj = new RemoveNetObj
         {
-            Header = new NetObj { UpdateType = NetworkUpdateType.Remove, ObjectType = NetObjType.Character, Size = 0 },
+            Header = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Remove, ObjectType = NetObjType.Character, Size = 0 },
             NetObjId = (uint)Id
         };
 
@@ -235,97 +236,4 @@ public class Character
     }
 
     public static Builder CreateBuilder() => new Builder();
-}
-
-public static class CharacterService
-{
-    public static Dictionary<Player, Character> Characters = [];
-
-    private static byte ConvertAngleToBinary(double angle)
-    {
-        angle = (angle + Math.PI * 2) % (Math.PI * 2);
-
-        return (byte)(256 * (angle) / (2 * Math.PI));
-    }
-
-    public static Character GetCharacter(Player player)
-    {
-        Character? character;
-        var found = Characters.TryGetValue(player, out character);
-        if (found) return character!;
-
-        // If character isn't in Dict, we load it from the save database into the dict and return it
-
-        // ...
-
-        // If it still cannot be found, we make a new one
-        character = Character.CreateBuilder()
-            .WithOwnerId(player.SteamId)
-            .WithPlayerId((byte)player.Id)
-            .WithName(player.Username)
-            .Build();
-
-        Characters[player] = character;
-
-        return character!;
-    }
-
-    public static void RemoveCharacter(Player player)
-    {
-        Character? character;
-        _ = Characters.TryGetValue(player, out character);
-        
-        if (character is Character chara)
-        {
-            foreach (var player2 in PlayerService.GetPlayers())
-            {
-                chara.RemovePackets(player2, 0);
-            }
-
-            Characters.Remove(player);
-        }
-    }
-
-
-    //TODO(AP): Move most of this logic to Character
-    public static void Tick()
-    {
-        var stream = BitWriter.WithSharedPool();
-
-        foreach (var character in Characters.Values)
-        {
-            stream.GoToNearestByte();
-            var position = stream.ByteIndex;
-
-            var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
-
-            character.Position += character.Velocity * character.BodyRotation;
-
-            var updateCharacter = new UpdateUnreliableCharacter { CharacterId = character.Id, IsTumbling = false };
-
-            double angleMove = Math.Atan2(character.Velocity.Y, character.Velocity.X);
-            var anglesLook = character.HeadRotation.ExtractRotation().ToEulerAngles();
-
-            var isNotTumbling = new IsNotTumbling
-            {
-                Horizontal = character.Velocity != Vector3.Zero,
-                Direction = ConvertAngleToBinary(angleMove),
-                Yaw = ConvertAngleToBinary(anglesLook.Z),
-                Pitch = ConvertAngleToBinary(anglesLook.X),
-                Position = character.Position
-            };
-
-            netObj.Serialize(ref stream);
-            updateCharacter.Serialize(ref stream);
-            isNotTumbling.Serialize(ref stream);
-            NetObjUnreliable.WriteSize(ref stream, position);
-        }
-
-        foreach (var client in PlayerService.GetPlayers())
-        {
-            client.Send(new UnreliableUpdate { CurrentTick = Scheduler.GameTick, ServerTick = Scheduler.GameTick, Updates = stream.Data.ToArray() });
-        }
-
-        stream.Dispose();
-    }
 }

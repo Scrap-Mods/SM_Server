@@ -33,13 +33,21 @@ internal class Program
 
         PlayerService.Init();
 
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var shift = 0;
+
         while (true)
         {
-            PlayerService.Tick();
-            CharacterService.Tick();
-            Scheduler.Tick();
+            var elapsed = stopwatch.ElapsedMilliseconds;
 
-            Thread.Sleep(25);
+            if (elapsed - shift >= 25)
+            {
+                PlayerService.Tick();
+                NetObjService.Tick();
+                Scheduler.Tick();
+
+                shift += 25;
+            }
         }
     }
 }
