@@ -69,7 +69,7 @@ public static class NetObjService
 
             var netObj = new NetObjUnreliable { ObjectType = NetObjType.Character, Size = 0 };
 
-            character.Velocity = character.Velocity + (character.TargetVelocity - character.Velocity) * (1 - 0.8f);
+            character.Velocity = 0.8f * character.Velocity + character.TargetVelocity * (1 - 0.8f);
             character.Position += character.Velocity * 0.025f * character.BodyRotation;
 
             var updateCharacter = new UpdateUnreliableCharacter { CharacterId = character.Id, IsTumbling = false };
