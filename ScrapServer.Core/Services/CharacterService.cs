@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace ScrapServer.Core;
 
-public static class NetObjService
+public static class CharacterService
 {
     public static Dictionary<Player, Character> Characters = [];
 
