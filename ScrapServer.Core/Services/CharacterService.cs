@@ -80,6 +80,9 @@ public static class NetObjService
             var isNotTumbling = new IsNotTumbling
             {
                 Horizontal = character.TargetVelocity != OpenTK.Mathematics.Vector3.Zero,
+                SlowDown = character.IsSlowedDown,
+                Crawl = character.IsCrouching,
+                Sprint = character.IsSprinting,
                 Direction = ConvertAngleToBinary(angleMove),
                 Yaw = ConvertAngleToBinary(anglesLook.Z),
                 Pitch = ConvertAngleToBinary(anglesLook.X),

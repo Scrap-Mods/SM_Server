@@ -28,6 +28,7 @@ public struct IsNotTumbling : IBitSerializable
     public bool Crawl;
     public bool Horizontal;
     public bool Sprint;
+    public bool SlowDown;
     
     public byte Direction;
     public byte Yaw;
@@ -44,7 +45,7 @@ public struct IsNotTumbling : IBitSerializable
         writer.WriteBit(false);
         writer.WriteBit(false);
         writer.WriteBit(false);
-        writer.WriteBit(false);
+        writer.WriteBit(SlowDown);
         writer.WriteBit(Sprint);
         writer.WriteBit(Horizontal);
         writer.WriteBit(Crawl);
