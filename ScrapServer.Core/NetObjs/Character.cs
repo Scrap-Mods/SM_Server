@@ -25,7 +25,55 @@ public class Character
     public Vector3 Velocity { get; set; } = Vector3.Zero;
     public Vector3 TargetVelocity { get; set; } = Vector3.Zero;
 
-    public float Speed { get; set; } = 4f;
+    public bool IsSlowedDown { get; set; } = false;
+    public bool IsCrouching { get; set; } = false;
+    public bool IsSprinting { get; set; } = false;
+
+    public float WalkSpeed { get; set; } = 4f;
+    public float SlowDownSpeed { get; set; } = 2.5f;
+    public float CrouchSpeed { get; set; } = 3f;
+    public float SprintSpeed { get; set; } = 8f;
+
+    public float StandHeight { get; set; } = 1.4f;
+    public float CrouchHeight { get; set; } = 0.8f;
+
+    public float MovementSpeed
+    {
+        get
+        {
+            if (IsSprinting)
+            {
+                return SprintSpeed;
+            }
+            else if (IsSlowedDown)
+            {
+                return SlowDownSpeed;
+            }
+            else if (IsCrouching)
+            {
+                return CrouchSpeed;
+            }
+            else
+            {
+                return WalkSpeed;
+            }
+        }
+    }
+
+    public float Height
+    {
+        get
+        {
+            if (IsCrouching)
+            {
+                return CrouchHeight;
+            }
+            else
+            {
+                return StandHeight;
+            }
+        }
+    }
 
     private Character()
     {
@@ -60,10 +108,28 @@ public class Character
         // Extract velocity from movement direction
         Vector3 vector = Vector3.Zero;
 
-        if ((movement.Keys & PlayerMovementKey.HORIZONTAL) == PlayerMovementKey.HORIZONTAL)
+        IsSlowedDown = (movement.Keys & PlayerMovementKey.SLOW_DOWN) != 0;
+        IsSprinting = (movement.Keys & PlayerMovementKey.SPRINT) != 0;
+
+        var newIsCrouching = (movement.Keys & PlayerMovementKey.CRAWL) != 0;
+        if (newIsCrouching != IsCrouching)
+        {
+            var heightDifferenceWhenCrouching = StandHeight / 2f - CrouchHeight / 2f;
+            if (newIsCrouching)
+            {
+                Position = new Vector3(Position.X, Position.Y, Position.Z - heightDifferenceWhenCrouching);
+            }
+            else
+            {
+                Position = new Vector3(Position.X, Position.Y, Position.Z + heightDifferenceWhenCrouching);
+            }
+            IsCrouching = newIsCrouching;
+        }
+
+        if ((movement.Keys & PlayerMovementKey.HORIZONTAL) != 0)
         {
             double direction = 2 * Math.PI * ((double)movement.Direction) / 256;
-            vector = new Vector3((float)Math.Cos(direction) * Speed, (float)Math.Sin(direction) * Speed, 0);
+            vector = new Vector3((float)Math.Cos(direction) * MovementSpeed, (float)Math.Sin(direction) * MovementSpeed, 0);
         }
 
         TargetVelocity = vector;

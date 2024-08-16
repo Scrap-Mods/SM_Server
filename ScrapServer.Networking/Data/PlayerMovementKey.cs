@@ -13,5 +13,5 @@ public enum PlayerMovementKey
     CRAWL = 1 << 1,
     HORIZONTAL = 1 << 2,
     SPRINT = 1 << 3,
-    AIM = 1 << 4,
+    SLOW_DOWN = 1 << 4,
 }
