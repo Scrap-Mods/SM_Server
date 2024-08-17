@@ -5,6 +5,7 @@ using ScrapServer.Utility.Serialization;
 using Steamworks;
 using Steamworks.Data;
 using System.Text;
+using ScrapServer.Core.NetObjs;
 
 
 namespace ScrapServer.Core;
@@ -14,9 +15,8 @@ public class Player
     public uint Id;
     public ulong SteamId;
     public string Username = "";
-    public bool IsConnected => SteamConn != null;
-
-    private Connection? SteamConn;
+    public Character? Character { get; private set; }
+    public Connection? SteamConn { get; private set; }
 
     public Player(Connection conn)
     {
@@ -65,6 +65,8 @@ public class Player
 
             foreach (var ply in PlayerService.GetPlayers())
             {
+                if (ply.Character == null) continue;
+
                 blobDataRefs.Add(new BlobDataRef {
                     Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
                     Key = BitConverter.GetBytes(ply.Id),
@@ -76,7 +78,7 @@ public class Player
                 Version = 729,
                 Gamemode = Gamemode.FlatTerrain,
                 Seed = 1023853875,
-                GameTick = Scheduler.GameTick,
+                GameTick = SchedulerService.GameTick,
                 GenericData = blobDataRefs.ToArray(),
                 SomeData = ASCIIEncoding.UTF8.GetBytes("{}"),
                 Flags = ServerFlags.DeveloperMode
@@ -104,12 +106,12 @@ public class Player
 
             foreach (var ply in PlayerService.GetPlayers())
             {
-                var Character = NetObjService.GetCharacter(ply);
+                if (ply.Character == null) continue;
 
-                blobs.Add(Character.BlobData(Scheduler.GameTick));
+                blobs.Add(ply.Character.BlobData(SchedulerService.GameTick));
             }
 
-            var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = Scheduler.GameTick };
+            var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = SchedulerService.GameTick };
             Send(genericInit);
         }
         else if (id == PacketId.FileChecksums)
@@ -126,7 +128,7 @@ public class Player
 
             Console.WriteLine("Sent JoinConfirmation");
 
-            var character = NetObjService.GetCharacter(this);
+            var character = CreateCharacter();
 
             character.Name = info.Name ?? "MECHANIC";
             character.Customization = info.Customization;
@@ -135,18 +137,17 @@ public class Player
             List<byte> bytes = [];
             foreach (var ply in PlayerService.GetPlayers())
             {
-                var Player = ply;
-                var Character = NetObjService.GetCharacter(ply);
+                if (ply.Character == null) continue;
 
-                bytes.AddRange(Character.InitNetworkPacket(Scheduler.GameTick));
+                bytes.AddRange(ply.Character.InitNetworkPacket(SchedulerService.GameTick));
             }
 
-            Send(new InitNetworkUpdate { GameTick = Scheduler.GameTick, Updates = bytes.ToArray() });
-            Send(new ScriptDataS2C { GameTick = Scheduler.GameTick, Data = [] });
+            Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = bytes.ToArray() });
+            Send(new ScriptDataS2C { GameTick = SchedulerService.GameTick, Data = [] });
 
             foreach (var client in PlayerService.GetPlayers())
             {
-                character.SpawnPackets(client, Scheduler.GameTick);
+                character.SpawnPackets(client, SchedulerService.GameTick);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
@@ -155,10 +156,9 @@ public class Player
         {
             var packet = reader.ReadPacket<PlayerMovement>();
 
-            Console.WriteLine("Player: {0}, {1} Character: {2}", Id.ToString("D"), Id.ToString("D"), NetObjService.GetCharacter(this).Id);
+            Console.WriteLine("Player: {0}, {1} Character: {2}", Id.ToString("D"), Id.ToString("D"), CharacterService.GetCharacter(this).Id);
             
-            var Character = NetObjService.GetCharacter(this);
-            Character.HandleMovement(packet);
+            Character?.HandleMovement(packet);
         }
         else if (id == PacketId.Broadcast)
         {
@@ -172,6 +172,19 @@ public class Player
                 }
             }
         }
+    }
+
+    public Character CreateCharacter()
+    {
+        Character = CharacterService.GetCharacter(this);
+
+        return Character;
+    }
+
+    public void RemoveCharacter()
+    {
+        CharacterService.RemoveCharacter(this);
+        Character = null;
     }
 }
 
@@ -269,7 +282,7 @@ public static class PlayerService
 
         if (player is Player ply)
         {
-            NetObjService.RemoveCharacter(ply);
+            CharacterService.RemoveCharacter(ply);
             Players.Remove(conn);
         }
     }

@@ -94,7 +94,7 @@ public static class CharacterService
 
         foreach (var client in PlayerService.GetPlayers())
         {
-            client.Send(new UnreliableUpdate { CurrentTick = Scheduler.GameTick, ServerTick = Scheduler.GameTick, Updates = stream.Data.ToArray() });
+            client.Send(new UnreliableUpdate { CurrentTick = SchedulerService.GameTick, ServerTick = SchedulerService.GameTick, Updates = stream.Data.ToArray() });
         }
 
         stream.Dispose();
