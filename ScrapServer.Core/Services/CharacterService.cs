@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace ScrapServer.Core;
 
-public static class NetObjService
+public static class CharacterService
 {
     public static Dictionary<Player, Character> Characters = [];
 
@@ -97,7 +97,7 @@ public static class NetObjService
 
         foreach (var client in PlayerService.GetPlayers())
         {
-            client.Send(new UnreliableUpdate { CurrentTick = Scheduler.GameTick, ServerTick = Scheduler.GameTick, Updates = stream.Data.ToArray() });
+            client.Send(new UnreliableUpdate { CurrentTick = SchedulerService.GameTick, ServerTick = SchedulerService.GameTick, Updates = stream.Data.ToArray() });
         }
 
         stream.Dispose();
