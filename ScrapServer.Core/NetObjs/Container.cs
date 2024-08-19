@@ -1,12 +1,19 @@
-﻿using System.Drawing;
+﻿using ScrapServer.Networking;
+using ScrapServer.Networking.Data;
+using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Core.NetObjs;
 
-public class Container
+public class Container : INetObj
 {
-    public readonly uint Id;
+    public NetObjType NetObjType => NetObjType.Container;
+    public ControllerType ControllerType => ControllerType.Unknown;
+
+    public uint Id { get; private set; }
     public readonly ushort MaximumStackSize;
     public readonly ItemStack[] Items;
+    public readonly ISet<Guid> Filter = new HashSet<Guid>();
+
 
     public record ItemStack(Guid Uuid, uint InstanceId, ushort Quantity)
     {
@@ -60,6 +67,28 @@ public class Container
             clone.Items[i] = this.Items[i];
         }
 
+        clone.Filter.UnionWith(this.Filter);
+
         return clone;
+    }
+
+    public void SerializeCreate(ref BitWriter writer)
+    {
+        var createContainer = new CreateContainer
+        {
+            StackSize = this.MaximumStackSize,
+            Items = this.Items.Select(item => new CreateContainer.ItemStack
+            {
+                Uuid = item.Uuid,
+                InstanceId = item.InstanceId,
+                Quantity = item.Quantity
+            }).ToArray(),
+            Filter = [.. this.Filter],
+        };
+    }
+
+    public void SerializeUpdate(ref BitWriter writer)
+    {
+        throw new NotImplementedException();
     }
 }

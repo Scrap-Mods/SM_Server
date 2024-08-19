@@ -5,11 +5,14 @@ using ScrapServer.Utility.Serialization;
 
 namespace ScrapServer.Core.NetObjs;
 
-public class Character
+public class Character : INetObj
 {
-    private static int _idCounter = 1;
+    public NetObjType NetObjType => NetObjType.Character;
+    public ControllerType ControllerType => ControllerType.Unknown;
 
-    public int Id { get; private set; }
+    private static uint _idCounter = 1;
+
+    public uint Id { get; private set; }
     public ulong OwnerId { get; set; }
     public uint InventoryContainerId { get; set; } = 0;
     public uint CarryContainerId { get; set; } = 0;
@@ -144,39 +147,25 @@ public class Character
         BodyRotation = matrixYaw;
         HeadRotation = matrixYaw * matrixPitch;
     }
-
-    public byte[] InitNetworkPacket(uint tick)
+    public void SerializeCreate(ref BitWriter writer)
     {
-
-        // Packet 22 - Network Update
-        var stream = BitWriter.WithSharedPool();
-
         var anglesLook = HeadRotation.ExtractRotation().ToEulerAngles();
 
-        var netObj = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Create, ObjectType = NetObjType.Character, Size = 0 };
-        var createUpdate = new CreateNetObj { ControllerType = ControllerType.Unknown };
-        var characterCreate = new CreateCharacter
+        new CreateCharacter
         {
-            NetObjId = (uint)Id,
             SteamId = OwnerId,
             Position = Position,
             CharacterUUID = Guid.Empty,
             Pitch = ConvertAngleToBinary(anglesLook.X),
             Yaw = ConvertAngleToBinary(anglesLook.Z),
             WorldId = 1
-        };
+        }.Serialize(ref writer);
+    }
 
-        netObj.Serialize(ref stream);
-        createUpdate.Serialize(ref stream);
-        characterCreate.Serialize(ref stream);
-        Networking.Data.NetObj.WriteSize(ref stream, 0);
-
-        var streamPos = stream.ByteIndex;
-
-        netObj = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Update, ObjectType = NetObjType.Character, Size = 0 };
-        var updateCharacter = new UpdateCharacter
+    public void SerializeUpdate(ref BitWriter writer)
+    {
+        new UpdateCharacter
         {
-            NetObjId = (uint)Id,
             Color = new Color4(1, 1, 1, 1),
             Movement = new MovementState
             {
@@ -189,25 +178,14 @@ public class Character
             },
             SelectedItem = new Item { Uuid = Guid.Empty, InstanceId = -1 },
             PlayerInfo = new PlayerId { IsPlayer = true, UnitId = PlayerId }
-        };
-
-        stream.GoToNearestByte();
-        netObj.Serialize(ref stream);
-        updateCharacter.Serialize(ref stream);
-        Networking.Data.NetObj.WriteSize(ref stream, streamPos);
-
-        var data = stream.Data.ToArray();
-
-        stream.Dispose();
-
-        return data;
+        }.Serialize(ref writer);
     }
 
     public BlobData BlobData(uint tick)
     {
         var playerData = new PlayerData
         {
-            CharacterID = Id,
+            CharacterID = (int)Id,
             SteamID = OwnerId,
             InventoryContainerID = InventoryContainerId,
             CarryContainer = CarryContainerId,
@@ -257,18 +235,13 @@ public class Character
         player.Send(new GenericInitData { Data = [BlobData(tick)], GameTick = tick });
 
         // Packet 22 - Network Update
-        player.Send(new NetworkUpdate { GameTick = tick + 1, Updates = InitNetworkPacket(tick) });
-    }
-
-    public void RemovePackets(Player player, uint tick)
-    {
-        var netObj = new RemoveNetObj
-        {
-            Header = new Networking.Data.NetObj { UpdateType = NetworkUpdateType.Remove, ObjectType = NetObjType.Character, Size = 0 },
-            NetObjId = (uint)Id
-        };
-
-        player.Send(new NetworkUpdate { GameTick = tick, Updates = netObj.ToBytes() });
+        player.Send(
+            new NetworkUpdate.Builder()
+                .WithGameTick(tick + 1)
+                .WriteCreate(this)
+                .WriteUpdate(this)
+                .Build()
+        );
     }
 
     public class Builder

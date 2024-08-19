@@ -134,15 +134,16 @@ public class Player
             character.Customization = info.Customization;
 
             // Send Initialization Network Update
-            List<byte> bytes = [];
-            foreach (var ply in PlayerService.GetPlayers())
+            var builder = new NetworkUpdate.Builder();
+            foreach (var player in PlayerService.GetPlayers())
             {
-                if (ply.Character == null) continue;
+                if (player.Character == null) continue;
 
-                bytes.AddRange(ply.Character.InitNetworkPacket(SchedulerService.GameTick));
+                builder.WriteCreate(player.Character);
+                builder.WriteUpdate(player.Character);
             }
 
-            Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = bytes.ToArray() });
+            Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = builder.Build().Updates });
             Send(new ScriptDataS2C { GameTick = SchedulerService.GameTick, Data = [] });
 
             foreach (var client in PlayerService.GetPlayers())

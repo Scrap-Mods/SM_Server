@@ -42,14 +42,16 @@ public static class CharacterService
 
     public static void RemoveCharacter(Player player)
     {
-        Character? character;
-        _ = Characters.TryGetValue(player, out character);
-        
-        if (character is Character chara)
+        if (Characters.TryGetValue(player, out Character? character))
         {
+            var networkUpdate = new NetworkUpdate.Builder()
+                .WithGameTick(SchedulerService.GameTick)
+                .WriteRemove(character)
+                .Build();
+
             foreach (var player2 in PlayerService.GetPlayers())
             {
-                chara.RemovePackets(player2, 0);
+                player2.Send(networkUpdate);
             }
 
             Characters.Remove(player);
@@ -72,7 +74,7 @@ public static class CharacterService
             character.Velocity = 0.8f * character.Velocity + character.TargetVelocity * (1 - 0.8f);
             character.Position += character.Velocity * 0.025f * character.BodyRotation;
 
-            var updateCharacter = new UpdateUnreliableCharacter { CharacterId = character.Id, IsTumbling = false };
+            var updateCharacter = new UpdateUnreliableCharacter { CharacterId = (int)character.Id, IsTumbling = false };
 
             double angleMove = Math.Atan2(character.Velocity.Y, character.Velocity.X);
             var anglesLook = character.HeadRotation.ExtractRotation().ToEulerAngles();
