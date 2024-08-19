@@ -1,4 +1,4 @@
-﻿using ScrapServer.Networking;
+using ScrapServer.Networking;
 using ScrapServer.Networking.Data;
 using ScrapServer.Core.Utils;
 using ScrapServer.Utility.Serialization;
@@ -110,11 +110,11 @@ public class Player
             ];
 
 
-            foreach (var ply in PlayerService.GetPlayers())
+            foreach (var player in PlayerService.GetPlayers())
             {
-                if (ply.Character == null) continue;
+                if (player.Character == null) continue;
 
-                blobs.Add(GetPlayerData(ply.Character));
+                blobs.Add(player.GetPlayerData(player.Character));
             }
 
             var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = SchedulerService.GameTick };
@@ -156,7 +156,7 @@ public class Player
 
             foreach (var client in PlayerService.GetPlayers())
             {
-                client.SendSpawnPackets(character, SchedulerService.GameTick);
+                client.SendSpawnPackets(this, character, SchedulerService.GameTick);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
@@ -206,10 +206,10 @@ public class Player
             Data = playerData.ToBytes()
         };
     }
-    public void SendSpawnPackets(Character character, uint tick)
+    public void SendSpawnPackets(Player player, Character character, uint tick)
     {
         // Packet 13 - Generic Init Data
-        this.Send(new GenericInitData { Data = [this.GetPlayerData(character)], GameTick = tick });
+        this.Send(new GenericInitData { Data = [player.GetPlayerData(character)], GameTick = tick });
 
         // Packet 22 - Network Update
         this.Send(
