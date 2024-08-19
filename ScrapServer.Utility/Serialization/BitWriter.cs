@@ -311,7 +311,16 @@ public struct BitWriter : IDisposable
     public void WriteGuid(Guid value, ByteOrder byteOrder = ByteOrder.BigEndian)
     {
         Span<byte> bytes = stackalloc byte[16];
-        value.TryWriteBytes(bytes, byteOrder == ByteOrder.BigEndian, out _);
+        
+        // Always write the Guid in big endian, and later reverse if needed,
+        // as serializing a Guid in little endian does not produce a valid RFC 4122 Uuid.
+        value.TryWriteBytes(bytes, true, out _);
+
+        if (byteOrder == ByteOrder.LittleEndian)
+        {
+            bytes.Reverse();
+        }
+
         WriteBytes(bytes);
     }
 
