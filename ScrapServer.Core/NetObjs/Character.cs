@@ -181,69 +181,6 @@ public class Character : INetObj
         }.Serialize(ref writer);
     }
 
-    public BlobData BlobData(uint tick)
-    {
-        var playerData = new PlayerData
-        {
-            CharacterID = (int)Id,
-            SteamID = OwnerId,
-            InventoryContainerID = InventoryContainerId,
-            CarryContainer = CarryContainerId,
-            CarryColor = uint.MaxValue,
-            PlayerID = (byte)(PlayerId-1),
-            Name = Name,
-            CharacterCustomization = Customization,
-        };
-
-        return new BlobData
-        {
-            Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-            Key = BitConverter.GetBytes((uint)PlayerId),
-            WorldID = 65534,
-            Flags = 13,
-            Data = playerData.ToBytes()
-        };
-    }
-
-    public BlobData BlobDataNeg(uint tick)
-    {
-        var playerData = new PlayerData
-        {
-            CharacterID = -1,
-            SteamID = OwnerId,
-            InventoryContainerID = InventoryContainerId,
-            CarryContainer = CarryContainerId,
-            CarryColor = uint.MaxValue,
-            PlayerID = (byte)(PlayerId - 1),
-            Name = Name,
-            CharacterCustomization = Customization,
-        };
-
-        return new BlobData
-        {
-            Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
-            Key = BitConverter.GetBytes((uint)PlayerId),
-            WorldID = 65534,
-            Flags = 13,
-            Data = playerData.ToBytes()
-        };
-    }
-
-    public void SpawnPackets(Player player, uint tick)
-    {
-        // Packet 13 - Generic Init Data
-        player.Send(new GenericInitData { Data = [BlobData(tick)], GameTick = tick });
-
-        // Packet 22 - Network Update
-        player.Send(
-            new NetworkUpdate.Builder()
-                .WithGameTick(tick + 1)
-                .WriteCreate(this)
-                .WriteUpdate(this)
-                .Build()
-        );
-    }
-
     public class Builder
     {
         private Character _character = new Character();

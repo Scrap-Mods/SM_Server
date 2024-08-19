@@ -6,6 +6,8 @@ using Steamworks;
 using Steamworks.Data;
 using System.Text;
 using ScrapServer.Core.NetObjs;
+using static ScrapServer.Core.NetObjs.Container;
+using System.Xml.Linq;
 
 
 namespace ScrapServer.Core;
@@ -16,11 +18,15 @@ public class Player
     public ulong SteamId;
     public string Username = "";
     public Character? Character { get; private set; }
+    public Container InventoryContainer { get; private set; }
+    public Container CarryContainer { get; private set; }
     public Connection? SteamConn { get; private set; }
 
-    public Player(Connection conn)
+    public Player(Connection conn, Container inventoryContainer, Container carryContainer)
     {
         SteamConn = conn;
+        InventoryContainer = inventoryContainer;
+        CarryContainer = carryContainer;
     }
 
     public void Kick()
@@ -108,7 +114,7 @@ public class Player
             {
                 if (ply.Character == null) continue;
 
-                blobs.Add(ply.Character.BlobData(SchedulerService.GameTick));
+                blobs.Add(GetPlayerData(ply.Character));
             }
 
             var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = SchedulerService.GameTick };
@@ -141,6 +147,8 @@ public class Player
 
                 builder.WriteCreate(player.Character);
                 builder.WriteUpdate(player.Character);
+                builder.WriteCreate(player.InventoryContainer);
+                builder.WriteCreate(player.CarryContainer);
             }
 
             Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = builder.Build().Updates });
@@ -148,7 +156,7 @@ public class Player
 
             foreach (var client in PlayerService.GetPlayers())
             {
-                character.SpawnPackets(client, SchedulerService.GameTick);
+                client.SendSpawnPackets(character, SchedulerService.GameTick);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
@@ -173,6 +181,44 @@ public class Player
                 }
             }
         }
+    }
+
+    public BlobData GetPlayerData(Character character)
+    {
+        var playerData = new PlayerData
+        {
+            CharacterID = (int)character.Id,
+            SteamID = this.SteamId,
+            InventoryContainerID = this.InventoryContainer.Id,
+            CarryContainer = this.CarryContainer.Id,
+            CarryColor = uint.MaxValue,
+            PlayerID = (byte)(this.Id - 1),
+            Name = this.Username,
+            CharacterCustomization = character.Customization,
+        };
+
+        return new BlobData
+        {
+            Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+            Key = BitConverter.GetBytes((uint)this.Id),
+            WorldID = 65534,
+            Flags = 13,
+            Data = playerData.ToBytes()
+        };
+    }
+    public void SendSpawnPackets(Character character, uint tick)
+    {
+        // Packet 13 - Generic Init Data
+        this.Send(new GenericInitData { Data = [this.GetPlayerData(character)], GameTick = tick });
+
+        // Packet 22 - Network Update
+        this.Send(
+            new NetworkUpdate.Builder()
+                .WithGameTick(tick + 1)
+                .WriteCreate(character)
+                .WriteUpdate(character)
+                .Build()
+        );
     }
 
     public Character CreateCharacter()
@@ -259,7 +305,26 @@ public static class PlayerService
         // ...
 
         // If it still cannot be found, we make a new one
-        var player = new Player(conn);
+        var inventoryContainer = ContainerService.Instance.CreateContainer(30);
+        Console.WriteLine("Created inventory container with ID {0}", inventoryContainer.Id);
+        using (var transaction = ContainerService.Instance.BeginTransaction())
+        {
+            for (int i = 0; i < 30; i++)
+            {
+                transaction.CollectToSlot(
+                    inventoryContainer,
+                    new ItemStack(Guid.Parse("df953d9c-234f-4ac2-af5e-f0490b223e71"), ItemStack.NoInstanceId, (ushort)(i + 1)),
+                    (ushort)i
+                );
+            }
+            Console.WriteLine("Collected items into inventory container");
+            transaction.EndTransaction();
+        }
+
+        var carryContainer = ContainerService.Instance.CreateContainer(1);
+        Console.WriteLine("Created carry container with ID {0}", carryContainer.Id);
+        var player = new Player(conn, inventoryContainer, carryContainer);
+        Console.WriteLine("Created player with ID {0}", player.Id);
 
         player.Id = NextPlayerID;
         player.SteamId = identity.SteamId.Value;

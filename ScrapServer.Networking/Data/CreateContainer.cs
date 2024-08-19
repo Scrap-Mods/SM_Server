@@ -24,7 +24,7 @@ public class CreateContainer : IBitSerializable
         {
             Items[i] = new ItemStack
             {
-                Uuid = reader.ReadGuid(),
+                Uuid = reader.ReadGuid(ByteOrder.LittleEndian),
                 InstanceId = reader.ReadUInt32(),
                 Quantity = reader.ReadUInt16()
             };
@@ -47,7 +47,7 @@ public class CreateContainer : IBitSerializable
         {
             foreach (var item in Items)
             {
-                writer.WriteGuid(item.Uuid);
+                writer.WriteGuid(item.Uuid, ByteOrder.LittleEndian);
                 writer.WriteUInt32(item.InstanceId);
                 writer.WriteUInt16(item.Quantity);
             }

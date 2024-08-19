@@ -74,7 +74,7 @@ public class Container : INetObj
 
     public void SerializeCreate(ref BitWriter writer)
     {
-        var createContainer = new CreateContainer
+        new CreateContainer
         {
             StackSize = this.MaximumStackSize,
             Items = this.Items.Select(item => new CreateContainer.ItemStack
@@ -84,7 +84,7 @@ public class Container : INetObj
                 Quantity = item.Quantity
             }).ToArray(),
             Filter = [.. this.Filter],
-        };
+        }.Serialize(ref writer);
     }
 
     public void SerializeUpdate(ref BitWriter writer)
