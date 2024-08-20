@@ -4,23 +4,40 @@ using static ScrapServer.Core.NetObjs.Container;
 
 namespace ScrapServer.Core;
 
-
 public class ContainerService
 {
+    /// <summary>
+    /// The singleton instance of the container service.
+    /// </summary>
     public static readonly ContainerService Instance = new();
 
+    /// <summary>
+    /// The dictionary of containers, indexed by their unique ID.
+    /// </summary>
     public Dictionary<uint, Container> Containers = [];
 
+    /// <summary>
+    /// The unique ID provider for containers.
+    /// </summary>
     public readonly UniqueIdProvider UniqueIdProvider = new();
 
+    /// <summary>
+    /// The current transaction, null if no transaction is in progress.
+    /// </summary>
     private volatile Transaction? CurrentTransaction;
 
+    /// <summary>
+    /// New transactions should be created using <see cref="BeginTransaction"/>.
+    /// </summary>
+    /// <param name="containerService"></param>
     public class Transaction(ContainerService containerService) : IDisposable
     {
         private readonly Dictionary<uint, Container> modified = [];
 
         /// <summary>
         /// Collects items into a specific slot of a container.
+        /// 
+        /// This implementation is designed to return sensible results and does not match `sm.container.collectToSlot` exactly.
         /// </summary>
         /// <param name="container">The container to collect the items into</param>
         /// <param name="itemStack">The item stack, including quantity, to collect</param>
@@ -29,11 +46,12 @@ public class ContainerService
         ///     If false, collect as many items that fit into the remaining space, and do so without overflowing into other slots.
         /// </param>
         /// <returns>A tuple containing the number of items collected and the result of the operation</returns>
+        /// <exception cref="SlotIndexOutOfRangeException">If the slot index is out of range</exception>
         public (ushort Collected, OperationResult Result) CollectToSlot(Container container, ItemStack itemStack, ushort slot, bool mustCollectAll = true)
         {
             var containerCopyOnWrite = modified.TryGetValue(container.Id, out Container? found) ? found : container.Clone();
 
-            if (slot < 0 || slot > containerCopyOnWrite.Items.Length)
+            if (slot < 0 || slot >= containerCopyOnWrite.Items.Length)
             {
                 throw new SlotIndexOutOfRangeException($"Slot {slot} is out of range [0, {containerCopyOnWrite.Items.Length})");
             }
@@ -66,6 +84,10 @@ public class ContainerService
             return ((ushort)quantityToCollect, OperationResult.Success);
         }
 
+        /// <summary>
+        /// Ends the transaction and applies the changes to the containers.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If the transaction is not the current transaction</exception>
         public void EndTransaction()
         {
             if (containerService.CurrentTransaction != this)
@@ -82,7 +104,6 @@ public class ContainerService
                 
                 Array.Copy(container.Items, target.Items, container.Items.Length);
 
-
                 target.Filter.Clear();
                 target.Filter.UnionWith(container.Filter);
             }
@@ -90,6 +111,10 @@ public class ContainerService
             containerService.CurrentTransaction = null;
         }
 
+        /// <summary>
+        /// Aborts the transaction and discards the changes.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If the transaction is not the current transaction</exception>
         public void AbortTransaction()
         {
             if (containerService.CurrentTransaction != this)
@@ -126,6 +151,11 @@ public class ContainerService
         }
     }
 
+    /// <summary>
+    /// Creates a new transaction and sets it as the current transaction.
+    /// </summary>
+    /// <returns>The transaction</returns>
+    /// <exception cref="InvalidOperationException">If a transaction is already in progress</exception>
     public Transaction BeginTransaction()
     {
         if (this.CurrentTransaction != null)
@@ -136,6 +166,12 @@ public class ContainerService
         return this.CurrentTransaction = new Transaction(this);
     }
 
+    /// <summary>
+    /// Gets the maximum stack size of an item in a container.
+    /// </summary>
+    /// <param name="container">The container</param>
+    /// <param name="uuid">The UUID of the item</param>
+    /// <returns>The maximum stack size</returns>
     public ushort GetMaximumStackSize(Container container, Guid uuid)
     {
         // TODO: Return the minimum of the maximum stack size of the item and the container
@@ -143,6 +179,12 @@ public class ContainerService
         return container.MaximumStackSize;
     }
 
+    /// <summary>
+    /// Creates a new container with a unique ID and adds it to the list of containers.
+    /// </summary>
+    /// <param name="size">The amount of slots in the container</param>
+    /// <param name="maximumStackSize">The maximum stack size of items in the container</param>
+    /// <returns>The created container</returns>
     public Container CreateContainer(ushort size, ushort maximumStackSize = ushort.MaxValue)
     {
         var id = UniqueIdProvider.GetNextId();
@@ -151,5 +193,15 @@ public class ContainerService
         Containers[id] = container;
 
         return container;
+    }
+
+    /// <summary>
+    /// Removes a container from the list of containers.
+    /// </summary>
+    /// <param name="id">The ID of the container to remove</param>
+    /// <returns>true if the container was removed; otherwise, false</returns>
+    public bool RemoveContainer(uint id)
+    {
+        return Containers.Remove(id);
     }
 }
