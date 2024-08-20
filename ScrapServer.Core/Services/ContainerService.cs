@@ -13,7 +13,7 @@ public class ContainerService
 
     public readonly UniqueIdProvider UniqueIdProvider = new();
 
-    private volatile bool IsInTransaction = false;
+    private volatile Transaction? CurrentTransaction;
 
     public class Transaction(ContainerService containerService) : IDisposable
     {
@@ -68,9 +68,9 @@ public class ContainerService
 
         public void EndTransaction()
         {
-            if (!containerService.IsInTransaction)
+            if (containerService.CurrentTransaction != this)
             {
-                throw new InvalidOperationException("Transaction was not started");
+                throw new InvalidOperationException("Attempted to end a transaction that is not the current transaction");
             }
 
             foreach (var (id, container) in modified)
@@ -87,24 +87,22 @@ public class ContainerService
                 target.Filter.UnionWith(container.Filter);
             }
 
-            containerService.IsInTransaction = false;
+            containerService.CurrentTransaction = null;
         }
 
         public void AbortTransaction()
         {
-            if (!containerService.IsInTransaction)
+            if (containerService.CurrentTransaction != this)
             {
-                throw new InvalidOperationException("Transaction was not started");
+                throw new InvalidOperationException("Attempted to abort a transaction that is not the current transaction");
             }
 
-            this.modified.Clear();
-
-            containerService.IsInTransaction = false;
+            containerService.CurrentTransaction = null;
         }
 
         public void Dispose()
         {
-            if (containerService.IsInTransaction)
+            if (containerService.CurrentTransaction != null)
             {
                 this.AbortTransaction();
                 Console.WriteLine("Transaction was not committed or rolled back, aborting...");
@@ -130,14 +128,12 @@ public class ContainerService
 
     public Transaction BeginTransaction()
     {
-        if (this.IsInTransaction)
+        if (this.CurrentTransaction != null)
         {
             throw new InvalidOperationException("Cannot start a transaction while one is already in progress");
         }
 
-        this.IsInTransaction = true;
-
-        return new Transaction(this);
+        return this.CurrentTransaction = new Transaction(this);
     }
 
     public ushort GetMaximumStackSize(Container container, Guid uuid)
