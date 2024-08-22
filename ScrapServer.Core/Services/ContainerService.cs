@@ -34,22 +34,61 @@ public class ContainerService
     {
         private readonly Dictionary<uint, Container> modified = [];
 
+        private Container GetOrCloneContainer(Container container)
+        {
+            return modified.TryGetValue(container.Id, out Container? found) ? found : container.Clone();
+        }
+
+        /// <summary>
+        /// Calculates the remaining space in a container slot for an item stack.
+        /// </summary>
+        /// <param name="containerTo">The container to calculate the remaining space in</param>
+        /// <param name="slotTo">The slot to calculate the remaining space in</param>
+        /// <param name="itemStack">The item stack to calculate the remaining space for if it were to be combined with the item stack in the slot</param>
+        /// <returns></returns>
+        private ushort GetRemainingSpace(Container containerTo, ushort slotTo, ItemStack itemStack)
+        {
+            var currentItemStackInSlot = containerTo.Items[slotTo];
+
+            if (!currentItemStackInSlot.IsStackableWith(itemStack))
+            {
+                return 0;
+            }
+
+            int max = containerService.GetMaximumStackSize(containerTo, itemStack.Uuid);
+            int remainingSpace = max - currentItemStackInSlot.Quantity;
+            
+            if (remainingSpace <= 0)
+            {
+                return 0;
+            }
+
+            return (ushort)remainingSpace;
+        }
+
         /// <summary>
         /// Collects items into a specific slot of a container.
-        /// 
-        /// This implementation is designed to return sensible results and does not match `sm.container.collectToSlot` exactly.
         /// </summary>
+        /// <remarks>
+        /// This implementation is designed to return sensible results and does not match `sm.container.collectToSlot` exactly.
+        /// </remarks>
         /// <param name="container">The container to collect the items into</param>
         /// <param name="itemStack">The item stack, including quantity, to collect</param>
+        /// <param name="slot">The slot to collect the items into</param>
         /// <param name="mustCollectAll">
-        ///     If true, only collect items if the full item stack fits in the remaining space of the slot.
-        ///     If false, collect as many items that fit into the remaining space, and do so without overflowing into other slots.
+        ///     If <see langword="true" />, only collect items if the full <paramref name="itemStack"/> fits in the remaining space of the slot.
+        ///     If <see langword="false" />, collect as many items that fit into the remaining space, and do so without overflowing into other slots.
         /// </param>
         /// <returns>A tuple containing the number of items collected and the result of the operation</returns>
         /// <exception cref="SlotIndexOutOfRangeException">If the slot index is out of range</exception>
-        public (ushort Collected, OperationResult Result) CollectToSlot(Container container, ItemStack itemStack, ushort slot, bool mustCollectAll = true)
+        public (ushort Collected, OperationResult Result) CollectToSlot(
+            Container container,
+            ItemStack itemStack,
+            ushort slot,
+            bool mustCollectAll = true
+        )
         {
-            var containerCopyOnWrite = modified.TryGetValue(container.Id, out Container? found) ? found : container.Clone();
+            var containerCopyOnWrite = this.GetOrCloneContainer(container);
 
             if (slot < 0 || slot >= containerCopyOnWrite.Items.Length)
             {
@@ -63,25 +102,118 @@ public class ContainerService
                 return (0, OperationResult.NotStackable);
             }
 
-            int max = containerService.GetMaximumStackSize(container, itemStack.Uuid);
-            int remainingSpace = max - currentItemStackInSlot.Quantity;
-
-            int quantityToCollect = Math.Min(remainingSpace, itemStack.Quantity);
-            if (quantityToCollect <= 0)
+            int remainingSpace = this.GetRemainingSpace(containerCopyOnWrite, slot, itemStack);
+            if (remainingSpace <= 0)
             {
                 return (0, OperationResult.NotEnoughSpace);
             }
 
-            if (mustCollectAll && quantityToCollect < itemStack.Quantity)
+            if (mustCollectAll && remainingSpace < itemStack.Quantity)
             {
                 return (0, OperationResult.NotEnoughSpaceForAll);
             }
 
-            containerCopyOnWrite.Items[slot] = ItemStack.Combine(itemStack, currentItemStackInSlot);
+            int quantityToCollect = Math.Min(remainingSpace, itemStack.Quantity);
+
+            containerCopyOnWrite.Items[slot] = ItemStack.Combine(currentItemStackInSlot, itemStack with {
+                Quantity = (ushort)quantityToCollect
+            });
 
             modified[container.Id] = containerCopyOnWrite;
 
             return ((ushort)quantityToCollect, OperationResult.Success);
+        }
+
+        /// <summary>
+        /// Moves items from one slot to another slot in the same or different container.
+        /// </summary>
+        /// <param name="containerFrom">The container to move the items from</param>
+        /// <param name="slotFrom">The slot to move the items from</param>
+        /// <param name="containerTo">The container to move the items to</param>
+        /// <param name="slotTo">The slot to move the items to</param>
+        /// <param name="quantity">The quantity of items to move</param>
+        /// <param name="mustMoveAll">
+        ///     If <see langword="true" />, only move items if the full <paramref name="quantity"/> fits in the remaining space of the slot.
+        ///     If <see langword="false" />, move as many items that fit into the remaining space, and do so without overflowing into other slots.
+        /// </param>
+        /// <returns>A tuple containing the number of items moved and the result of the operation</returns>
+        /// <exception cref="SlotIndexOutOfRangeException">If the slot index is out of range</exception>
+        public (ushort Moved, OperationResult Result) Move(
+            Container containerFrom,
+            ushort slotFrom,
+            Container containerTo,
+            ushort slotTo,
+            ushort quantity,
+            bool mustMoveAll = true
+        )
+        {
+            var containerFromCopyOnWrite = this.GetOrCloneContainer(containerFrom);
+            var containerToCopyOnWrite = containerFrom.Equals(containerTo)
+                ? containerFromCopyOnWrite
+                : this.GetOrCloneContainer(containerTo);
+
+            if (slotFrom < 0 || slotFrom >= containerFromCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slotFrom} of source container is out of range [0, {containerFromCopyOnWrite.Items.Length})");
+            }
+
+            if (slotTo < 0 || slotTo >= containerToCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slotTo} of destination container is out of range [0, {containerToCopyOnWrite.Items.Length})");
+            }
+
+            var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
+            var itemStackTo = containerToCopyOnWrite.Items[slotTo];
+
+
+            if (!itemStackFrom.IsStackableWith(itemStackTo))
+            {
+                return (0, OperationResult.NotStackable);
+            }
+
+            int quantityToMove = Math.Min(quantity, itemStackFrom.Quantity);
+            if (quantityToMove <= 0)
+            {
+                return (0, OperationResult.Success);
+            }
+
+            if (containerFrom == containerTo && slotFrom == slotTo)
+            {
+                if (mustMoveAll && itemStackFrom.Quantity < quantity)
+                {
+                    return (0, OperationResult.NotEnoughSpaceForAll);
+                }
+                else
+                {
+                    return ((ushort)quantityToMove, OperationResult.Success);
+                }
+            }
+
+            var remainingSpace = this.GetRemainingSpace(containerToCopyOnWrite, slotTo, itemStackFrom);
+            quantityToMove = Math.Min(quantityToMove, remainingSpace);
+
+            if (mustMoveAll && quantityToMove < quantity)
+            {
+                return (0, OperationResult.NotEnoughSpaceForAll);
+            }
+
+            containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with {
+                Quantity = (ushort)(itemStackFrom.Quantity - quantityToMove)
+            };
+            containerToCopyOnWrite.Items[slotTo] = ItemStack.Combine(
+                itemStackTo,
+                itemStackFrom with { Quantity = (ushort)quantityToMove }
+            );
+
+            if (containerFromCopyOnWrite.Items[slotFrom].Quantity == 0)
+            {
+                containerFromCopyOnWrite.Items[slotFrom] = ItemStack.Empty;
+            }
+
+            modified[containerFrom.Id] = containerFromCopyOnWrite;
+            modified[containerTo.Id] = containerToCopyOnWrite;
+
+            return ((ushort)quantityToMove, OperationResult.Success);
         }
 
         /// <summary>

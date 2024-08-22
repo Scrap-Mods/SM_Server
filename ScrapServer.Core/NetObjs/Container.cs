@@ -61,7 +61,7 @@ public class Container : INetObj
 
     public Container Clone()
     {
-        var clone = new Container(this.Id, (ushort)Items.Length);
+        var clone = new Container(this.Id, (ushort)Items.Length, this.MaximumStackSize);
         for (int i = 0; i < this.Items.Length; i++)
         {
             clone.Items[i] = this.Items[i];
