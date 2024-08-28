@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Core.NetObjs;
 using ScrapServer.Core.Utils;
+using ScrapServer.Networking.Data;
 using static ScrapServer.Core.NetObjs.Container;
 
 namespace ScrapServer.Core;
@@ -219,13 +220,16 @@ public class ContainerService
         /// <summary>
         /// Ends the transaction and applies the changes to the containers.
         /// </summary>
+        /// <returns>A list of tuples containing the updated containers and their network updates</returns>
         /// <exception cref="InvalidOperationException">If the transaction is not the current transaction</exception>
-        public void EndTransaction()
+        public IEnumerable<(Container, UpdateContainer)> EndTransaction()
         {
             if (containerService.CurrentTransaction != this)
             {
                 throw new InvalidOperationException("Attempted to end a transaction that is not the current transaction");
             }
+
+            List<(Container, UpdateContainer)> updates = [];
 
             foreach (var (id, container) in modified)
             {
@@ -233,14 +237,20 @@ public class ContainerService
                 {
                     throw new InvalidOperationException($"Container with ID {id} was not found");
                 }
+
+                var update = container.CreateNetworkUpdate(target);
                 
                 Array.Copy(container.Items, target.Items, container.Items.Length);
 
                 target.Filter.Clear();
                 target.Filter.UnionWith(container.Filter);
+
+                updates.Add((target, update));
             }
 
             containerService.CurrentTransaction = null;
+
+            return updates;
         }
 
         /// <summary>

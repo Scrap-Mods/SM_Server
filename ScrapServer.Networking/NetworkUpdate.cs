@@ -1,5 +1,6 @@
 ﻿using ScrapServer.Networking.Data;
 using ScrapServer.Utility.Serialization;
+using static ScrapServer.Networking.NetworkUpdate.Builder;
 
 namespace ScrapServer.Networking;
 
@@ -43,12 +44,14 @@ public struct NetworkUpdate : IPacket
             return this;
         }
 
-        private Builder Write<TNetObj>(TNetObj netObj, NetworkUpdateType updateType) where TNetObj : INetObj
+        public delegate void WriteDelegate(ref BitWriter writer);
+
+        public Builder Write<TNetObj>(TNetObj netObj, NetworkUpdateType updateType, WriteDelegate writeDelegate) where TNetObj : INetObj
         {
             writer.GoToNearestByte();
             var sizePos = writer.ByteIndex;
 
-            var header = new Networking.Data.NetObj
+            var header = new NetObj
             {
                 UpdateType = updateType,
                 ObjectType = netObj.NetObjType,
@@ -63,47 +66,31 @@ public struct NetworkUpdate : IPacket
 
             writer.WriteUInt32(netObj.Id);
 
-            switch(updateType)
-            {
-                case NetworkUpdateType.Create:
-                    netObj.SerializeCreate(ref writer);
-                    break;
-                case NetworkUpdateType.P:
-                    netObj.SerializeP(ref writer);
-                    break;
-                case NetworkUpdateType.Update:
-                    netObj.SerializeUpdate(ref writer);
-                    break;
-                case NetworkUpdateType.Remove:
-                    netObj.SerializeRemove(ref writer);
-                    break;
-                default:
-                    throw new InvalidDataException($"Invalid update type: {updateType}");
-            }
+            writeDelegate.Invoke(ref writer);
 
-            Networking.Data.NetObj.WriteSize(ref writer, sizePos);
+            NetObj.WriteSize(ref writer, sizePos);
 
             return this;
         }
 
         public Builder WriteCreate<TNetObj>(TNetObj obj) where TNetObj : INetObj
         {
-            return Write(obj, NetworkUpdateType.Create);
+            return Write(obj, NetworkUpdateType.Create, obj.SerializeCreate);
         }
 
         public Builder WriteUpdate<TNetObj>(TNetObj obj) where TNetObj : INetObj
         {
-            return Write(obj, NetworkUpdateType.Update);
+            return Write(obj, NetworkUpdateType.Update, obj.SerializeUpdate);
         }
 
         public Builder WriteP<TNetObj>(TNetObj obj) where TNetObj : INetObj
         {
-            return Write(obj, NetworkUpdateType.P);
+            return Write(obj, NetworkUpdateType.P, obj.SerializeP);
         }
 
         public Builder WriteRemove<TNetObj>(TNetObj obj) where TNetObj : INetObj
         {
-            return Write(obj, NetworkUpdateType.Remove);
+            return Write(obj, NetworkUpdateType.Remove, obj.SerializeRemove);
         }
 
         public NetworkUpdate Build()

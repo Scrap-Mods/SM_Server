@@ -7,8 +7,6 @@ using Steamworks.Data;
 using System.Text;
 using ScrapServer.Core.NetObjs;
 using static ScrapServer.Core.NetObjs.Container;
-using System.Xml.Linq;
-
 
 namespace ScrapServer.Core;
 
@@ -81,7 +79,7 @@ public class Player
 
             Send(new ScrapServer.Networking.ServerInfo
             {
-                Version = 729,
+                Version = 723,
                 Gamemode = Gamemode.FlatTerrain,
                 Seed = 1023853875,
                 GameTick = SchedulerService.GameTick,
@@ -168,6 +166,62 @@ public class Player
             Console.WriteLine("Player: {0}, {1} Character: {2}", Id.ToString("D"), Id.ToString("D"), CharacterService.GetCharacter(this).Id);
             
             Character?.HandleMovement(packet);
+        }
+        else if (id == PacketId.ContainerTransaction)
+        {
+            var packet = reader.ReadPacket<ContainerTransaction>();
+            var containerService = ContainerService.Instance;
+
+            using var transaction = containerService.BeginTransaction();
+
+            foreach (var action in packet.Actions)
+            {
+                switch (action)
+                {
+                    case ContainerTransaction.SetItemAction setItemAction:
+                    case ContainerTransaction.SwapAction swapAction:
+                    case ContainerTransaction.CollectAction collectAction:
+                    case ContainerTransaction.SpendAction spendAction:
+                    case ContainerTransaction.CollectToSlotAction collectToSlotAction:
+                    case ContainerTransaction.CollectToSlotOrCollectAction collectToSlotOrCollectAction:
+                    case ContainerTransaction.SpendFromSlotAction spendFromSlotAction:
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+
+                    case ContainerTransaction.MoveAction moveAction:
+                        if (
+                            !containerService.Containers.TryGetValue(moveAction.From.ContainerId, out var containerFrom) ||
+                            !containerService.Containers.TryGetValue(moveAction.To.ContainerId, out var containerTo) ||
+                            moveAction.From.Slot >= containerFrom.Items.Length ||
+                            moveAction.To.Slot >= containerTo.Items.Length)
+                        {
+                            break;
+                        }
+                        transaction.Move(containerFrom, moveAction.From.Slot, containerTo, moveAction.To.Slot, moveAction.From.Quantity, moveAction.MustCollectAll);
+                        break;
+
+                    case ContainerTransaction.MoveFromSlotAction moveFromSlotAction:
+                    case ContainerTransaction.MoveAllAction moveAllAction:
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+
+                    default:
+                        return;
+                }
+            }
+
+            var networkUpdate = new NetworkUpdate.Builder()
+                .WithGameTick(SchedulerService.GameTick);
+
+            foreach (var (container, update) in transaction.EndTransaction())
+            {
+                Console.WriteLine("Sending container update for container {0}", container.Id);
+                networkUpdate.Write(container, NetworkUpdateType.Update, (ref BitWriter writer) => update.Serialize(ref writer));
+            }
+
+            var updatePacket = networkUpdate.Build();
+            foreach (var player in PlayerService.GetPlayers())
+            {
+                player.Send(updatePacket);
+            }
         }
         else if (id == PacketId.Broadcast)
         {

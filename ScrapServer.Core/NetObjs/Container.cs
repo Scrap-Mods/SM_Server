@@ -87,8 +87,64 @@ public class Container : INetObj
         }.Serialize(ref writer);
     }
 
+    /// <summary>
+    /// Serialize the update of the container with no changes.
+    /// </summary>
+    /// <param name="writer"><inheritdoc/></param>
     public void SerializeUpdate(ref BitWriter writer)
     {
-        throw new NotImplementedException();
+        new UpdateContainer
+        {
+            SlotChanges = [],
+            Filters = [],
+        }.Serialize(ref writer);
+    }
+
+    /// <summary>
+    /// Create an update of the container based on the old state.
+    /// </summary>
+    /// <param name="oldState">The cloned old state of the container</param>
+    /// <returns>The update of the container</returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public UpdateContainer CreateNetworkUpdate(Container oldState)
+    {
+        ArgumentNullException.ThrowIfNull(oldState);
+
+        if (this.Id != oldState.Id)
+        {
+            throw new InvalidOperationException("Cannot serialize update with different container ids");
+        }
+
+        if (this.Items.Length != oldState.Items.Length)
+        {
+            throw new InvalidOperationException("Cannot serialize update with different item counts");
+        }
+
+        var slotChanges = new List<UpdateContainer.SlotChange>();
+
+        for (int i = 0; i < this.Items.Length; i++)
+        {
+            var item = this.Items[i];
+            var oldItem = oldState.Items[i];
+
+            if (item != oldItem)
+            {
+                slotChanges.Add(new UpdateContainer.SlotChange
+                {
+                    Uuid = item.Uuid,
+                    InstanceId = item.InstanceId,
+                    Quantity = item.Quantity,
+                    Slot = (ushort)i,
+                });
+            }
+        }
+
+        Guid[] filterChanges = this.Filter.Equals(oldState.Filter) ? [] : [.. this.Filter];
+
+        return new UpdateContainer
+        {
+            SlotChanges = [.. slotChanges],
+            Filters = filterChanges,
+        };
     }
 }
