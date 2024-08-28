@@ -179,7 +179,22 @@ public class Player
                 switch (action)
                 {
                     case ContainerTransaction.SetItemAction setItemAction:
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+
                     case ContainerTransaction.SwapAction swapAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(swapAction.From.ContainerId, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(swapAction.To.ContainerId, out var containerTo) ||
+                                swapAction.From.Slot >= containerFrom.Items.Length ||
+                                swapAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.Swap(containerFrom, swapAction.From.Slot, containerTo, swapAction.To.Slot);
+                        }
+                        break;
+
                     case ContainerTransaction.CollectAction collectAction:
                     case ContainerTransaction.SpendAction spendAction:
                     case ContainerTransaction.CollectToSlotAction collectToSlotAction:
@@ -188,15 +203,17 @@ public class Player
                         throw new NotImplementedException($"Container transaction action {action} not implemented");
 
                     case ContainerTransaction.MoveAction moveAction:
-                        if (
-                            !containerService.Containers.TryGetValue(moveAction.From.ContainerId, out var containerFrom) ||
-                            !containerService.Containers.TryGetValue(moveAction.To.ContainerId, out var containerTo) ||
-                            moveAction.From.Slot >= containerFrom.Items.Length ||
-                            moveAction.To.Slot >= containerTo.Items.Length)
                         {
-                            break;
+                            if (
+                                !containerService.Containers.TryGetValue(moveAction.From.ContainerId, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveAction.To.ContainerId, out var containerTo) ||
+                                moveAction.From.Slot >= containerFrom.Items.Length ||
+                                moveAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.Move(containerFrom, moveAction.From.Slot, containerTo, moveAction.To.Slot, moveAction.From.Quantity, moveAction.MustCollectAll);
                         }
-                        transaction.Move(containerFrom, moveAction.From.Slot, containerTo, moveAction.To.Slot, moveAction.From.Quantity, moveAction.MustCollectAll);
                         break;
 
                     case ContainerTransaction.MoveFromSlotAction moveFromSlotAction:
@@ -367,7 +384,7 @@ public static class PlayerService
             {
                 transaction.CollectToSlot(
                     inventoryContainer,
-                    new ItemStack(Guid.Parse("df953d9c-234f-4ac2-af5e-f0490b223e71"), ItemStack.NoInstanceId, (ushort)(i + 1)),
+                    new ItemStack(Guid.Parse(i % 2 == 0 ? "df953d9c-234f-4ac2-af5e-f0490b223e71" : "a6c6ce30-dd47-4587-b475-085d55c6a3b4"), ItemStack.NoInstanceId, (ushort)(i + 1)),
                     (ushort)i
                 );
             }

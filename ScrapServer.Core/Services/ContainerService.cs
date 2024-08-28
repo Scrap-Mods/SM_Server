@@ -68,6 +68,57 @@ public class ContainerService
         }
 
         /// <summary>
+        /// Swaps items between two slots in the same or different containers.
+        /// </summary>
+        /// <param name="containerFrom">The container to swap the items from</param>
+        /// <param name="slotFrom">The slot to swap the items from</param>
+        /// <param name="containerTo">The container to swap the items to</param>
+        /// <param name="slotTo">The slot to swap the items to</param>
+        /// <returns>If the swap was successful</returns>
+        /// <exception cref="SlotIndexOutOfRangeException"></exception>
+        public bool Swap(
+            Container containerFrom,
+            ushort slotFrom,
+            Container containerTo,
+            ushort slotTo
+        )
+        {
+            var containerFromCopyOnWrite = this.GetOrCloneContainer(containerFrom);
+            var containerToCopyOnWrite = containerFrom.Equals(containerTo)
+                ? containerFromCopyOnWrite
+                : this.GetOrCloneContainer(containerTo);
+
+            if (slotFrom < 0 || slotFrom >= containerFromCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slotFrom} of source container is out of range [0, {containerFromCopyOnWrite.Items.Length})");
+            }
+
+            if (slotTo < 0 || slotTo >= containerToCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slotTo} of destination container is out of range [0, {containerToCopyOnWrite.Items.Length})");
+            }
+
+            var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
+            var itemStackTo = containerToCopyOnWrite.Items[slotTo];
+
+            if (
+                itemStackFrom.Quantity > containerService.GetMaximumStackSize(containerTo, itemStackFrom.Uuid) ||
+                itemStackTo.Quantity > containerService.GetMaximumStackSize(containerFrom, itemStackTo.Uuid)
+            )
+            {
+                return false;
+            }
+
+            containerFromCopyOnWrite.Items[slotFrom] = itemStackTo;
+            containerToCopyOnWrite.Items[slotTo] = itemStackFrom;
+
+            modified[containerFrom.Id] = containerFromCopyOnWrite;
+            modified[containerTo.Id] = containerToCopyOnWrite;
+
+            return true;
+        }
+
+        /// <summary>
         /// Collects items into a specific slot of a container.
         /// </summary>
         /// <remarks>

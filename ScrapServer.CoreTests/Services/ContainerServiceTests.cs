@@ -493,4 +493,127 @@ public class ContainerServiceTests
         Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = 1 } }));
         Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = ushort.MaxValue } }));
     }
+
+    [Test]
+    public void Swap_SlotIndexOutOfRange_ThrowsException()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+
+        // Assert
+        Assert.That(
+            () => transaction.Swap(containerFrom, slotFrom: 1, containerTo, slotTo: 0),
+            Throws.TypeOf<SlotIndexOutOfRangeException>()
+        );
+        Assert.That(
+            () => transaction.Swap(containerFrom, slotFrom: 0, containerTo, slotTo: 1),
+            Throws.TypeOf<SlotIndexOutOfRangeException>()
+        );
+
+        // Cleanup
+        transaction.EndTransaction();
+    }
+
+    [Test]
+    public void Swap_ToMaximumStackSizeTooSmall_ReturnsFalse()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1, maximumStackSize: 2);
+        var containerTo = service.CreateContainer(size: 1, maximumStackSize: 1);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 2 }, slot: 0);
+        transaction.CollectToSlot(containerTo, ConcreteBlock, slot: 0);
+
+        // Act
+        var result = transaction.Swap(containerFrom, slotFrom: 0, containerTo, slotTo: 0);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(result, Is.False);
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = 2 } }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] { ConcreteBlock }));
+    }
+
+    [Test]
+    public void Swap_FromMaximumStackSizeTooSmall_ReturnsFalse()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1, maximumStackSize: 1);
+        var containerTo = service.CreateContainer(size: 1, maximumStackSize: 2);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, ConcreteBlock, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 2 }, slot: 0);
+
+        // Act
+        var result = transaction.Swap(containerFrom, slotFrom: 0, containerTo, slotTo: 0);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(result, Is.False);
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ConcreteBlock }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = 2 } }));
+    }
+
+    [Test]
+    public void Swap_SameSlot_ReturnsTrue()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock, slot: 0);
+
+        // Act
+        var result = transaction.Swap(container, slotFrom: 0, container, slotTo: 0);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(result, Is.True);
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { WoodBlock }));
+    }
+
+    [Test]
+    public void Swap_SameContainer_ReturnsTrue()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 2);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock, slot: 0);
+        transaction.CollectToSlot(container, ConcreteBlock, slot: 1);
+
+        // Act
+        var result = transaction.Swap(container, slotFrom: 0, container, slotTo: 1);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(result, Is.True);
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { ConcreteBlock, WoodBlock }));
+    }
+
+    [Test]
+    public void Swap_DifferentContainers_ReturnsTrue()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock, slot: 0);
+        transaction.CollectToSlot(containerTo, ConcreteBlock, slot: 0);
+
+        // Act
+        var result = transaction.Swap(containerFrom, slotFrom: 0, containerTo, slotTo: 0);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(result, Is.True);
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ConcreteBlock }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] { WoodBlock }));
+    }
 }
