@@ -1,4 +1,4 @@
-using ScrapServer.Core.NetObjs;
+﻿using ScrapServer.Core.NetObjs;
 using ScrapServer.Core.Utils;
 using ScrapServer.Networking.Data;
 using static ScrapServer.Core.NetObjs.Container;
@@ -375,6 +375,20 @@ public class ContainerService
             }
 
             modified[containerFrom.Id] = containerFromCopyOnWrite;
+        }
+
+        /// <summary>
+        /// Attempts to move all items from one container to another.
+        /// Fills existing stacks first, then empty slots.
+        /// </summary>
+        /// <param name="containerFrom">The container to move the items from</param>
+        /// <param name="containerTo">The container to move the items to</param>
+        public void MoveAll(Container containerFrom, Container containerTo)
+        {
+            for (ushort slotFrom = 0; slotFrom < containerFrom.Items.Length; slotFrom++)
+            {
+                this.MoveFromSlot(containerFrom, slotFrom, containerTo);
+            }
         }
 
         /// <summary>

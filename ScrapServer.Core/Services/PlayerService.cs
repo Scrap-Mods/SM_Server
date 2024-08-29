@@ -243,10 +243,19 @@ public class Player
                         break;
 
                     case ContainerTransaction.MoveAllAction moveAllAction:
-                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(moveAllAction.ContainerFrom, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveAllAction.ContainerTo, out var containerTo))
+                            {
+                                break;
+                            }
+                            transaction.MoveAll(containerFrom, containerTo);
+                        }
+                        break;
 
                     default:
-                        return;
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
                 }
             }
 

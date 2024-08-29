@@ -764,4 +764,60 @@ public class ContainerServiceTests
             WoodBlock with { Quantity = 8 }
         }));
     }
+
+    [Test]
+    public void MoveAll_FullDestination_MovesNothing()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 2, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 10 }, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 10 }, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 10 }, slot: 1);
+
+        // Act
+        transaction.MoveAll(containerFrom, containerTo);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = 10 } }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] {
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 10 }
+        }));
+    }
+
+    [Test]
+    public void MoveAll_EmptyDestination_MovesAll()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 4);
+        var containerTo = service.CreateContainer(size: 4, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 2 }, slot: 1);
+        transaction.CollectToSlot(containerFrom, ConcreteBlock with { Quantity = 5 }, slot: 2);
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 3 }, slot: 3);
+
+        // Act
+        transaction.MoveAll(containerFrom, containerTo);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] {
+            ItemStack.Empty,
+            ItemStack.Empty,
+            ItemStack.Empty,
+            ItemStack.Empty
+        }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[]
+        {
+            WoodBlock with { Quantity = 5 },
+            ConcreteBlock with { Quantity = 5 },
+            ItemStack.Empty,
+            ItemStack.Empty
+        }));
+    }
 }
