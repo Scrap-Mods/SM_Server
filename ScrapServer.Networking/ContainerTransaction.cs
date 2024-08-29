@@ -24,7 +24,7 @@ public struct ContainerTransaction : IPacket
 
         public void Deserialize(ref BitReader reader)
         {
-            this.Uuid = reader.ReadGuid();
+            this.Uuid = reader.ReadGuid(ByteOrder.LittleEndian);
             this.InstanceId = reader.ReadUInt32();
             this.Quantity = reader.ReadUInt16();
             this.Slot = reader.ReadUInt16();
@@ -33,7 +33,7 @@ public struct ContainerTransaction : IPacket
 
         public readonly void Serialize(ref BitWriter writer)
         {
-            writer.WriteGuid(this.Uuid);
+            writer.WriteGuid(this.Uuid, ByteOrder.LittleEndian);
             writer.WriteUInt32(this.InstanceId);
             writer.WriteUInt16(this.Quantity);
             writer.WriteUInt16(this.Slot);
@@ -410,7 +410,7 @@ public struct ContainerTransaction : IPacket
                 ActionType.Move => new MoveAction { },
                 ActionType.MoveFromSlot => new MoveFromSlotAction { },
                 ActionType.MoveAll => new MoveAllAction { },
-                _ => throw new InvalidOperationException($"Unknown action type: {actionType}"),
+                _ => new MoveAction { }, // Default to move action
             };
             this.Actions[i].Deserialize(ref reader);
         }

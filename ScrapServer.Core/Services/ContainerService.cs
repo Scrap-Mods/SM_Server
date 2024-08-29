@@ -68,6 +68,30 @@ public class ContainerService
         }
 
         /// <summary>
+        /// Sets an item stack in a container slot.
+        /// </summary>
+        /// <remarks>
+        /// Only use this method if you know what you are doing, as it does not perform any checks.
+        /// </remarks>
+        /// <param name="container">The container</param>
+        /// <param name="slot">The slot</param>
+        /// <param name="itemStack">The item stack</param>
+        /// <exception cref="SlotIndexOutOfRangeException">If the slot index is out of range</exception>
+        public void SetItem(Container container, ushort slot, ItemStack itemStack)
+        {
+            var containerCopyOnWrite = this.GetOrCloneContainer(container);
+
+            if (slot < 0 || slot >= containerCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slot} is out of range [0, {containerCopyOnWrite.Items.Length})");
+            }
+
+            containerCopyOnWrite.Items[slot] = itemStack;
+
+            modified[container.Id] = containerCopyOnWrite;
+        }
+
+        /// <summary>
         /// Swaps items between two slots in the same or different containers.
         /// </summary>
         /// <param name="containerFrom">The container to swap the items from</param>

@@ -616,4 +616,38 @@ public class ContainerServiceTests
         Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ConcreteBlock }));
         Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] { WoodBlock }));
     }
+
+    [Test]
+    public void SetItem_SlotIndexOutOfRange_ThrowsException()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+
+        // Assert
+        Assert.That(
+            () => transaction.SetItem(container, slot: 1, WoodBlock),
+            Throws.TypeOf<SlotIndexOutOfRangeException>()
+        );
+
+        // Cleanup
+        transaction.EndTransaction();
+    }
+
+    [Test]
+    public void SetItem_NormalUsage_SetsItem()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+
+        // Act
+        transaction.SetItem(container, slot: 0, WoodBlock);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { WoodBlock }));
+    }
 }

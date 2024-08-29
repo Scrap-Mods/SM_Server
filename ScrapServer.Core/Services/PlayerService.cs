@@ -179,7 +179,20 @@ public class Player
                 switch (action)
                 {
                     case ContainerTransaction.SetItemAction setItemAction:
-                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(setItemAction.To.ContainerId, out var containerTo) ||
+                                setItemAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.SetItem(containerTo, setItemAction.To.Slot, new ItemStack(
+                                setItemAction.To.Uuid,
+                                setItemAction.To.InstanceId,
+                                setItemAction.To.Quantity
+                            ));
+                        }
+                        break;
 
                     case ContainerTransaction.SwapAction swapAction:
                         {
