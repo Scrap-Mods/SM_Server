@@ -650,4 +650,118 @@ public class ContainerServiceTests
         // Assert
         Assert.That(container.Items, Is.EqualTo(new ItemStack[] { WoodBlock }));
     }
+
+    [Test]
+    public void MoveFromSlot_SlotIndexOutOfRange_ThrowsException()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+
+        // Assert
+        Assert.That(
+            () => transaction.MoveFromSlot(containerFrom, slotFrom: 1, containerTo),
+            Throws.TypeOf<SlotIndexOutOfRangeException>()
+        );
+
+        // Cleanup
+        transaction.EndTransaction();
+    }
+
+    [Test]
+    public void MoveFromSlot_SameContainer_RemainsUnchanged()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 2);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock, slot: 1);
+
+        // Act
+        transaction.MoveFromSlot(container, slotFrom: 1, container);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { ItemStack.Empty, WoodBlock }));
+    }
+
+    [Test]
+    public void MoveFromSlot_ItemAlreadyExistsInDestination_AddsToExistingStack()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 3);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 2 }, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 1 }, slot: 1);
+
+        // Act
+        transaction.MoveFromSlot(containerFrom, slotFrom: 0, containerTo);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ItemStack.Empty }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[] {
+            ItemStack.Empty,
+            WoodBlock with { Quantity = 3 },
+            ItemStack.Empty
+        }));
+    }
+
+    [Test]
+    public void MoveFromSlot_MultiplePartiallyFillsDestinationStacks_OverflowsIntoNextStack()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 4, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 10 }, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 3 }, slot: 1);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 5 }, slot: 2);
+
+        // Act
+        transaction.MoveFromSlot(containerFrom, slotFrom: 0, containerTo);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ItemStack.Empty }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[]
+        {
+            ItemStack.Empty,
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 8 },
+            ItemStack.Empty
+        }));
+    }
+
+    [Test]
+    public void MoveFromSlot_SinglePartiallyFillsDestinationStack_OverflowsIntoEmptySlots()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var containerFrom = service.CreateContainer(size: 1);
+        var containerTo = service.CreateContainer(size: 4, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(containerFrom, WoodBlock with { Quantity = 20 }, slot: 0);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 9 }, slot: 1);
+        transaction.CollectToSlot(containerTo, WoodBlock with { Quantity = 9 }, slot: 2);
+
+        // Act
+        transaction.MoveFromSlot(containerFrom, slotFrom: 0, containerTo);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(containerFrom.Items, Is.EqualTo(new ItemStack[] { ItemStack.Empty }));
+        Assert.That(containerTo.Items, Is.EqualTo(new ItemStack[]
+        {
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 8 }
+        }));
+    }
 }

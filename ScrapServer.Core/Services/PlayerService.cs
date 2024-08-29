@@ -230,6 +230,18 @@ public class Player
                         break;
 
                     case ContainerTransaction.MoveFromSlotAction moveFromSlotAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(moveFromSlotAction.ContainerFrom, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveFromSlotAction.ContainerTo, out var containerTo) ||
+                                moveFromSlotAction.SlotFrom >= containerFrom.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.MoveFromSlot(containerFrom, moveFromSlotAction.SlotFrom, containerTo);
+                        }
+                        break;
+
                     case ContainerTransaction.MoveAllAction moveAllAction:
                         throw new NotImplementedException($"Container transaction action {action} not implemented");
 

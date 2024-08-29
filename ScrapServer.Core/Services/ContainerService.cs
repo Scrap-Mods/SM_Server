@@ -1,4 +1,4 @@
-﻿using ScrapServer.Core.NetObjs;
+using ScrapServer.Core.NetObjs;
 using ScrapServer.Core.Utils;
 using ScrapServer.Networking.Data;
 using static ScrapServer.Core.NetObjs.Container;
@@ -58,7 +58,7 @@ public class ContainerService
 
             int max = containerService.GetMaximumStackSize(containerTo, itemStack.Uuid);
             int remainingSpace = max - currentItemStackInSlot.Quantity;
-            
+
             if (remainingSpace <= 0)
             {
                 return 0;
@@ -191,7 +191,8 @@ public class ContainerService
 
             int quantityToCollect = Math.Min(remainingSpace, itemStack.Quantity);
 
-            containerCopyOnWrite.Items[slot] = ItemStack.Combine(currentItemStackInSlot, itemStack with {
+            containerCopyOnWrite.Items[slot] = ItemStack.Combine(currentItemStackInSlot, itemStack with
+            {
                 Quantity = (ushort)quantityToCollect
             });
 
@@ -273,7 +274,8 @@ public class ContainerService
                 return (0, OperationResult.NotEnoughSpaceForAll);
             }
 
-            containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with {
+            containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with
+            {
                 Quantity = (ushort)(itemStackFrom.Quantity - quantityToMove)
             };
             containerToCopyOnWrite.Items[slotTo] = ItemStack.Combine(
@@ -290,6 +292,89 @@ public class ContainerService
             modified[containerTo.Id] = containerToCopyOnWrite;
 
             return ((ushort)quantityToMove, OperationResult.Success);
+        }
+
+        /// <summary>
+        /// Attempts to move items from one slot to another slot.
+        /// Fills existing stacks first, then empty slots.
+        /// </summary>
+        /// <param name="containerFrom">The container to move the items from</param>
+        /// <param name="slotFrom">The slot to move the items from</param>
+        /// <param name="containerTo">The container to move the items to</param>
+        /// <exception cref="SlotIndexOutOfRangeException">If the slot index is out of range</exception>
+        public void MoveFromSlot(Container containerFrom, ushort slotFrom, Container containerTo)
+        {
+            var containerFromCopyOnWrite = this.GetOrCloneContainer(containerFrom);
+            var containerToCopyOnWrite = containerFrom.Equals(containerTo)
+                ? containerFromCopyOnWrite
+                : this.GetOrCloneContainer(containerTo);
+
+            if (slotFrom < 0 || slotFrom >= containerFromCopyOnWrite.Items.Length)
+            {
+                throw new SlotIndexOutOfRangeException($"Slot {slotFrom} of source container is out of range [0, {containerFromCopyOnWrite.Items.Length})");
+            }
+
+            if (containerFromCopyOnWrite == containerToCopyOnWrite)
+            {
+                return;
+            }
+
+            // Attempt to fill existing stacks first
+            for (ushort slotTo = 0; slotTo < containerToCopyOnWrite.Items.Length; slotTo++)
+            {
+                var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
+                var itemStackTo = containerToCopyOnWrite.Items[slotTo];
+
+                if (itemStackFrom.IsEmpty)
+                {
+                    break;
+                }
+
+                if (itemStackTo.Uuid == itemStackFrom.Uuid && this.GetRemainingSpace(containerTo, slotTo, itemStackTo) > 0)
+                {
+                    var (moved, _) = this.Move(
+                        containerFromCopyOnWrite,
+                        slotFrom,
+                        containerToCopyOnWrite,
+                        slotTo,
+                        itemStackFrom.Quantity,
+                        mustMoveAll: false
+                    );
+                    containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
+                }
+            }
+
+            // Attempt to fill empty slots
+            for (ushort slotTo = 0; slotTo < containerToCopyOnWrite.Items.Length; slotTo++)
+            {
+                var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
+                var itemStackTo = containerToCopyOnWrite.Items[slotTo];
+
+                if (itemStackFrom.IsEmpty)
+                {
+                    break;
+                }
+
+                if (itemStackTo.IsEmpty)
+                {
+                    var (moved, _) = this.Move(
+                        containerFromCopyOnWrite,
+                        slotFrom,
+                        containerToCopyOnWrite,
+                        slotTo,
+                        itemStackFrom.Quantity,
+                        mustMoveAll: false
+                    );
+                    containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
+                }
+            }
+
+            if (containerFromCopyOnWrite.Items[slotFrom].Quantity == 0)
+            {
+                containerFromCopyOnWrite.Items[slotFrom] = ItemStack.Empty;
+            }
+
+            modified[containerFrom.Id] = containerFromCopyOnWrite;
         }
 
         /// <summary>
@@ -314,7 +399,7 @@ public class ContainerService
                 }
 
                 var update = container.CreateNetworkUpdate(target);
-                
+
                 Array.Copy(container.Items, target.Items, container.Items.Length);
 
                 target.Filter.Clear();
