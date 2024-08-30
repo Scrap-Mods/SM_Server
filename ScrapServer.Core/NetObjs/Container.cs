@@ -72,6 +72,45 @@ public class Container : INetObj
         return clone;
     }
 
+    /// <summary>
+    /// Lazily find all slots containing an item with the given UUID.
+    /// </summary>
+    /// <remarks>
+    /// Supports mutating the container while iterating.
+    /// Slots behind the cursor will not be checked, while slots ahead of the cursor will be checked.
+    /// </remarks>
+    /// <param name="uuid">The UUID to search for</param>
+    /// <returns>An enumerable of slots containing the item</returns>
+    public IEnumerable<(ushort Slot, ItemStack item)> FindAllSlotsWithUuid(Guid uuid)
+    {
+        for (ushort i = 0; i < this.Items.Length; i++)
+        {
+            if (this.Items[i].Uuid == uuid)
+            {
+                yield return (i, this.Items[i]);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Lazily find all empty slots in the container.
+    /// </summary>
+    /// <remarks>
+    /// Supports mutating the container while iterating.
+    /// Slots behind the cursor will not be checked, while slots ahead of the cursor will be checked.
+    /// </remarks>
+    /// <returns>An enumerable of empty slots</returns>
+    public IEnumerable<ushort> FindAllEmptySlots()
+    {
+        for (ushort i = 0; i < this.Items.Length; i++)
+        {
+            if (this.Items[i].IsEmpty)
+            {
+                yield return i;
+            }
+        }
+    }
+
     public void SerializeCreate(ref BitWriter writer)
     {
         new CreateContainer

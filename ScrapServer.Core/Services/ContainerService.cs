@@ -319,43 +319,41 @@ public class ContainerService
                 return;
             }
 
-            // Attempt to fill existing stacks first
-            for (ushort slotTo = 0; slotTo < containerToCopyOnWrite.Items.Length; slotTo++)
+            var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
+            if (itemStackFrom.IsEmpty)
             {
-                var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
-                var itemStackTo = containerToCopyOnWrite.Items[slotTo];
+                return;
+            }
+
+            // Attempt to fill existing stacks first
+            foreach (var (slotTo, itemStackTo) in containerToCopyOnWrite.FindAllSlotsWithUuid(itemStackFrom.Uuid))
+            {
+                if (this.GetRemainingSpace(containerTo, slotTo, itemStackTo) <= 0)
+                {
+                    continue;
+                }
+
+                var (moved, _) = this.Move(
+                    containerFromCopyOnWrite,
+                    slotFrom,
+                    containerToCopyOnWrite,
+                    slotTo,
+                    itemStackFrom.Quantity,
+                    mustMoveAll: false
+                );
+                itemStackFrom = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
+                containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom;
 
                 if (itemStackFrom.IsEmpty)
                 {
                     break;
-                }
-
-                if (itemStackTo.Uuid == itemStackFrom.Uuid && this.GetRemainingSpace(containerTo, slotTo, itemStackTo) > 0)
-                {
-                    var (moved, _) = this.Move(
-                        containerFromCopyOnWrite,
-                        slotFrom,
-                        containerToCopyOnWrite,
-                        slotTo,
-                        itemStackFrom.Quantity,
-                        mustMoveAll: false
-                    );
-                    containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
                 }
             }
 
-            // Attempt to fill empty slots
-            for (ushort slotTo = 0; slotTo < containerToCopyOnWrite.Items.Length; slotTo++)
+            if (!itemStackFrom.IsEmpty)
             {
-                var itemStackFrom = containerFromCopyOnWrite.Items[slotFrom];
-                var itemStackTo = containerToCopyOnWrite.Items[slotTo];
-
-                if (itemStackFrom.IsEmpty)
-                {
-                    break;
-                }
-
-                if (itemStackTo.IsEmpty)
+                // Attempt to fill empty slots
+                foreach (var slotTo in containerToCopyOnWrite.FindAllEmptySlots())
                 {
                     var (moved, _) = this.Move(
                         containerFromCopyOnWrite,
@@ -365,7 +363,13 @@ public class ContainerService
                         itemStackFrom.Quantity,
                         mustMoveAll: false
                     );
-                    containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
+                    itemStackFrom = itemStackFrom with { Quantity = (ushort)(itemStackFrom.Quantity - moved) };
+                    containerFromCopyOnWrite.Items[slotFrom] = itemStackFrom;
+
+                    if (itemStackFrom.IsEmpty)
+                    {
+                        break;
+                    }
                 }
             }
 
