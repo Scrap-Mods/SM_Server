@@ -267,7 +267,13 @@ public ref struct BitReader
     {
         Span<byte> bytes = stackalloc byte[16];
         ReadBytes(bytes);
-        return new Guid(bytes, byteOrder == ByteOrder.BigEndian);
+
+        if (byteOrder == ByteOrder.LittleEndian)
+        {
+            bytes.Reverse();
+        }
+
+        return new Guid(bytes, bigEndian: true);
     }
 
     /// <summary>

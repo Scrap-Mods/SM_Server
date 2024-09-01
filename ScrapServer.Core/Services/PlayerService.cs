@@ -1,4 +1,4 @@
-﻿using ScrapServer.Networking;
+using ScrapServer.Networking;
 using ScrapServer.Networking.Data;
 using ScrapServer.Core.Utils;
 using ScrapServer.Utility.Serialization;
@@ -6,7 +6,7 @@ using Steamworks;
 using Steamworks.Data;
 using System.Text;
 using ScrapServer.Core.NetObjs;
-
+using static ScrapServer.Core.NetObjs.Container;
 
 namespace ScrapServer.Core;
 
@@ -16,11 +16,15 @@ public class Player
     public ulong SteamId;
     public string Username = "";
     public Character? Character { get; private set; }
+    public Container InventoryContainer { get; private set; }
+    public Container CarryContainer { get; private set; }
     public Connection? SteamConn { get; private set; }
 
-    public Player(Connection conn)
+    public Player(Connection conn, Container inventoryContainer, Container carryContainer)
     {
         SteamConn = conn;
+        InventoryContainer = inventoryContainer;
+        CarryContainer = carryContainer;
     }
 
     public void Kick()
@@ -75,7 +79,7 @@ public class Player
 
             Send(new ScrapServer.Networking.ServerInfo
             {
-                Version = 729,
+                Version = 723,
                 Gamemode = Gamemode.FlatTerrain,
                 Seed = 1023853875,
                 GameTick = SchedulerService.GameTick,
@@ -104,11 +108,11 @@ public class Player
             ];
 
 
-            foreach (var ply in PlayerService.GetPlayers())
+            foreach (var player in PlayerService.GetPlayers())
             {
-                if (ply.Character == null) continue;
+                if (player.Character == null) continue;
 
-                blobs.Add(ply.Character.BlobData(SchedulerService.GameTick));
+                blobs.Add(player.GetPlayerData(player.Character));
             }
 
             var genericInit = new GenericInitData { Data = blobs.ToArray(), GameTick = SchedulerService.GameTick };
@@ -134,20 +138,23 @@ public class Player
             character.Customization = info.Customization;
 
             // Send Initialization Network Update
-            List<byte> bytes = [];
-            foreach (var ply in PlayerService.GetPlayers())
+            var builder = new NetworkUpdate.Builder();
+            foreach (var player in PlayerService.GetPlayers())
             {
-                if (ply.Character == null) continue;
+                if (player.Character == null) continue;
 
-                bytes.AddRange(ply.Character.InitNetworkPacket(SchedulerService.GameTick));
+                builder.WriteCreate(player.Character);
+                builder.WriteUpdate(player.Character);
+                builder.WriteCreate(player.InventoryContainer);
+                builder.WriteCreate(player.CarryContainer);
             }
 
-            Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = bytes.ToArray() });
+            Send(new InitNetworkUpdate { GameTick = SchedulerService.GameTick, Updates = builder.Build().Updates });
             Send(new ScriptDataS2C { GameTick = SchedulerService.GameTick, Data = [] });
 
             foreach (var client in PlayerService.GetPlayers())
             {
-                character.SpawnPackets(client, SchedulerService.GameTick);
+                client.SendSpawnPackets(this, character, SchedulerService.GameTick);
             }
 
             Console.WriteLine("Sent ScriptInitData and NetworkInitUpdate for Client");
@@ -159,6 +166,126 @@ public class Player
             Console.WriteLine("Player: {0}, {1} Character: {2}", Id.ToString("D"), Id.ToString("D"), CharacterService.GetCharacter(this).Id);
             
             Character?.HandleMovement(packet);
+        }
+        else if (id == PacketId.ContainerTransaction)
+        {
+            var packet = reader.ReadPacket<ContainerTransaction>();
+            var containerService = ContainerService.Instance;
+
+            using var transaction = containerService.BeginTransaction();
+
+            foreach (var action in packet.Actions)
+            {
+                switch (action)
+                {
+                    case ContainerTransaction.SetItemAction setItemAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(setItemAction.To.ContainerId, out var containerTo) ||
+                                setItemAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.SetItem(containerTo, setItemAction.To.Slot, new ItemStack(
+                                setItemAction.To.Uuid,
+                                setItemAction.To.InstanceId,
+                                setItemAction.To.Quantity
+                            ));
+                        }
+                        break;
+
+                    case ContainerTransaction.SwapAction swapAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(swapAction.From.ContainerId, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(swapAction.To.ContainerId, out var containerTo) ||
+                                swapAction.From.Slot >= containerFrom.Items.Length ||
+                                swapAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.Swap(containerFrom, swapAction.From.Slot, containerTo, swapAction.To.Slot);
+                        }
+                        break;
+
+                    case ContainerTransaction.CollectAction collectAction:
+                        {
+                            if (!containerService.Containers.TryGetValue(collectAction.ContainerId, out var containerTo))
+                            {
+                                break;
+                            }
+                            transaction.Collect(
+                                containerTo,
+                                new ItemStack(collectAction.Uuid, collectAction.ToolInstanceId, collectAction.Quantity),
+                                collectAction.MustCollectAll
+                            );
+                        }
+                        break;
+
+                    case ContainerTransaction.SpendAction spendAction:
+                    case ContainerTransaction.CollectToSlotAction collectToSlotAction:
+                    case ContainerTransaction.CollectToSlotOrCollectAction collectToSlotOrCollectAction:
+                    case ContainerTransaction.SpendFromSlotAction spendFromSlotAction:
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+
+                    case ContainerTransaction.MoveAction moveAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(moveAction.From.ContainerId, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveAction.To.ContainerId, out var containerTo) ||
+                                moveAction.From.Slot >= containerFrom.Items.Length ||
+                                moveAction.To.Slot >= containerTo.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.Move(containerFrom, moveAction.From.Slot, containerTo, moveAction.To.Slot, moveAction.From.Quantity, moveAction.MustCollectAll);
+                        }
+                        break;
+
+                    case ContainerTransaction.MoveFromSlotAction moveFromSlotAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(moveFromSlotAction.ContainerFrom, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveFromSlotAction.ContainerTo, out var containerTo) ||
+                                moveFromSlotAction.SlotFrom >= containerFrom.Items.Length)
+                            {
+                                break;
+                            }
+                            transaction.MoveFromSlot(containerFrom, moveFromSlotAction.SlotFrom, containerTo);
+                        }
+                        break;
+
+                    case ContainerTransaction.MoveAllAction moveAllAction:
+                        {
+                            if (
+                                !containerService.Containers.TryGetValue(moveAllAction.ContainerFrom, out var containerFrom) ||
+                                !containerService.Containers.TryGetValue(moveAllAction.ContainerTo, out var containerTo))
+                            {
+                                break;
+                            }
+                            transaction.MoveAll(containerFrom, containerTo);
+                        }
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"Container transaction action {action} not implemented");
+                }
+            }
+
+            var networkUpdate = new NetworkUpdate.Builder()
+                .WithGameTick(SchedulerService.GameTick);
+
+            foreach (var (container, update) in transaction.EndTransaction())
+            {
+                Console.WriteLine("Sending container update for container {0}", container.Id);
+                networkUpdate.Write(container, NetworkUpdateType.Update, (ref BitWriter writer) => update.Serialize(ref writer));
+            }
+
+            var updatePacket = networkUpdate.Build();
+            foreach (var player in PlayerService.GetPlayers())
+            {
+                player.Send(updatePacket);
+            }
         }
         else if (id == PacketId.Broadcast)
         {
@@ -172,6 +299,44 @@ public class Player
                 }
             }
         }
+    }
+
+    public BlobData GetPlayerData(Character character)
+    {
+        var playerData = new PlayerData
+        {
+            CharacterID = (int)character.Id,
+            SteamID = this.SteamId,
+            InventoryContainerID = this.InventoryContainer.Id,
+            CarryContainer = this.CarryContainer.Id,
+            CarryColor = uint.MaxValue,
+            PlayerID = (byte)(this.Id - 1),
+            Name = this.Username,
+            CharacterCustomization = character.Customization,
+        };
+
+        return new BlobData
+        {
+            Uid = Guid.Parse("51868883-d2d2-4953-9135-1ab0bdc2a47e"),
+            Key = BitConverter.GetBytes((uint)this.Id),
+            WorldID = 65534,
+            Flags = 13,
+            Data = playerData.ToBytes()
+        };
+    }
+    public void SendSpawnPackets(Player player, Character character, uint tick)
+    {
+        // Packet 13 - Generic Init Data
+        this.Send(new GenericInitData { Data = [player.GetPlayerData(character)], GameTick = tick });
+
+        // Packet 22 - Network Update
+        this.Send(
+            new NetworkUpdate.Builder()
+                .WithGameTick(tick + 1)
+                .WriteCreate(character)
+                .WriteUpdate(character)
+                .Build()
+        );
     }
 
     public Character CreateCharacter()
@@ -258,7 +423,26 @@ public static class PlayerService
         // ...
 
         // If it still cannot be found, we make a new one
-        var player = new Player(conn);
+        var inventoryContainer = ContainerService.Instance.CreateContainer(30);
+        Console.WriteLine("Created inventory container with ID {0}", inventoryContainer.Id);
+        using (var transaction = ContainerService.Instance.BeginTransaction())
+        {
+            for (int i = 0; i < 30; i++)
+            {
+                transaction.CollectToSlot(
+                    inventoryContainer,
+                    new ItemStack(Guid.Parse(i % 2 == 0 ? "df953d9c-234f-4ac2-af5e-f0490b223e71" : "a6c6ce30-dd47-4587-b475-085d55c6a3b4"), ItemStack.NoInstanceId, (ushort)(i + 1)),
+                    (ushort)i
+                );
+            }
+            Console.WriteLine("Collected items into inventory container");
+            transaction.EndTransaction();
+        }
+
+        var carryContainer = ContainerService.Instance.CreateContainer(1);
+        Console.WriteLine("Created carry container with ID {0}", carryContainer.Id);
+        var player = new Player(conn, inventoryContainer, carryContainer);
+        Console.WriteLine("Created player with ID {0}", player.Id);
 
         player.Id = NextPlayerID;
         player.SteamId = identity.SteamId.Value;

@@ -131,26 +131,21 @@ public struct NetObjUnreliable : IBitSerializable
     }
 }
 
-
-public struct RemoveNetObj : IBitSerializable
+public struct CreateNetObj : IBitSerializable
 {
-    public NetObj Header;
-    public uint NetObjId;
+    public ControllerType ControllerType;
+    public UInt32 NetObjId;
 
     public void Deserialize(ref BitReader reader)
     {
-        Header.Deserialize(ref reader);
+        ControllerType = (ControllerType)reader.ReadByte();
         NetObjId = reader.ReadUInt32();
     }
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.GoToNearestByte();
-        var pos = writer.ByteIndex;
-
-        Header.Serialize(ref writer);
+        writer.WriteByte((byte)ControllerType);
         writer.WriteUInt32(NetObjId);
-
-        NetObj.WriteSize(ref writer, pos);
     }
 }
+

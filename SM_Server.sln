@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScrapServer.Utility", "Scra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScrapServer.Vanilla", "ScrapServer.Vanilla\ScrapServer.Vanilla.csproj", "{420F4578-DED4-473D-8524-47B59A1D312E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScrapServer.Core", "ScrapServer.Core\ScrapServer.Core.csproj", "{C8C723D4-F703-4E3A-80FB-9423F38C9BD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScrapServer.Core", "ScrapServer.Core\ScrapServer.Core.csproj", "{C8C723D4-F703-4E3A-80FB-9423F38C9BD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScrapServer.CoreTests", "ScrapServer.CoreTests\ScrapServer.CoreTests.csproj", "{3FA34FDC-926F-445B-B315-64A2872436CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{C8C723D4-F703-4E3A-80FB-9423F38C9BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8C723D4-F703-4E3A-80FB-9423F38C9BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8C723D4-F703-4E3A-80FB-9423F38C9BD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FA34FDC-926F-445B-B315-64A2872436CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FA34FDC-926F-445B-B315-64A2872436CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FA34FDC-926F-445B-B315-64A2872436CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FA34FDC-926F-445B-B315-64A2872436CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

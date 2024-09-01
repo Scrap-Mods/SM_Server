@@ -6,7 +6,6 @@ using OpenTK.Mathematics;
 namespace ScrapServer.Networking.Data;
 public class CreateCharacter
 {
-    public UInt32 NetObjId;
     public SteamId SteamId;
     public Vector3 Position;
     public UInt16 WorldId;
@@ -16,7 +15,6 @@ public class CreateCharacter
 
     public void Deserialize(ref BitReader reader)
     {
-        NetObjId = reader.ReadUInt32();
         SteamId = reader.ReadUInt64();
         Position = reader.ReadVector3ZYX();
         WorldId = reader.ReadUInt16();
@@ -27,7 +25,6 @@ public class CreateCharacter
 
     public void Serialize(ref BitWriter writer)
     {
-        writer.WriteUInt32(NetObjId);
         writer.WriteUInt64(SteamId.Value);
         writer.WriteVector3ZYX(Position);
         writer.WriteUInt16(WorldId);
