@@ -209,6 +209,19 @@ public class Player
                         break;
 
                     case ContainerTransaction.CollectAction collectAction:
+                        {
+                            if (!containerService.Containers.TryGetValue(collectAction.ContainerId, out var containerTo))
+                            {
+                                break;
+                            }
+                            transaction.Collect(
+                                containerTo,
+                                new ItemStack(collectAction.Uuid, collectAction.ToolInstanceId, collectAction.Quantity),
+                                collectAction.MustCollectAll
+                            );
+                        }
+                        break;
+
                     case ContainerTransaction.SpendAction spendAction:
                     case ContainerTransaction.CollectToSlotAction collectToSlotAction:
                     case ContainerTransaction.CollectToSlotOrCollectAction collectToSlotOrCollectAction:

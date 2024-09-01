@@ -35,9 +35,28 @@ public class ContainerService
     {
         private readonly Dictionary<uint, Container> modified = [];
 
+        /// <summary>
+        /// If <paramref name="container"/> has already been modified in this transaction,
+        /// returns the modified container.
+        /// Otherwise, returns a clone of <paramref name="container"/>.
+        /// </summary>
+        /// <param name="container">The container</param>
+        /// <returns>The modified container or a clone of <paramref name="container"/></returns>
         private Container GetOrCloneContainer(Container container)
         {
             return modified.TryGetValue(container.Id, out Container? found) ? found : container.Clone();
+        }
+
+        /// <summary>
+        /// If <paramref name="container"/> has already been modified in this transaction,
+        /// returns a clone of the modified container.
+        /// Otherwise, returns a clone of <paramref name="container"/>.
+        /// </summary>
+        /// <param name="container">The container</param>
+        /// <returns>The cloned container</returns>
+        private Container GetAndCloneContainer(Container container)
+        {
+            return modified.TryGetValue(container.Id, out Container? found) ? found.Clone() : container.Clone();
         }
 
         /// <summary>
@@ -89,6 +108,80 @@ public class ContainerService
             containerCopyOnWrite.Items[slot] = itemStack;
 
             modified[container.Id] = containerCopyOnWrite;
+        }
+
+        /// <summary>
+        /// Collects items into any slot of a container. Fills existing stacks first, then empty slots.
+        /// </summary>
+        /// <param name="container">The container to collect the items into</param>
+        /// <param name="itemStack">The item stack, including quantity, to collect</param>
+        /// <param name="mustCollectAll">
+        ///     If <see langword="true" />, only collect items if they all fit in the container.
+        ///     If <see langword="false" />, collect as many items as possible.
+        /// </param>
+        /// <returns>The number of items collected</returns>
+        public ushort Collect(Container container, ItemStack itemStack, bool mustCollectAll = true)
+        {
+            var containerCopyOnWrite = this.GetOrCloneContainer(container);
+
+            if (itemStack.IsEmpty)
+            {
+                return 0;
+            }
+
+            if (mustCollectAll && this.modified.ContainsKey(container.Id))
+            {
+                // We need to clone to be able to abort if we already collected into one slot,
+                // and then discover that the remaining quantity does not fit into the remaining slots.
+                containerCopyOnWrite = containerCopyOnWrite.Clone();
+            }
+
+            var startQuantity = itemStack.Quantity;
+
+            foreach (var (slot, _) in containerCopyOnWrite.FindAllSlotsWithUuid(itemStack.Uuid))
+            {
+                var (collected, _) = this.CollectToSlot(
+                    containerCopyOnWrite,
+                    itemStack,
+                    slot,
+                    mustCollectAll: false
+                );
+                itemStack = itemStack with { Quantity = (ushort)(itemStack.Quantity - collected) };
+
+                if (itemStack.IsEmpty)
+                {
+                    break;
+                }
+            }
+
+            if (!itemStack.IsEmpty)
+            {
+                foreach (var slot in containerCopyOnWrite.FindAllEmptySlots())
+                {
+                    var (collected, _) = this.CollectToSlot(
+                        containerCopyOnWrite,
+                        itemStack,
+                        slot,
+                        mustCollectAll: false
+                    );
+                    itemStack = itemStack with { Quantity = (ushort)(itemStack.Quantity - collected) };
+
+                    if (itemStack.IsEmpty)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (mustCollectAll && !itemStack.IsEmpty)
+            {
+                // The calls to <see cref="CollectToSlot"/> above may have modified the container.
+                // To abort, we need to restore the original state.
+                modified[container.Id] = containerCopyOnWrite;
+                return 0;
+            }
+
+            return (ushort)(startQuantity - itemStack.Quantity);
         }
 
         /// <summary>

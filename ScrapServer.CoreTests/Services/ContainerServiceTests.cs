@@ -820,4 +820,110 @@ public class ContainerServiceTests
             ItemStack.Empty
         }));
     }
+
+    [Test]
+    public void Collect_EmptyStack_ReturnsZero()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 1);
+        using var transaction = service.BeginTransaction();
+
+        // Act
+        var collected = transaction.Collect(container, WoodBlock with { Quantity = 0 });
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(collected, Is.EqualTo(0));
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { ItemStack.Empty }));
+    }
+
+    [Test]
+    public void Collect_MustCollectAllFalse_FillsUpContainer()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 1, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+
+        // Act
+        var collected = transaction.Collect(container, WoodBlock with { Quantity = 100 }, mustCollectAll: false);
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(collected, Is.EqualTo(10));
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] { WoodBlock with { Quantity = 10 } }));
+    }
+
+    [Test]
+    public void Collect_NormalUsage_AddsToExistingStack()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 4, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock with { Quantity = 5 }, slot: 1);
+        transaction.CollectToSlot(container, WoodBlock with { Quantity = 1 }, slot: 2);
+
+        // Act
+        var collected = transaction.Collect(container, WoodBlock with { Quantity = 6 });
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(collected, Is.EqualTo(6));
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] {
+            ItemStack.Empty,
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 2 },
+            ItemStack.Empty
+        }));
+    }
+
+    [Test]
+    public void Collect_NormalUsage_OverflowsToEmptySlots()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 5, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock with { Quantity = 9 }, slot: 2);
+        transaction.CollectToSlot(container, WoodBlock with { Quantity = 9 }, slot: 3);
+
+        // Act
+        var collected = transaction.Collect(container, WoodBlock with { Quantity = 13 });
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(collected, Is.EqualTo(13));
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[] {
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 1 },
+            WoodBlock with { Quantity = 10 },
+            WoodBlock with { Quantity = 10 },
+            ItemStack.Empty
+        }));
+    }
+
+    [Test]
+    public void Collect_MoreThanFits_AddsNothing()
+    {
+        // Arrange
+        var service = this.CreateService();
+        var container = service.CreateContainer(size: 3, maximumStackSize: 10);
+        using var transaction = service.BeginTransaction();
+        transaction.CollectToSlot(container, WoodBlock with { Quantity = 9 }, slot: 1);
+
+        // Act
+        var collected = transaction.Collect(container, WoodBlock with { Quantity = 22 });
+        transaction.EndTransaction();
+
+        // Assert
+        Assert.That(collected, Is.EqualTo(0));
+        Assert.That(container.Items, Is.EqualTo(new ItemStack[]
+        {
+            ItemStack.Empty,
+            WoodBlock with { Quantity = 9 },
+            ItemStack.Empty
+        }));
+    }
 }
